@@ -30,7 +30,7 @@
 
 | フォルダ | 役割 | おもなファイル |
 |---|---|---|
-| `app/` | 入口と全体の状態 | `MainActivity`(起動・他アプリへの受け渡し)、`FmViewModel`(画面の状態と操作。節ごとにまとめてある)、`AppModels`(`Screen` `Place` `Clip` などの型)、`Screens`(画面の組み立て)、`Nav`(戻る・上への判断)、`Theme`(色)、`Incoming`(共有で受け取るもの)、`CrashLog`(異常終了の記録) |
+| `app/` | 入口と全体の状態 | `MainActivity`(起動・他アプリへの受け渡し)、`FmViewModel`(画面の状態と操作。節ごとにまとめてある)、`AppModels`(`Screen` `Place` `Clip` などの型)、`Screens`(画面の組み立て)、`Nav`(戻る・上への判断)、`Theme`(色)、`Incoming`(共有で受け取るもの)、`CrashLog`(異常終了の記録)、`Report`(不具合・要望の報告の URL を作る。画面は `browser/ReportUi`) |
 | `browser/` | 一覧とその周りの画面 | `ListUi` `Home` `HomeLayout` `Drawer` `Dialogs` `FileIcon` `SettingsUi` `AboutUi`(ライセンス) `AnalyzeUi` `ProgressUi` |
 | `storage/` | 場所(端末・NAS)の読み書き | `Fs`(抽象と端末内)、`SmbFs`(NAS。smbj)、`Remotes`(接続先の保存。暗号化)、`Trash`、`FileOps`(端末内の操作・拡張子の分類)、`Media`(MediaStore の分類)、`Analyzer`(容量の分析)、`ReadAhead` `WriteBehind` `ResumeStreams`(NAS を速く・切れにくくする)、`ReadProgress` |
 | `transfer/` | コピー・移動・圧縮の実行 | `Transfer`(Fs 間の操作)、`Progress`、`Ops`(実行中の操作の状態。アプリ全体で 1 つ)、`TransferService`(アプリを閉じても続けるサービス)、`Conflict`(同名の扱い) |
@@ -42,6 +42,7 @@
 | `web/` | HTML・電子書籍 | `HtmlUi` `HtmlRules`(外部通信を止める規則)、`Mhtml` `MhtmlUi`、`Epub` `EpubUi`、`Comic` `ComicUi` |
 | `apple/` | iPhone 系 | `Plist`、`Pkpass` `PkpassUi`、`Iwork`(.pages/.numbers/.key)、`AppleUi`(.ipa も) |
 | `data/` | データベース・フォント | `SqliteUi` `SqlFormat`、`FontInfo` `FontUi` |
+| `update/` | アプリの更新(GitHub のリリース) | `UpdateLogic`(応答の読み取り・バージョンの比べ方。Android に依存しない)、`UpdateNet`(確認とダウンロード)、`UpdateManager`(状態・検証・インストールの画面への受け渡し)、`UpdateUi`(窓と設定) |
 
 ## 4. 流れ
 

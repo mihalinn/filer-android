@@ -5,6 +5,8 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.os.Build
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -107,72 +109,80 @@ internal fun BundlePane(fs: Fs, item: FileItem, onInstall: () -> Unit, onList: (
 private fun BundleDetail(v: BundleView, item: FileItem, onInstall: () -> Unit, onList: () -> Unit) {
     val m = v.meta
     val p = v.plan
-    val cmp = if (m.versionCode != null && v.installed != null) ApkFormat.compare(m.versionCode, v.installed.versionCode) else null
-    val (status, statusColor) = when {
-        v.installed == null -> (if (m.packageName == null) "いま入っているかは分かりません" else "まだインストールされていません(新しくインストールします)") to Pv.neutral
-        cmp == ApkFormat.Compare.NEWER -> "更新できます(いまの版: ${v.installed.versionName})" to Pv.ok
-        cmp == ApkFormat.Compare.SAME -> "同じ版が入っています(${v.installed.versionName})" to Pv.caution
-        cmp == ApkFormat.Compare.OLDER -> "新しい版がインストールされています(${v.installed.versionName})。古い版にするには、先にアンインストールが必要です" to Pv.bad
-        else -> "すでに入っています(${v.installed.versionName})" to Pv.caution
+    val inst = v.installed
+    val cmp = if (m.versionCode != null && inst != null) ApkFormat.compare(m.versionCode, inst.versionCode) else null
+    val instText = inst?.let { "${it.versionName}(${it.versionCode})" }
+    val thisText = m.versionName?.let { it + (m.versionCode?.let { c -> "($c)" } ?: "") }
+    val title: String
+    val detail: String?
+    val statusColor: Color
+    when {
+        inst == null -> {
+            title = if (m.packageName == null) "いま入っているかは分かりません" else "新しくインストールします"
+            detail = null; statusColor = Pv.neutral
+        }
+        cmp == ApkFormat.Compare.NEWER -> {
+            title = "更新できます"
+            detail = "いまのバージョン $instText" + (thisText?.let { " → このバージョン $it" } ?: "")
+            statusColor = Pv.ok
+        }
+        cmp == ApkFormat.Compare.SAME -> { title = "同じバージョンが入っています"; detail = "バージョン $instText"; statusColor = Pv.caution }
+        cmp == ApkFormat.Compare.OLDER -> {
+            title = "新しいバージョンが入っています"
+            detail = "いまのバージョン $instText。古いバージョンにするには、先にアンインストールが必要です"
+            statusColor = Pv.bad
+        }
+        else -> { title = "すでに入っています"; detail = "バージョン $instText"; statusColor = Pv.caution }
     }
     Box(Modifier.fillMaxSize()) {
         LazyColumn(
             Modifier.fillMaxSize().belowBars(),
-            contentPadding = androidx.compose.foundation.layout.PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 150.dp),
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 150.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
+            item { AppHeader(v.icon, m.name ?: item.name, m.versionName?.let { "バージョン $it" }, m.packageName) }
+            item { StatusBox(title, detail, statusColor) }
             item {
-                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 12.dp)) {
-                    if (v.icon != null) Image(v.icon.asImageBitmap(), null, Modifier.size(72.dp).clip(RoundedCornerShape(14.dp)))
-                    Column(Modifier.padding(start = if (v.icon != null) 14.dp else 0.dp)) {
-                        Text(m.name ?: item.name, color = Pv.text, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                        if (m.packageName != null) Text(m.packageName, color = rowDim, fontSize = 12.sp, fontFamily = FontFamily.Monospace)
+                ApkCard("情報") {
+                    CardRow("形式", "${m.format}(本体と部品をまとめたAPK)")
+                    if (m.versionName != null) CardRow("バージョン", m.versionName + (m.versionCode?.let { "($it)" } ?: ""))
+                    if (m.minSdk != null) CardRow("対応する Android", "${ApkFormat.sdkText(m.minSdk)} 以上")
+                    CardRow("ファイル", "${FileOps.formatSize(item.size)}・${FileOps.formatDate(item.modified)}")
+                }
+            }
+            item {
+                ApkCard("入れるもの") {
+                    if (p.base == null) {
+                        Text("本体のAPKが見つかりません。このファイルはインストールできません", color = Pv.bad, fontSize = 13.sp, modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp))
+                    } else {
+                        CardRow("本体", "1 本(${FileOps.formatSize(p.base.entry.size)})")
+                        val parts = listOfNotNull(
+                            p.count(SplitKind.DPI).takeIf { it > 0 }?.let { "画面用 $it 本" },
+                            p.count(SplitKind.LANG).takeIf { it > 0 }?.let { "言語用 $it 本" },
+                            p.count(SplitKind.OTHER).takeIf { it > 0 }?.let { "そのほか $it 本" },
+                        )
+                        if (parts.isNotEmpty()) CardRow("部品", parts.joinToString("・"))
+                        CardRow("CPU用", p.abi?.let { "$it(この端末に合うもの)" } ?: if (p.abiMismatch) "この端末に合う部品がありません" else "なし(CPU共通)")
+                        CardRow("合計", "${p.chosen.size} 本・${FileOps.formatSize(p.totalBytes)}")
                     }
-                }
-                InfoRow("形式", "${m.format}(本体と部品をまとめたAPK)")
-                if (m.versionName != null) InfoRow("バージョン", m.versionName + (m.versionCode?.let { "($it)" } ?: ""))
-                if (m.minSdk != null) InfoRow("対応する Android", "${ApkFormat.sdkText(m.minSdk)} 以上")
-                InfoRow("ファイル", "${FileOps.formatSize(item.size)}・${FileOps.formatDate(item.modified)}")
-                InfoRow("いまの状態", status, statusColor)
-            }
-            item {
-                Text(
-                    "入れるもの", color = Pv.text, fontSize = 15.sp, fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(top = 16.dp, bottom = 4.dp),
-                )
-                if (p.base == null) {
-                    Text("本体のAPKが見つかりません。このファイルはインストールできません", color = Pv.bad, fontSize = 13.sp)
-                } else {
-                    InfoRow("本体", "1 本(${FileOps.formatSize(p.base.entry.size)})")
-                    val parts = listOfNotNull(
-                        p.count(SplitKind.DPI).takeIf { it > 0 }?.let { "画面用 $it 本" },
-                        p.count(SplitKind.LANG).takeIf { it > 0 }?.let { "言語用 $it 本" },
-                        p.count(SplitKind.OTHER).takeIf { it > 0 }?.let { "そのほか $it 本" },
-                    )
-                    if (parts.isNotEmpty()) InfoRow("部品", parts.joinToString("・"))
-                    InfoRow("CPU用", p.abi?.let { "$it(この端末に合うもの)" } ?: if (p.abiMismatch) "この端末に合う部品がありません" else "なし(CPU共通)")
-                    InfoRow("合計", "${p.chosen.size} 本・${FileOps.formatSize(p.totalBytes)}")
-                }
-                if (p.skipped.isNotEmpty()) {
-                    val names = p.skipped.map { ApkBundle.abiDisplay(it.tag) }.distinct().joinToString("、")
-                    InfoRow("入れないもの", "$names(この端末には要らない・${p.skipped.size} 本・${FileOps.formatSize(v.skippedBytes)})", rowDim)
-                }
-                if (p.abiMismatch) {
-                    Text("この端末(${v.abis.joinToString("・")})に合う部品がないため、インストールしても動きません", color = Pv.bad, fontSize = 13.sp, modifier = Modifier.padding(top = 8.dp))
-                }
-                if (m.hasObb) {
-                    Text(
-                        "追加データ(OBB)はインストールされません。必要なら、「中身の一覧を見る」から取り出してください",
-                        color = Pv.caution, fontSize = 13.sp, modifier = Modifier.padding(top = 8.dp),
-                    )
+                    if (p.skipped.isNotEmpty()) {
+                        val names = p.skipped.map { ApkBundle.abiDisplay(it.tag) }.distinct().joinToString("、")
+                        CardRow("入れないもの", "$names(この端末には要らない・${p.skipped.size} 本・${FileOps.formatSize(v.skippedBytes)})", rowDim)
+                    }
+                    Spacer(Modifier.height(6.dp))
                 }
             }
+            if (p.abiMismatch) {
+                item { StatusBox("インストールしても動きません", "この端末(${v.abis.joinToString("・")})に合う部品がありません", Pv.bad) }
+            }
+            if (m.hasObb) {
+                item { StatusBox("追加データ(OBB)は入りません", "必要なら、「中身の一覧を見る」から取り出してください", Pv.caution) }
+            }
         }
-        Column(Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Button(
-                onClick = onInstall, enabled = p.base != null && !p.abiMismatch,
-                modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp),
-            ) { Text(if (cmp == ApkFormat.Compare.NEWER) "更新する" else "インストール") }
-            TextButton(onClick = onList) { Text("中身の一覧を見る") }
-        }
+        InstallBar(
+            if (cmp == ApkFormat.Compare.NEWER) "更新する" else "インストール",
+            p.base != null && !p.abiMismatch, onInstall, Modifier.align(Alignment.BottomCenter),
+            secondary = "中身の一覧を見る" to onList,
+        )
     }
 }

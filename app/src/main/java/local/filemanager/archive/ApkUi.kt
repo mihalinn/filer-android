@@ -6,6 +6,16 @@ import android.content.pm.PermissionInfo
 import android.graphics.Bitmap
 import android.os.Build
 import androidx.compose.foundation.Image
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.border
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,6 +33,7 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -169,80 +180,140 @@ private fun ApkDetailView(d: ApkDetail, item: FileItem, onInstall: () -> Unit) {
     val inst = d.installed
     val cmp = inst?.let { ApkFormat.compare(d.versionCode, it.versionCode) }
     val same = inst?.let { ApkFormat.sameSigner(d.signers, it.signers) }
-    val (status, statusColor) = when {
-        inst == null -> "まだインストールされていません(新しくインストールします)" to Pv.neutral
-        cmp == ApkFormat.Compare.NEWER -> "更新できます(いまの版: ${inst.versionName})" to Pv.ok
-        cmp == ApkFormat.Compare.SAME -> "同じ版が入っています(${inst.versionName})" to Pv.caution
-        else -> "新しい版がインストールされています(${inst.versionName})。古い版にするには、先にアンインストールが必要です" to Pv.bad
+    // 状態: 見出しと補足、色
+    val title: String
+    val detail: String?
+    val statusColor: Color
+    when {
+        inst == null -> { title = "新しくインストールします"; detail = null; statusColor = Pv.neutral }
+        cmp == ApkFormat.Compare.NEWER -> {
+            title = "更新できます"; detail = "いまのバージョン ${inst.versionName}(${inst.versionCode}) → このバージョン ${d.versionName}(${d.versionCode})"; statusColor = Pv.ok
+        }
+        cmp == ApkFormat.Compare.SAME -> { title = "同じバージョンが入っています"; detail = "バージョン ${inst.versionName}(${inst.versionCode})"; statusColor = Pv.caution }
+        else -> {
+            title = "新しいバージョンが入っています"
+            detail = "いまのバージョン ${inst.versionName}(${inst.versionCode})。古いバージョンにするには、先にアンインストールが必要です"
+            statusColor = Pv.bad
+        }
     }
+    val signNote = if (inst != null && same == false) "署名がいま入っているものと違うため、上書きできません。先にアンインストールが必要です" else null
+    val danger = d.perms.filter { it.dangerous }
+    val other = d.perms.filter { !it.dangerous }
+    var showOther by remember { mutableStateOf(other.size <= 5) }
     Box(Modifier.fillMaxSize()) {
         LazyColumn(
             Modifier.fillMaxSize().belowBars(),
-            contentPadding = androidx.compose.foundation.layout.PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp),
+            contentPadding = PaddingValues(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 96.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
+            item { AppHeader(d.icon, d.label, "バージョン ${d.versionName}", d.pkg) }
+            item { StatusBox(title, detail, statusColor, signNote) }
             item {
-                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 12.dp)) {
-                    if (d.icon != null) Image(d.icon.asImageBitmap(), null, Modifier.size(72.dp))
-                    Column(Modifier.padding(start = 14.dp)) {
-                        Text(d.label, color = Pv.text, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                        Text(d.pkg, color = rowDim, fontSize = 12.sp, fontFamily = FontFamily.Monospace)
+                ApkCard("情報") {
+                    CardRow("バージョン", "${d.versionName}(${d.versionCode})")
+                    CardRow("対応する Android", "${ApkFormat.sdkText(d.minSdk)} 以上")
+                    CardRow("対象の Android", ApkFormat.sdkText(d.targetSdk) + if (d.compileSdk > 0) "・コンパイル API ${d.compileSdk}" else "")
+                    CardRow("ファイル", "${FileOps.formatSize(item.size)}・${FileOps.formatDate(item.modified)}")
+                    if (inst != null && same != null) {
+                        CardRow("署名", if (same) "いま入っているものと同じ" else "いま入っているものと違う", if (same) Pv.ok else Pv.bad)
                     }
                 }
-                InfoRow("バージョン", "${d.versionName}(${d.versionCode})")
-                InfoRow("対応する Android", "${ApkFormat.sdkText(d.minSdk)} 以上")
-                InfoRow("対象の Android",ApkFormat.sdkText(d.targetSdk) + if (d.compileSdk > 0) "・コンパイル API ${d.compileSdk}" else "")
-                InfoRow("ファイル", "${FileOps.formatSize(item.size)}・${FileOps.formatDate(item.modified)}")
-                InfoRow("いまの状態", status, statusColor)
-                if (inst != null && same != null) {
-                    InfoRow(
-                        "署名", if (same) "いま入っているものと同じです(上書きできます)" else "いま入っているものと違います(上書きできません)",
-                        if (same) Pv.ok else Pv.bad,
-                    )
+            }
+            item {
+                ApkCard("必要な権限(${d.perms.size})") {
+                    if (d.perms.isEmpty()) Text("なし", color = rowDim, fontSize = 13.sp, modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp))
+                    if (danger.isNotEmpty()) {
+                        Text("特に注意する権限", color = Pv.danger, fontSize = 12.sp, modifier = Modifier.padding(start = 12.dp, top = 4.dp))
+                        for (p in danger) PermLine(p, Pv.danger)
+                    }
+                    if (other.isNotEmpty()) {
+                        Text(
+                            "そのほかの権限(${other.size})  " + if (showOther) "▲" else "▼", color = rowDim, fontSize = 12.sp,
+                            modifier = Modifier.fillMaxWidth().clickable { showOther = !showOther }.padding(start = 12.dp, end = 12.dp, top = 10.dp, bottom = 6.dp),
+                        )
+                        if (showOther) for (p in other) PermLine(p, rowText)
+                    }
+                    Spacer(Modifier.height(6.dp))
                 }
             }
-            val danger = d.perms.filter { it.dangerous }
-            val other = d.perms.filter { !it.dangerous }
             item {
-                Text(
-                    "必要な権限(${d.perms.size})", color = Pv.text, fontSize = 15.sp, fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(top = 16.dp, bottom = 4.dp),
-                )
-                if (d.perms.isEmpty()) Text("なし", color = rowDim, fontSize = 13.sp)
-            }
-            if (danger.isNotEmpty()) {
-                item { Text("特に注意する権限", color = Pv.danger, fontSize = 12.sp, modifier = Modifier.padding(top = 6.dp)) }
-                items(danger) { PermLine(it, Pv.danger) }
-            }
-            if (other.isNotEmpty()) {
-                item { Text("そのほか", color = rowDim, fontSize = 12.sp, modifier = Modifier.padding(top = 10.dp)) }
-                items(other) { PermLine(it, rowText) }
-            }
-            item {
-                Text(
-                    "署名(SHA-256)", color = Pv.text, fontSize = 15.sp, fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(top = 18.dp, bottom = 4.dp),
-                )
-                if (d.signers.isEmpty()) Text("署名を読めませんでした(署名されていないAPKかもしれません)", color = rowDim, fontSize = 13.sp)
-                SelectionContainer {
-                    Column {
-                        for (s in d.signers) Text(s, color = rowText, fontSize = 11.sp, fontFamily = FontFamily.Monospace, modifier = Modifier.padding(bottom = 6.dp))
+                ApkCard("署名(SHA-256)") {
+                    if (d.signers.isEmpty()) Text("署名を読めませんでした(署名されていないAPKかもしれません)", color = rowDim, fontSize = 13.sp, modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp))
+                    SelectionContainer {
+                        Column(Modifier.padding(horizontal = 12.dp)) {
+                            for (s in d.signers) Text(s, color = rowText, fontSize = 11.sp, fontFamily = FontFamily.Monospace, modifier = Modifier.padding(bottom = 6.dp))
+                        }
                     }
                 }
             }
         }
-        Button(
-            onClick = onInstall,
-            modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(16.dp).fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
-        ) {
-            Text(if (cmp == ApkFormat.Compare.NEWER) "更新する" else "インストール")
+        InstallBar(
+            when (cmp) {
+                ApkFormat.Compare.NEWER -> "更新する"
+                ApkFormat.Compare.SAME -> "再インストール"
+                else -> "インストール"
+            },
+            true, onInstall, Modifier.align(Alignment.BottomCenter),
+        )
+    }
+}
+
+/** アイコン・名前・バージョン・パッケージ名の見出し。APK とまとめ入り APK で共通。 */
+@Composable
+internal fun AppHeader(icon: Bitmap?, name: String, versionLine: String?, pkg: String?) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp)) {
+        if (icon != null) Image(icon.asImageBitmap(), null, Modifier.size(64.dp).clip(RoundedCornerShape(14.dp)))
+        Column(Modifier.padding(start = if (icon != null) 14.dp else 0.dp)) {
+            Text(name, color = Pv.text, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            if (versionLine != null) Text(versionLine, color = rowText, fontSize = 13.sp)
+            if (pkg != null) Text(pkg, color = rowDim, fontSize = 11.sp, fontFamily = FontFamily.Monospace)
         }
     }
 }
 
+/** いまの状態を色つきの枠で見せる。title は短い見出し、detail と note は補足(note は注意の赤)。 */
+@Composable
+internal fun StatusBox(title: String, detail: String?, color: Color, note: String? = null) {
+    val shape = RoundedCornerShape(10.dp)
+    Column(
+        Modifier.fillMaxWidth().clip(shape).background(color.copy(alpha = 0.14f)).border(1.dp, color.copy(alpha = 0.45f), shape)
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+    ) {
+        Text(title, color = color, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+        if (detail != null) Text(detail, color = rowText, fontSize = 13.sp, modifier = Modifier.padding(top = 2.dp))
+        if (note != null) Text(note, color = Pv.bad, fontSize = 13.sp, modifier = Modifier.padding(top = 4.dp))
+    }
+}
+
+/** 画面の下に固定するインストールのバー。secondary があれば、下に文字のボタンを 1 つ足す。 */
+@Composable
+internal fun InstallBar(label: String, enabled: Boolean, onInstall: () -> Unit, modifier: Modifier = Modifier, secondary: Pair<String, () -> Unit>? = null) {
+    Column(modifier.fillMaxWidth().background(Pv.bg), horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(Modifier.fillMaxWidth().height(1.dp).background(Pv.dim.copy(alpha = 0.25f)))
+        Column(Modifier.navigationBarsPadding().padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            Button(onClick = onInstall, enabled = enabled, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(10.dp)) { Text(label) }
+            if (secondary != null) TextButton(onClick = secondary.second) { Text(secondary.first) }
+        }
+    }
+}
+
+/** 見出しつきの囲み。中に行を並べる。 */
+@Composable
+internal fun ApkCard(title: String, content: @Composable ColumnScope.() -> Unit) {
+    val shape = RoundedCornerShape(10.dp)
+    Column(Modifier.fillMaxWidth().clip(shape).background(Pv.panel)) {
+        Text(title, color = Pv.text, fontSize = 14.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(start = 12.dp, end = 12.dp, top = 10.dp, bottom = 2.dp))
+        content()
+    }
+}
+
+@Composable
+internal fun CardRow(label: String, value: String, valueColor: Color = rowText) {
+    Box(Modifier.padding(horizontal = 12.dp)) { InfoRow(label, value, valueColor) }
+}
 @Composable
 private fun PermLine(p: PermRow, color: Color) {
-    Column(Modifier.fillMaxWidth().padding(vertical = 3.dp)) {
+    Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 3.dp)) {
         Text(p.label ?: ApkFormat.shortPermission(p.name), color = color, fontSize = 14.sp)
         Text(p.name, color = rowDim, fontSize = 10.sp, fontFamily = FontFamily.Monospace)
     }

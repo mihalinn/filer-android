@@ -166,6 +166,12 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
     val openRequests = MutableSharedFlow<File>(extraBufferCapacity = 4)
     val shareRequests = MutableSharedFlow<List<File>>(extraBufferCapacity = 4)
 
+    /** アプリの更新(GitHub のリリース)。確認・ダウンロード・インストールの画面への受け渡し。 */
+    val updater = UpdateManager(app, prefs, viewModelScope) { openRequests.tryEmit(it) }
+
+    /** ブラウザで URL を開く(Activity 側が受け取る)。 */
+    fun openUrl(url: String) { updater.urlRequests.tryEmit(url) }
+
     private var loadJob: Job? = null
     private var searchJob: Job? = null
     private var homeJob: Job? = null

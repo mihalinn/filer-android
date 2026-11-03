@@ -63,6 +63,7 @@ private fun SettingsMain(vm: FmViewModel) {
     var crashStamp by remember { mutableIntStateOf(0) }
     val hasCrash = remember(crashStamp) { CrashLog.read(ctx) != null || CrashLog.abnormalExits(ctx).isNotEmpty() }
     var showCrash by remember { mutableStateOf(false) }
+    var report by remember { mutableStateOf<Boolean?>(null) }
     Column(Modifier.fillMaxSize().background(pal.background).verticalScroll(rememberScrollState())) {
         // 一覧の右上の「表示設定」と同じ項目。ここからも変えられる
         Group("表示") {
@@ -100,6 +101,12 @@ private fun SettingsMain(vm: FmViewModel) {
             LinkRow("NAS の接続先", if (vm.remotes.isEmpty()) "まだありません" else "${vm.remotes.size} 件") { vm.openNetwork() }
             LinkRow("ごみ箱", FileOps.formatSize(vm.trashSize)) { vm.openTrash() }
         }
+        Group("アプリの更新") { UpdateSettings(vm.updater) }
+        Group("不具合・要望の報告") {
+            LinkRow("不具合を報告", "動かない・表示がおかしいなど。GitHub に報告します") { report = true }
+            LinkRow("要望を送る", "こんな機能がほしい、など") { report = false }
+            LinkRow("報告の一覧を見る", "GitHub で、これまでの報告と対応を見られます") { vm.openUrl("${vm.updater.repoUrl}/issues") }
+        }
         Group("このアプリについて") {
             Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)) {
                 Text("ファイラー $version", style = MaterialTheme.typography.titleMedium, color = pal.text)
@@ -118,6 +125,7 @@ private fun SettingsMain(vm: FmViewModel) {
         Spacer(Modifier.height(24.dp))
     }
     if (showCrash) CrashLogDialog(onCleared = { crashStamp++ }) { showCrash = false }
+    report?.let { bug -> ReportDialog(vm, bug) { report = null } }
 }
 
 @Composable
@@ -195,7 +203,7 @@ private fun SegmentRow(title: String, options: List<String>, selected: Int, onSe
 }
 /** 入り切りの行。 */
 @Composable
-private fun SwitchRow(label: String, checked: Boolean, onToggle: () -> Unit) {
+internal fun SwitchRow(label: String, checked: Boolean, onToggle: () -> Unit) {
     Row(
         Modifier.fillMaxWidth().clickable(onClick = onToggle).padding(start = 16.dp, end = 12.dp, top = 2.dp, bottom = 2.dp),
         verticalAlignment = Alignment.CenterVertically,

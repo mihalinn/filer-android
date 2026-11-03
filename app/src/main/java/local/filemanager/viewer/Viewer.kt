@@ -87,6 +87,7 @@ internal fun ViewerScreen(
         return
     }
     val isImage = req.files[req.index].kind == FileKind.IMAGE
+    val kb = rememberKeyboardAvoid()
     var bars by remember { mutableStateOf(true) }
     var fontSp by remember { mutableIntStateOf(vm.viewerFontSp) }
     var raw by remember { mutableStateOf(false) }
@@ -162,7 +163,7 @@ internal fun ViewerScreen(
     }
 
     // 下の一覧に触れないよう、画面全体で触れた操作を受け止める
-    Box(Modifier.fillMaxSize().background(if (themed && !officeKind) Pv.bg else Color.Black).pointerInput(Unit) { detectTapGestures { } }) {
+    Box(Modifier.fillMaxSize().then(kb.container).background(if (themed && !officeKind) Pv.bg else Color.Black).pointerInput(Unit) { detectTapGestures { } }) {
         if (showImage) {
             HorizontalPager(state = pager, modifier = Modifier.fillMaxSize(), key = { req.files[it].path }) { page ->
                 ZoomableImage(req.fs, req.files[page], active = pager.currentPage == page, onTap = { bars = !bars })
@@ -335,6 +336,7 @@ internal fun ViewerScreen(
                 onPrev = { if (hitCount > 0) hit = (hit - 1 + hitCount) % hitCount },
                 onNext = { if (hitCount > 0) hit = (hit + 1) % hitCount },
                 onClose = { searching = false },
+                bottomPad = kb.bottom,
                 modifier = Modifier.align(Alignment.BottomCenter),
             )
         }
@@ -357,12 +359,13 @@ internal fun ViewerScreen(
 @Composable
 private fun SearchBar(
     query: String, onQuery: (String) -> Unit, hit: Int, count: Int,
-    onPrev: () -> Unit, onNext: () -> Unit, onClose: () -> Unit, modifier: Modifier,
+    onPrev: () -> Unit, onNext: () -> Unit, onClose: () -> Unit, bottomPad: androidx.compose.ui.unit.Dp, modifier: Modifier,
 ) {
     val focus = remember { FocusRequester() }
     LaunchedEffect(Unit) { runCatching { focus.requestFocus() } }
     Row(
-        modifier.fillMaxWidth().background(Pv.searchBg).navigationBarsPadding().imePadding().padding(horizontal = 8.dp, vertical = 6.dp),
+        // 余白(キーボードか下のバーの分)は背景の外に出す。背景の内側に入れると、灰色の板が伸びて文字が透ける
+        modifier.fillMaxWidth().padding(bottom = bottomPad).background(Pv.searchBg).padding(horizontal = 8.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         BasicTextField(
@@ -371,8 +374,10 @@ private fun SearchBar(
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search), keyboardActions = KeyboardActions(onSearch = { onNext() }),
             modifier = Modifier.weight(1f).focusRequester(focus).background(Pv.searchField, RoundedCornerShape(6.dp)).padding(10.dp),
             decorationBox = { inner ->
-                if (query.isEmpty()) Text("検索する言葉", color = Color.Gray, fontSize = 16.sp)
-                inner()
+                Box {
+                    if (query.isEmpty()) Text("検索する言葉", color = Color.Gray, fontSize = 16.sp)
+                    inner()
+                }
             },
         )
         Text(

@@ -272,7 +272,8 @@ private fun EditorBody(
     }
 
     val mark = remember(matchRange, Pv.dark) { MarkTransformation(matchRange, Color(0xCCFFB300), Color.Black) }
-    Column(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding().imePadding()) {
+    val kb = rememberKeyboardAvoid()
+    Column(Modifier.fillMaxSize().then(kb.container).statusBarsPadding().padding(bottom = kb.bottom)) {
         // 上のバー
         Row(Modifier.fillMaxWidth().background(Pv.bar).height(56.dp), verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = { requestClose() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "戻る", tint = Pv.barText) }
@@ -456,8 +457,10 @@ private fun FindField(value: String, hint: String, onChange: (String) -> Unit, m
         keyboardOptions = KeyboardOptions(imeAction = ime), keyboardActions = KeyboardActions(onSearch = { onAction() }, onDone = { onAction() }),
         modifier = modifier.background(Pv.searchField, RoundedCornerShape(6.dp)).padding(10.dp),
         decorationBox = { inner ->
-            if (value.isEmpty()) Text(hint, color = Color.Gray, fontSize = 16.sp)
-            inner()
+            Box {
+                if (value.isEmpty()) Text(hint, color = Color.Gray, fontSize = 16.sp)
+                inner()
+            }
         },
     )
 }

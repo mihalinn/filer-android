@@ -68,7 +68,7 @@ internal object Credits {
             "JetBrains annotations(Apache 2.0)を含みます", "apache-2.0.txt",
         ),
         Credit(
-            "Guava 33.3.1(Android 版)", "Apache License 2.0",
+            "Guava 33.3.1(Android 用)", "Apache License 2.0",
             "Media3 が使っています。failureaccess 1.0.2・listenablefuture 1.0・Error Prone annotations 2.38.0(いずれも Apache 2.0)を含みます。", "apache-2.0.txt",
         ),
         Credit("smbj 0.13.0(NAS への接続)", "Apache License 2.0", "同じ作者の asn-one 0.6.0(Apache 2.0)も使っています", "apache-2.0.txt"),

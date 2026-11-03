@@ -1,0 +1,57 @@
+name: 不具合の報告
+description: 動かない・表示がおかしい・異常終了した、などを報告します
+title: "[不具合] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        報告ありがとうございます。
+        **パスワード、NAS の名前や IP アドレス、個人のファイル名など、公開したくない情報は書かないでください**(伏せ字にしてください)。この内容は誰でも読めます。
+  - type: textarea
+    id: what
+    attributes:
+      label: 何が起きましたか
+      description: どの画面で、どのファイルを開いたときかも書いてください。画面の写真があれば貼ってください。
+      placeholder: "例: txt を開いて「検索」を押すと、検索の入力欄がキーボードの下に隠れる"
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 再現の手順
+      description: 同じことをもう一度起こす手順です。分かる範囲でかまいません。
+      placeholder: |
+        1. 〜を開く
+        2. 〜を押す
+        3. 〜になる
+  - type: textarea
+    id: expected
+    attributes:
+      label: 本来はどうなってほしいですか
+  - type: input
+    id: version
+    attributes:
+      label: アプリのバージョン
+      description: 設定の「アプリの更新」に表示されています。
+      placeholder: "例: 0.45.0"
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: 端末と Android のバージョン
+      placeholder: "例: Pixel 8 / Android 14"
+  - type: textarea
+    id: log
+    attributes:
+      label: 異常終了の記録(あれば)
+      description: 設定の「このアプリについて」→「前回の異常終了の記録」からコピーできます。ファイル名などが入っていないか、確認してから貼ってください。
+      render: text
+  - type: checkboxes
+    id: check
+    attributes:
+      label: 確認
+      options:
+        - label: パスワードや個人情報が入っていないことを確認しました
+          required: true

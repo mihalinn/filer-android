@@ -1,0 +1,28 @@
+name: 要望
+description: こんな機能がほしい、ここをこう変えたい、などを書いてください
+title: "[要望] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        要望ありがとうございます。実現できるかは約束できませんが、読んで検討します。
+        **個人情報は書かないでください**。この内容は誰でも読めます。
+  - type: textarea
+    id: want
+    attributes:
+      label: どんなことをしたいですか
+      description: 困っていること、やりたいことを書いてください。
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: こうなっていたら嬉しい、という案
+      description: 画面のイメージや、ほかのアプリの例があれば書いてください。
+  - type: input
+    id: version
+    attributes:
+      label: アプリのバージョン
+      description: 設定の「アプリの更新」に表示されています。
+      placeholder: "例: 0.45.0"

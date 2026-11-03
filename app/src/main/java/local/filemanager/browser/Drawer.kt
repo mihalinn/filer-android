@@ -176,7 +176,12 @@ private fun LocationsTab(vm: FmViewModel, close: () -> Unit) {
         title = "ごみ箱",
         trailing = { Text(FileOps.formatSize(vm.trashSize), fontSize = 13.sp, color = pal.subText, modifier = Modifier.padding(end = 8.dp)) },
     ) { close(); vm.openTrash() }
-    DrawerRow(icon = { Badge(Icons.Default.Settings, Color(0xFFB3B9D6)) }, title = "設定") { close(); vm.openSettings() }
+    DrawerRow(
+        icon = { Badge(Icons.Default.Settings, Color(0xFFB3B9D6)) }, title = "設定",
+        trailing = if (vm.updater.status is UpdateStatus.Available || vm.updater.status is UpdateStatus.Ready) {
+            { Text("更新あり", fontSize = 13.sp, color = pal.accent, modifier = Modifier.padding(end = 8.dp)) }
+        } else null,
+    ) { close(); vm.openSettings() }
     if (vm.pinned.isNotEmpty()) SectionHeading("固定した場所")
     // 固定した場所(ピンのアイコン)が上、そのあとに最近開いた場所(⋮ から固定・履歴から削除)
     vm.pinned.forEach { p ->

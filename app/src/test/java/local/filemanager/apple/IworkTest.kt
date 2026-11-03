@@ -114,7 +114,7 @@ class IworkTest {
         assertEquals(listOf("表題", "本文の一行目"), info.texts)
         assertEquals(2, info.media.size)
         assertEquals(550L, info.media.sumOf { it.second })
-        assertEquals(listOf("Template: Blank (14.0)", "M14.0-7036", "ファイル形式の版: 14.0"), info.versions)
+        assertEquals(listOf("Template: Blank (14.0)", "M14.0-7036", "ファイル形式のバージョン: 14.0"), info.versions)
         assertEquals("Numbers", Iwork.appOf("a.numbers"))
         assertEquals("Keynote", Iwork.appOf("a.key"))
     }

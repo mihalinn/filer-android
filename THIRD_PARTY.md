@@ -11,7 +11,7 @@
 | AndroidX Media3 1.7.1(ExoPlayer) | Apache License 2.0 | |
 | Jetpack Compose・Material 3・AndroidX | Apache License 2.0 | Activity、Core、Lifecycle、ExifInterface を含みます。画面のアイコンは Material Icons(Google)です |
 | Kotlin 標準ライブラリ 1.9.22・kotlinx.coroutines 1.7.1 | Apache License 2.0 | JetBrains annotations(Apache 2.0)を含みます |
-| Guava 33.3.1(Android 版) | Apache License 2.0 | Media3 が使っています。failureaccess 1.0.2・listenablefuture 1.0・Error Prone annotations 2.38.0(いずれも Apache 2.0)を含みます |
+| Guava 33.3.1(Android 用) | Apache License 2.0 | Media3 が使っています。failureaccess 1.0.2・listenablefuture 1.0・Error Prone annotations 2.38.0(いずれも Apache 2.0)を含みます |
 | smbj 0.13.0(NAS への接続) | Apache License 2.0 | 同じ作者の asn-one 0.6.0(Apache 2.0)も使っています |
 | Mbassador 1.3.0 | MIT | smbj が使っています。作者: Benjamin Diedrichsen |
 | Apache Commons Compress 1.27.1 | Apache License 2.0 | 7z・tar などを読むために使っています。Commons Codec 1.17.1・IO 2.16.1・Lang 3.16.0 も含みます。著作権表示(NOTICE)は `app/src/main/assets/licenses/commons-notice.txt` |

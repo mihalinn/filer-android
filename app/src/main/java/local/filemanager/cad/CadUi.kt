@@ -55,7 +55,7 @@ private fun loadCad(fs: Fs, item: FileItem): CadLoad = try {
     val ext = FileOps.extensionOf(item.name)
     if (ext == "dwg") {
         val ver = fs.open(item.path).use { s -> val b = ByteArray(6); val n = s.read(b); if (n == 6) String(b, Charsets.ISO_8859_1) else "" }
-        throw OpException("DWG(AutoCAD の図面)は形式が公開されていないため、表示できません。" + (dwgVersion(ver)?.let { "\n版: $it" } ?: "") + "\nDXF で書き出すと見られます。")
+        throw OpException("DWG(AutoCAD の図面)は形式が公開されていないため、表示できません。" + (dwgVersion(ver)?.let { "\nバージョン: $it" } ?: "") + "\nDXF で書き出すと見られます。")
     }
     val limit = if (ext == "dxf") Dxf.MAX_BYTES else Jww.MAX_BYTES
     if (item.size > limit) throw OpException("大きすぎて表示できません(${limit / 1024 / 1024} MB まで)")

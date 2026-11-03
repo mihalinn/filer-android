@@ -18,7 +18,7 @@ object InstallStatusText {
             PackageInstaller.STATUS_FAILURE_ABORTED -> "中止されました"
             PackageInstaller.STATUS_FAILURE_BLOCKED -> "ブロックされました(端末の設定や、ほかのアプリが止めています)"
             PackageInstaller.STATUS_FAILURE_CONFLICT -> "入っているアプリと合いません(署名が違うなど。先にアンインストールすると入る場合があります)"
-            PackageInstaller.STATUS_FAILURE_INCOMPATIBLE -> "この端末に対応していません(CPUの種類や Android の版)"
+            PackageInstaller.STATUS_FAILURE_INCOMPATIBLE -> "この端末に対応していません(CPUの種類や Android のバージョン)"
             PackageInstaller.STATUS_FAILURE_INVALID -> "APK が正しくありません(部品が足りないか、壊れています)"
             PackageInstaller.STATUS_FAILURE_STORAGE -> "空き容量が足りません"
             else -> "失敗しました"

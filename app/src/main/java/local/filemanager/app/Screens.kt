@@ -90,6 +90,7 @@ import java.io.File
 class Actions(
     val openFile: (File) -> Unit,
     val share: (List<File>) -> Unit,
+    val openUrl: (String) -> Unit,
 )
 
 @Composable
@@ -135,6 +136,8 @@ private fun MainScreen(vm: FmViewModel, actions: Actions) {
         if (CrashLog.read(appCtx) != null) vm.messages.emit("前回、アプリが異常終了しました。原因の記録は、「設定」の「このアプリについて」で確認できます")
     }
     LaunchedEffect(Unit) { vm.openRequests.collect { actions.openFile(it) } }
+    LaunchedEffect(Unit) { vm.updater.urlRequests.collect { actions.openUrl(it) } }
+    LaunchedEffect(Unit) { vm.updater.checkOnStart() }
     LaunchedEffect(Unit) { vm.shareRequests.collect { actions.share(it) } }
     LaunchedEffect(Unit) { vm.refreshHome() }
     BackHandler(enabled = vm.canGoBack) { vm.onBack() }
@@ -183,6 +186,7 @@ private fun MainScreen(vm: FmViewModel, actions: Actions) {
         }
     }
     PendingDialogs(pending, vm) { pending = null }
+    UpdateDialog(vm.updater)
     vm.conflictPrompt?.let { ConflictDialog(vm, it) }
     // 画像・テキストのビューアは、一覧の上に重ねて表示する
     vm.viewer?.let { ViewerScreen(vm, it) }

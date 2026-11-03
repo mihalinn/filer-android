@@ -35,6 +35,13 @@ echo "sdk.dir=/path/to/Android/sdk" > local.properties
 - 試験に使う見本ファイル(`app/src/test/resources`)は、出どころを確認できないため公開していません。これを使う試験は、手元に同じ形式のファイルを置かないと失敗します
 - コードの地図は [CODEMAP.md](CODEMAP.md) にあります
 
+## 不具合・要望
+
+[Issues](https://github.com/mihalinn/filer-android/issues) で受け付けています。アプリの「設定」→「不具合・要望の報告」からも、バージョンや端末の情報を入れた状態で、報告のページを開けます。
+
+- 不具合: [報告する](https://github.com/mihalinn/filer-android/issues/new?template=bug_report.yml)
+- 要望: [送る](https://github.com/mihalinn/filer-android/issues/new?template=feature_request.yml)
+- 内容は誰でも読めます。パスワード、NAS の名前や IP アドレス、個人のファイル名は書かないでください
 ## ライセンス
 
 このアプリは **GNU GPL v3** で公開しています([LICENSE](LICENSE))。動画・音声の拡張に使っている [NextLib](https://github.com/anilbeesetti/nextlib)(GPL-3.0)に合わせたものです。

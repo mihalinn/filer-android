@@ -115,7 +115,7 @@ object Iwork {
         lower["metadata/properties.plist"]?.let { n ->
             read(n)?.let { b ->
                 runCatching { Plist.parse(b) }.getOrNull()?.let { p ->
-                    p.str("fileFormatVersion")?.let { versions.add("ファイル形式の版: $it") }
+                    p.str("fileFormatVersion")?.let { versions.add("ファイル形式のバージョン: $it") }
                 }
             }
         }

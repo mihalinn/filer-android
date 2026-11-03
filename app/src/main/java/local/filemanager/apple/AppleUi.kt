@@ -139,7 +139,7 @@ internal fun IworkPane(fs: Fs, item: FileItem, onOpenInner: (FmViewModel.ViewerR
                     Heading("情報")
                     InfoLine("ファイル", "${FileOps.formatSize(item.size)}・${FileOps.formatDate(item.modified)}")
                     if (info.media.isNotEmpty()) InfoLine("画像などの素材", "${info.media.size} 個・${FileOps.formatSize(info.media.sumOf { it.second })}")
-                    for (v in info.versions.take(12)) InfoLine("版の記録", v)
+                    for (v in info.versions.take(12)) InfoLine("バージョンの記録", v)
                 }
                 item { Heading("書類の中の文字(${info.texts.size} 行)") }
                 if (info.texts.isEmpty()) {

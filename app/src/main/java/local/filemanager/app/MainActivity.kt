@@ -34,7 +34,7 @@ class MainActivity : ComponentActivity() {
         CrashLog.install(this)
         // 上部バーは常に濃い色なので、ステータスバーの文字は常に白にする
         enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT))
-        val actions = Actions(openFile = ::openFile, share = ::share)
+        val actions = Actions(openFile = ::openFile, share = ::share, openUrl = ::openUrl)
         // 画面の回転などで作り直されたときは、同じ共有を二重に受け取らない
         if (savedInstanceState == null) handleSharedIntent(intent)
         setContent {
@@ -155,6 +155,14 @@ class MainActivity : ComponentActivity() {
             startActivity(intent)
         } catch (e: ActivityNotFoundException) {
             Toast.makeText(this, "このファイルを開けるアプリがありません", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun openUrl(url: String) {
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+        } catch (e: ActivityNotFoundException) {
+            Toast.makeText(this, "ブラウザが見つかりません", Toast.LENGTH_SHORT).show()
         }
     }
 
