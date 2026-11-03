@@ -1,0 +1,80 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
+
+android {
+    namespace 'local.filemanager'
+    compileSdk 35
+    defaultConfig {
+        applicationId 'local.filemanager'
+        minSdk 30
+        targetSdk 34
+        versionCode 93
+        versionName '0.43.2'
+        // 同梱するFFmpegの部品(約15MB)は、今のスマホで使う arm64 だけにする
+        ndk { abiFilters 'arm64-v8a' }
+    }
+    buildTypes {
+        release {
+            // Compose はデバッグ版だと大きく遅くなるため、配布するAPKはこちらで作る。
+            // 署名は debug と同じ鍵にして、入れ替えインストール(データ維持)できるようにしている
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.debug
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    // nextlib(Kotlin 2.1製)のメタデータを読む版チェックを飛ばす。使うのは Java のクラスだけ
+    kotlinOptions {
+        jvmTarget = '17'
+        freeCompilerArgs += ['-Xskip-metadata-version-check']
+    }
+    buildFeatures { compose true }
+    composeOptions { kotlinCompilerExtensionVersion '1.5.10' }
+    packaging {
+        // インターレース解除を足して作り直した libmedia3ext.so(native/README.txt)を、nextlib 同梱のものより優先する
+        jniLibs { pickFirsts += ['**/libmedia3ext.so'] }
+        resources {
+            excludes += ['META-INF/versions/**', 'META-INF/DEPENDENCIES', 'META-INF/{AL2.0,LGPL2.1}', 'META-INF/*.kotlin_module', 'META-INF/INDEX.LIST']
+        }
+    }
+}
+
+dependencies {
+    implementation platform('androidx.compose:compose-bom:2024.02.00')
+    implementation 'androidx.compose.ui:ui'
+    implementation 'androidx.compose.material3:material3'
+    implementation 'androidx.compose.material:material-icons-extended'
+    implementation 'androidx.activity:activity-compose:1.8.2'
+    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.7.0'
+    // NAS(SMB)接続
+    implementation 'com.hierynomus:smbj:0.13.0'
+    // Android 内蔵の簡易版には NTLM 認証に要る MD4 が無いため、完全版を同梱して差し替える
+    implementation 'org.bouncycastle:bcprov-jdk18on:1.79'
+    implementation 'org.slf4j:slf4j-nop:2.0.9'
+    // 動画・音声の再生(ExoPlayer)。画面の部品は自前で作るので、再生エンジンだけを使う
+    implementation 'androidx.media3:media3-exoplayer:1.7.1'
+    // 端末に MPEG-2(放送録画のTS)のデコーダーが無いときの、ソフトウェア解読(FFmpeg)。Kotlin 部分は使わず Java のレンダラーだけ使う
+    implementation 'io.github.anilbeesetti:nextlib-media3ext:1.7.1-0.9.0'
+    // 7z・tar 系(gz/bz2/xz)・RAR の中身を読む
+    implementation 'org.apache.commons:commons-compress:1.27.1'
+    implementation 'org.tukaani:xz:1.10'
+    implementation 'com.github.junrar:junrar:8.1.2'
+    // SVG の表示(外部のファイルや通信は使わない)
+    implementation 'com.caverock:androidsvg-aar:1.4'
+    // 写真の情報(EXIF)の読み取り
+    implementation 'androidx.exifinterface:exifinterface:1.3.7'
+    testImplementation 'junit:junit:4.13.2'
+}
+
+// nextlib は Kotlin 2.1 でビルドされている。この版のコンパイラは新しい標準ライブラリのメタデータを読めないので、標準ライブラリは今の版に固定する
+configurations.all {
+    resolutionStrategy.force 'org.jetbrains.kotlin:kotlin-stdlib:1.9.22', 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.22', 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.22'
+}

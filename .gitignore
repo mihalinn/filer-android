@@ -1,0 +1,20 @@
+# Gradle / Android Studio
+.gradle/
+build/
+.idea/
+*.iml
+local.properties
+captures/
+.cxx/
+.externalNativeBuild/
+
+# 成果物
+*.apk
+*.aab
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 試験用の見本ファイルは公開しない(出どころを確認できないため)
+app/src/test/resources/
