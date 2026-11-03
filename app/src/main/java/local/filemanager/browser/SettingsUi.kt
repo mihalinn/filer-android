@@ -47,7 +47,11 @@ import androidx.compose.ui.unit.sp
  */
 @Composable
 internal fun SettingsScreen(vm: FmViewModel, s: Screen.Settings) {
-    if (s.page == SettingsPage.LICENSES) LicensesPage() else SettingsMain(vm)
+    when (s.page) {
+        SettingsPage.LICENSES -> LicensesPage()
+        SettingsPage.FORMATS -> FormatsPage()
+        else -> SettingsMain(vm)
+    }
 }
 
 @Composable
@@ -107,6 +111,7 @@ private fun SettingsMain(vm: FmViewModel) {
                 }
             }
             HorizontalDivider(color = pal.divider)
+            LinkRow("対応しているファイル形式", "アプリの中で開ける形式の一覧") { vm.openSettings(SettingsPage.FORMATS) }
             LinkRow("ライセンス", "使っているもの ${Credits.list.size} 件") { vm.openSettings(SettingsPage.LICENSES) }
             if (hasCrash) LinkRow("前回の異常終了の記録", "原因の記録を確認・コピーできます", warn = true) { showCrash = true }
         }

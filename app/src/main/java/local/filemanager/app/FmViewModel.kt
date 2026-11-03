@@ -288,7 +288,7 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
         Screen.Trash -> "ごみ箱"
         Screen.Network -> "ネットワーク"
         is Screen.Analyze -> "容量の分析"
-        is Screen.Settings -> if (s.page == SettingsPage.LICENSES) "ライセンス" else "設定"
+        is Screen.Settings -> when (s.page) { SettingsPage.LICENSES -> "ライセンス"; SettingsPage.FORMATS -> "対応しているファイル形式"; else -> "設定" }
         is Screen.Dir -> if (sameDir(s.path, rootPath(s))) {
             if (s.fsId == "local") rootLabelOf(rootPath(s)) else remoteName(s.fsId)
         } else s.path.trimEnd('/').substringAfterLast('/')
@@ -427,7 +427,7 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
         selected.isNotEmpty() -> { selected = emptySet(); true }
         searchQuery != null -> { closeSearch(); true }
         screen is Screen.Analyze -> { analyzeBack(); true }
-        (screen as? Screen.Settings)?.page == SettingsPage.LICENSES -> { openSettings(); true }
+        (screen as? Screen.Settings)?.page.let { it != null && it != SettingsPage.MAIN } -> { openSettings(); true }
         screen is Screen.Dir -> { up(); true }
         screen != Screen.Home -> { goHome(); true }
         else -> false
