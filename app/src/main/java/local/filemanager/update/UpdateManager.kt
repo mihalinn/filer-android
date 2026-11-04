@@ -49,6 +49,15 @@ class UpdateManager(
     var autoCheck by mutableStateOf(prefs.getBoolean(KEY_AUTO, true))
         private set
 
+    /** ホームの一番上に、更新のお知らせを出すか。 */
+    var showBanner by mutableStateOf(prefs.getBoolean(KEY_BANNER, true))
+        private set
+
+    fun changeShowBanner(on: Boolean) {
+        showBanner = on
+        prefs.edit().putBoolean(KEY_BANNER, on).apply()
+    }
+
     var lastChecked by mutableLongStateOf(prefs.getLong(KEY_LAST, 0L))
         private set
 
@@ -101,6 +110,11 @@ class UpdateManager(
     fun later() {
         (status as? UpdateStatus.Available)?.let { prefs.edit().putString(KEY_LATER, it.info.tag).apply() }
         promptVisible = false
+    }
+
+    /** ホームのお知らせを押したとき。更新の窓をもう一度出す。 */
+    fun showPrompt() {
+        promptVisible = true
     }
 
     fun closePrompt() {
@@ -226,6 +240,7 @@ class UpdateManager(
 
     private companion object {
         const val KEY_AUTO = "updAuto"
+        const val KEY_BANNER = "updBanner"
         const val KEY_LAST = "updLast"
         const val KEY_LATER = "updLaterTag"
         const val AUTO_INTERVAL_MS = 12L * 60 * 60 * 1000

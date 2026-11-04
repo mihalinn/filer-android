@@ -178,4 +178,6 @@ internal fun UpdateSettings(u: UpdateManager) {
         "確認するときだけ GitHub(github.com)に接続します。端末の情報は送りません",
         fontSize = 12.sp, color = pal.subText, modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 10.dp),
     )
+    HorizontalDivider(color = pal.divider)
+    SwitchRow("ホームに更新のお知らせを出す", u.showBanner, subtitle = "新しいバージョンがあるとき、ホームの一番上に出します") { u.changeShowBanner(!u.showBanner) }
 }

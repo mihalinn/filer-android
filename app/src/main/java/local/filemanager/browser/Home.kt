@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.PieChart
 import androidx.compose.material.icons.filled.Storage
+import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -149,6 +150,10 @@ internal fun HomeScreen(vm: FmViewModel, onPending: (Pending) -> Unit) {
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
+            // アプリの更新があるとき(見つかった・ダウンロード中・ダウンロード済み)は、設定まで行かなくても分かるよう、一番上に出す
+            if (vm.updater.showBanner && vm.updater.status.let { it is UpdateStatus.Available || it is UpdateStatus.Downloading || it is UpdateStatus.Ready }) {
+                item(key = "update", span = { GridItemSpan(maxLineSpan) }) { UpdateBanner(vm.updater) }
+            }
             if (categories.isNotEmpty()) {
                 item(key = "h:category", span = { GridItemSpan(maxLineSpan) }) { HomeSectionTitle("カテゴリ") }
                 items(categories.size, key = { categories[it].id }) { CardTile(categories[it], frame, onLongPress = edit) }
@@ -181,6 +186,35 @@ internal fun HomeScreen(vm: FmViewModel, onPending: (Pending) -> Unit) {
                 items(tools.size, key = { tools[it].id }) { CardTile(tools[it], frame, onLongPress = edit) }
             }
         }
+    }
+}
+
+/** ホームの一番上に出す、アプリの更新のお知らせ。「後で更新する」を押しても、更新するまで残る。押すと更新の窓(ダウンロード済みならインストール)が開く。 */
+@Composable
+private fun UpdateBanner(u: UpdateManager) {
+    val pal = LocalPal.current
+    val shape = RoundedCornerShape(10.dp)
+    val st = u.status
+    val (title, sub) = when (st) {
+        is UpdateStatus.Available -> "新しいバージョン ${st.info.version} があります" to
+            "いまのバージョン ${u.currentVersion}" + (if (st.info.apkSize > 0) "・約 ${FileOps.formatSize(st.info.apkSize)}" else "") + "。押すと更新できます"
+        is UpdateStatus.Downloading -> "新しいバージョン ${st.info.version} をダウンロードしています" to
+            FileOps.formatSize(st.done) + (if (st.total > 0) " / ${FileOps.formatSize(st.total)}" else "")
+        is UpdateStatus.Ready -> "新しいバージョン ${st.info.version} をインストールできます" to "ダウンロードは終わっています。押すとインストールの画面が開きます"
+        else -> return
+    }
+    Row(
+        Modifier.fillMaxWidth().padding(top = 4.dp).clip(shape).background(pal.accent.copy(alpha = 0.12f)).border(1.dp, pal.accent, shape)
+            .clickable { if (st is UpdateStatus.Ready) u.install() else u.showPrompt() }.padding(horizontal = 12.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(Icons.Default.SystemUpdate, null, tint = pal.accent, modifier = Modifier.size(28.dp))
+        Spacer(Modifier.width(12.dp))
+        Column(Modifier.weight(1f)) {
+            Text(title, fontSize = 15.sp, fontWeight = FontWeight.Bold, color = pal.text)
+            Text(sub, fontSize = 12.sp, color = pal.subText)
+        }
+        Icon(Icons.Default.ChevronRight, null, tint = pal.accent)
     }
 }
 
