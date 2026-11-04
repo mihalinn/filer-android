@@ -20,6 +20,13 @@ object Nav {
     fun effectiveRoot(path: String, anchor: String?, volumeRoot: String): String =
         if (anchor != null && isUnder(anchor, path)) anchor else volumeRoot
 
+    /** path が root から数えて何階層下か(root そのものは 0。root の外なら大きな値は返さず 0)。 */
+    fun depth(root: String, path: String): Int {
+        if (!isUnder(root, path)) return 0
+        val rest = path.trimEnd('/').removePrefix(root.trimEnd('/')).trim('/')
+        return if (rest.isEmpty()) 0 else rest.split('/').size
+    }
+
     /** 「上へ」の移動先。最上位にいる(またはこれ以上上が無い)ときは null = ホームへ。 */
     fun up(path: String, root: String, parent: String?): String? =
         if (same(path, root) || parent == null) null else parent

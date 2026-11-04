@@ -64,7 +64,7 @@ private sealed interface SqlData {
 }
 
 /** 端末の一時領域へコピーして開く(元のファイルに、ジャーナルなどを作らないため)。WAL 方式のものは、-wal も一緒にコピーする。 */
-private fun copyForDb(ctx: Context, fs: Fs, item: FileItem): File {
+private fun copyForDb(ctx: Context, fs: Fs, item: FileItem, task: BgTask): File {
     if (item.size > DB_COPY_LIMIT) throw OpException("大きすぎて開けません(${DB_COPY_LIMIT / 1024 / 1024} MB まで)")
     val dir = File(ctx.cacheDir, "sqliteview").also { it.mkdirs() }
     val base = cacheKey(fs.id, item.path, item.size, item.modified)
@@ -72,7 +72,8 @@ private fun copyForDb(ctx: Context, fs: Fs, item: FileItem): File {
     fun copy(from: String, to: File, expect: Long?) {
         if (to.exists() && (expect == null || to.length() == expect)) return
         val part = File(dir, to.name + ".part")
-        fs.open(from).use { i -> part.outputStream().use { o -> i.copyTo(o) } }
+        // -wal(大きさ不明)は小さいので、通知は出さない(size = 1)
+        BgTasks.run(task, expect ?: 1L) { task.download(fs, from, part) }
         to.delete()
         if (!part.renameTo(to)) throw IOException("一時ファイルを作れません")
     }
@@ -86,8 +87,8 @@ private fun copyForDb(ctx: Context, fs: Fs, item: FileItem): File {
     return out
 }
 
-private fun openDb(ctx: Context, fs: Fs, item: FileItem): SqlLoad = try {
-    val f = copyForDb(ctx, fs, item)
+private fun openDb(ctx: Context, fs: Fs, item: FileItem, task: BgTask): SqlLoad = try {
+    val f = copyForDb(ctx, fs, item, task)
     val head = f.inputStream().use { s -> ByteArray(16).also { s.read(it) } }
     if (String(head, Charsets.ISO_8859_1) != "SQLite format 3\u0000") {
         SqlLoad.Fail("SQLiteのデータベースではありません(別の形式か、暗号化されているかもしれません)")
@@ -177,11 +178,12 @@ private const val TAB_QUERY = "\u0001query"
 @Composable
 internal fun SqlitePane(fs: Fs, item: FileItem, fontSp: Int) {
     val ctx = LocalContext.current
+    val task = rememberBgTask(item.path, "「${item.name}」を取り込んでいます", "「${item.name}」の取り込みが終わりました", "「${item.name}」を取り込めませんでした")
     val load = produceState<SqlLoad>(SqlLoad.Busy, item.path) {
-        value = withContext(Dispatchers.IO) { openDb(ctx, fs, item) }
+        value = withContext(Dispatchers.IO) { openDb(ctx, fs, item, task) }
     }.value
     when (load) {
-        SqlLoad.Busy -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator(color = Pv.text) }
+        SqlLoad.Busy -> LoadingPanel(item.name, task, !fs.isLocal)
         is SqlLoad.Fail -> Box(Modifier.fillMaxSize()) {
             Text(load.message, color = Pv.text, modifier = Modifier.align(Alignment.Center).padding(32.dp))
         }

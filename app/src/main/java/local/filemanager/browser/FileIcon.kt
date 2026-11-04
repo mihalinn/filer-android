@@ -40,7 +40,7 @@ import java.util.concurrent.Executors
  * 速くスクロールしても大量の読み込みが同時に走らないようにして、画面の動きを重くしない。
  */
 private object Loader {
-    val dispatcher = Executors.newFixedThreadPool(3).asCoroutineDispatcher()
+    val dispatcher = backgroundPool(3, "filer-icons").asCoroutineDispatcher()
     // 枚数ではなく使うメモリ(約32MB)で上限を決める。グリッド用の大きいサムネイルが混ざっても増えすぎない
     val bitmaps = object : LruCache<String, Bitmap>(32 * 1024 * 1024) {
         override fun sizeOf(key: String, value: Bitmap) = value.byteCount
@@ -89,6 +89,14 @@ private object Loader {
         return ai.loadIcon(pm).toBitmap(96, 96)
     }
 }
+
+/** メモリが足りなくなったとき、一覧のサムネイルのキャッシュを手放す(必要になったら読み直す)。 */
+internal fun trimImageCaches() {
+    Loader.bitmaps.evictAll()
+}
+
+/** 一覧のサムネイルのキャッシュが使っているメモリ(バイト)。動作の記録に使う。 */
+internal fun imageCacheBytes(): Long = Loader.bitmaps.size().toLong()
 
 private fun hasPicture(kind: FileKind) = kind == FileKind.IMAGE || kind == FileKind.VIDEO || kind == FileKind.APK
 

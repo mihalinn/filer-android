@@ -97,7 +97,7 @@ internal fun cachedApk(ctx: Context, fs: Fs, item: FileItem): File? {
 }
 
 /** APK を端末内のファイルにして(NAS なら取り込んで)、中の情報を読む。 */
-private fun loadApk(ctx: Context, fs: Fs, item: FileItem): ApkLoad {
+private fun loadApk(ctx: Context, fs: Fs, item: FileItem, task: BgTask): ApkLoad {
     return try {
         val file: File = if (fs.isLocal) {
             File(item.path)
@@ -107,7 +107,7 @@ private fun loadApk(ctx: Context, fs: Fs, item: FileItem): ApkLoad {
             val root = dest.parentFile!!
             if (!dest.exists() || dest.length() != item.size) {
                 val tmp = File(root, dest.name + ".part")
-                fs.open(item.path).use { i -> tmp.outputStream().use { o -> i.copyTo(o, 256 * 1024) } }
+                BgTasks.run(task, item.size) { task.download(fs, item.path, tmp) }
                 dest.delete()
                 if (!tmp.renameTo(dest)) throw IOException("一時ファイルを作れませんでした")
             }
@@ -152,14 +152,12 @@ private fun loadApk(ctx: Context, fs: Fs, item: FileItem): ApkLoad {
 @Composable
 internal fun ApkPane(fs: Fs, item: FileItem, onInstall: () -> Unit) {
     val ctx = LocalContext.current
+    val task = rememberBgTask(item.path, "「${item.name}」を取り込んでいます", "「${item.name}」の取り込みが終わりました", "「${item.name}」を取り込めませんでした")
     val load = produceState<ApkLoad>(ApkLoad.Busy, item.path) {
-        value = withContext(Dispatchers.IO) { loadApk(ctx, fs, item) }
+        value = withContext(Dispatchers.IO) { loadApk(ctx, fs, item, task) }
     }.value
     when (load) {
-        ApkLoad.Busy -> Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-            CircularProgressIndicator(color = Pv.text)
-            if (!fs.isLocal) Text("読み込み中…", color = rowDim, fontSize = 13.sp, modifier = Modifier.padding(top = 12.dp))
-        }
+        ApkLoad.Busy -> LoadingPanel(item.name, task, !fs.isLocal)
         is ApkLoad.Fail -> Box(Modifier.fillMaxSize()) {
             Text(load.message, color = Pv.text, modifier = Modifier.align(Alignment.Center).padding(32.dp))
         }

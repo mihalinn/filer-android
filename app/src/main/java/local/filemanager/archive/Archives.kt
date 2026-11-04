@@ -366,15 +366,26 @@ object ArchiveOpener {
         val out = File(dir, cacheKey(item.path, item.size, item.modified) + ".rar")
         if (!(out.exists() && out.length() == src.size)) {
             val part = File(dir, out.name + ".part")
-            part.outputStream().use { o ->
-                val buf = ByteArray(256 * 1024)
-                var pos = 0L
-                while (pos < src.size) {
-                    val n = src.readAt(pos, buf, 0, minOf(buf.size.toLong(), src.size - pos).toInt())
-                    if (n <= 0) throw IOException("途中で読めなくなりました")
-                    o.write(buf, 0, n)
-                    pos += n
+            // 大きいので、通知を出して画面オフでも続ける(利用者が通知から止められる)
+            val task = BgTask("「${item.name}」を取り込んでいます", "「${item.name}」の取り込みが終わりました", "「${item.name}」を取り込めませんでした")
+            try {
+                BgTasks.run(task, src.size) {
+                    part.outputStream().use { o ->
+                        val buf = ByteArray(256 * 1024)
+                        var pos = 0L
+                        while (pos < src.size) {
+                            task.check()
+                            val n = src.readAt(pos, buf, 0, minOf(buf.size.toLong(), src.size - pos).toInt())
+                            if (n <= 0) throw IOException("途中で読めなくなりました")
+                            o.write(buf, 0, n)
+                            pos += n
+                            task.done = pos
+                        }
+                    }
                 }
+            } catch (e: Throwable) {
+                part.delete()
+                throw e
             }
             out.delete()
             if (!part.renameTo(out)) throw IOException("一時ファイルを作れませんでした")

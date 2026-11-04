@@ -38,48 +38,106 @@ object UpdateNet {
         }
     }
 
+    /** やり直しても直らない失敗(404 など、中止、SHA-256 の不一致)。 */
+    private class Fatal(message: String) : IOException(message)
+
     /**
      * APK を dest にダウンロードする(途中は dest.part)。大きさと、説明に SHA-256 があればそれも確かめる。
+     * 画面オフなどで通信が切れたときは、届いた所から続きを取り直す(maxAttempts 回まで、retryDelayMs ずつ待つ)。
      * onProgress(読んだ量, 全体)。isCancelled が true になったら中断して IOException。
      */
-    fun download(info: ReleaseInfo, dest: File, onProgress: (Long, Long) -> Unit, isCancelled: () -> Boolean) {
+    fun download(
+        info: ReleaseInfo, dest: File, onProgress: (Long, Long) -> Unit, isCancelled: () -> Boolean,
+        maxAttempts: Int = 8, retryDelayMs: Long = 3_000L,
+    ) {
         val part = File(dest.path + ".part")
         part.delete()
+        try {
+            var failures = 0
+            while (true) {
+                val before = part.length()
+                try {
+                    fetchRange(info, part, onProgress, isCancelled)
+                    break
+                } catch (e: Fatal) {
+                    throw e
+                } catch (e: IOException) {
+                    if (isCancelled()) throw Fatal("中止しました")
+                    // 少しでも進んだなら、続きを取り直す回数は数え直す
+                    if (part.length() > before) failures = 0
+                    if (++failures >= maxAttempts) throw e
+                    var waited = 0L
+                    while (waited < retryDelayMs) {
+                        if (isCancelled()) throw Fatal("中止しました")
+                        Thread.sleep(minOf(250L, retryDelayMs - waited))
+                        waited += 250L
+                    }
+                }
+            }
+            if (info.apkSize > 0 && part.length() != info.apkSize) throw IOException("ダウンロードが途中で止まりました。もう一度試してください")
+            val sha = sha256Of(part)
+            if (info.sha256 != null && !info.sha256.equals(sha, ignoreCase = true)) throw Fatal("ダウンロードしたファイルが、公開されている SHA-256 と違います。インストールを中止しました")
+            dest.delete()
+            if (!part.renameTo(dest)) throw IOException("ダウンロードしたファイルを保存できませんでした")
+        } catch (e: Exception) {
+            part.delete()
+            throw e
+        }
+    }
+
+    /** part に今ある分の続きを 1 回取る。サーバーが続きの指定(Range)に応じなければ、最初から取り直す。 */
+    private fun fetchRange(info: ReleaseInfo, part: File, onProgress: (Long, Long) -> Unit, isCancelled: () -> Boolean) {
+        var have = part.length()
         val c = open(info.apkUrl, "application/octet-stream")
+        if (have > 0) c.setRequestProperty("Range", "bytes=$have-")
         try {
             val code = try {
                 c.responseCode
             } catch (e: IOException) {
                 throw IOException("ダウンロードできませんでした。通信の状態を確認してください")
             }
-            if (code != 200) throw IOException("ダウンロードできませんでした($code)")
-            val total = c.contentLengthLong.takeIf { it > 0 } ?: info.apkSize
-            val md = MessageDigest.getInstance("SHA-256")
-            var done = 0L
+            if (code == 416) {
+                // 続きの位置が合わない。最初から取り直す
+                part.delete()
+                throw IOException("ダウンロードを取り直します")
+            }
+            if (code != 200 && code != 206) {
+                val msg = "ダウンロードできませんでした($code)"
+                throw if (code in 400..499) Fatal(msg) else IOException(msg)
+            }
+            val append = code == 206 && have > 0
+            if (!append) have = 0
+            val total = if (append) have + c.contentLengthLong.coerceAtLeast(0) else c.contentLengthLong.takeIf { it > 0 } ?: info.apkSize
+            var done = have
             c.inputStream.use { input ->
-                part.outputStream().use { out ->
+                java.io.FileOutputStream(part, append).use { out ->
                     val buf = ByteArray(64 * 1024)
                     while (true) {
-                        if (isCancelled()) throw IOException("中止しました")
+                        if (isCancelled()) throw Fatal("中止しました")
                         val n = input.read(buf)
                         if (n < 0) break
                         out.write(buf, 0, n)
-                        md.update(buf, 0, n)
                         done += n
                         onProgress(done, total)
                     }
                 }
             }
-            if (info.apkSize > 0 && done != info.apkSize) throw IOException("ダウンロードが途中で止まりました。もう一度試してください")
-            val sha = md.digest().joinToString("") { "%02x".format(it) }
-            if (info.sha256 != null && info.sha256 != sha) throw IOException("ダウンロードしたファイルが、公開されている SHA-256 と違います。インストールを中止しました")
-            dest.delete()
-            if (!part.renameTo(dest)) throw IOException("ダウンロードしたファイルを保存できませんでした")
-        } catch (e: Exception) {
-            part.delete()
-            throw e
+            if (total > 0 && done < total) throw IOException("ダウンロードが途中で止まりました")
         } finally {
             c.disconnect()
         }
+    }
+
+    private fun sha256Of(f: File): String {
+        val md = MessageDigest.getInstance("SHA-256")
+        f.inputStream().use { i ->
+            val buf = ByteArray(256 * 1024)
+            while (true) {
+                val n = i.read(buf)
+                if (n < 0) break
+                md.update(buf, 0, n)
+            }
+        }
+        return md.digest().joinToString("") { "%02x".format(it) }
     }
 }

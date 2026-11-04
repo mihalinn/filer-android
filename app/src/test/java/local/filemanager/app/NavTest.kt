@@ -11,6 +11,16 @@ class NavTest {
     private val download = "$storage/Download"
 
     @Test
+    fun 階層の深さは_ストレージの直下を1と数える() {
+        assertEquals(0, Nav.depth(storage, storage))
+        assertEquals(0, Nav.depth("$storage/", storage))
+        assertEquals(1, Nav.depth(storage, download))
+        assertEquals(1, Nav.depth(storage, "$download/"))
+        assertEquals(3, Nav.depth(storage, "$download/X/Y"))
+        assertEquals(0, Nav.depth(storage, "/sdcard2/Download"))
+    }
+
+    @Test
     fun ダウンロードを最上位として開くと_そこで上へでホームに戻る() {
         val root = Nav.effectiveRoot(download, download, storage)
         assertEquals(download, root)

@@ -41,14 +41,14 @@ private const val MIDI_LIMIT = 32L * 1024 * 1024
 
 fun isMidiName(name: String): Boolean = FileOps.extensionOf(name).let { it == "mid" || it == "midi" || it == "kar" || it == "rmi" }
 
-private fun midiPath(ctx: android.content.Context, fs: Fs, item: FileItem): String {
+private fun midiPath(ctx: android.content.Context, fs: Fs, item: FileItem, task: BgTask): String {
     if (fs.isLocal) return item.path
     if (item.size > MIDI_LIMIT) throw OpException("大きすぎて開けません")
     val dir = File(ctx.cacheDir, "midiview").also { it.mkdirs() }
     val f = File(dir, cacheKey(fs.id, item.path, item.size, item.modified) + ".mid")
     if (!(f.exists() && f.length() == item.size)) {
         val part = File(dir, f.name + ".part")
-        fs.open(item.path).use { i -> part.outputStream().use { o -> i.copyTo(o) } }
+        BgTasks.run(task, item.size) { task.download(fs, item.path, part) }
         f.delete()
         part.renameTo(f)
     }
@@ -79,8 +79,9 @@ internal fun MidiScreen(vm: FmViewModel, req: FmViewModel.ViewerRequest, onClose
     LaunchedEffect(index) {
         val mp = MediaPlayer()
         player = mp
+        val task = BgTask("「${item.name}」を取り込んでいます", "「${item.name}」の取り込みが終わりました", "「${item.name}」を取り込めませんでした")
         try {
-            val path = withContext(Dispatchers.IO) { midiPath(ctx, req.fs, item) }
+            val path = withContext(Dispatchers.IO) { midiPath(ctx, req.fs, item, task) }
             mp.setDataSource(path)
             mp.setOnPreparedListener { duration = it.duration; ready = true; it.start(); playing = true }
             mp.setOnCompletionListener {
@@ -96,6 +97,7 @@ internal fun MidiScreen(vm: FmViewModel, req: FmViewModel.ViewerRequest, onClose
         } catch (e: Exception) {
             error = e.message ?: "再生できません(MIDI)"
         } finally {
+            task.cancel()
             runCatching { mp.release() }
             if (player === mp) player = null
         }

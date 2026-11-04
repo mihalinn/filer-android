@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.border
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -31,6 +32,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
+import android.widget.Toast
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -50,8 +53,48 @@ internal fun SettingsScreen(vm: FmViewModel, s: Screen.Settings) {
     when (s.page) {
         SettingsPage.LICENSES -> LicensesPage()
         SettingsPage.FORMATS -> FormatsPage()
+        SettingsPage.DEVELOPER -> DeveloperPage(vm)
         else -> SettingsMain(vm)
     }
+}
+
+/** 開発者向けオプションの画面(Android の同名の画面に合わせた作り)。一番上のスイッチで、中の機能をまとめて入り切りできる。 */
+@Composable
+private fun DeveloperPage(vm: FmViewModel) {
+    val pal = LocalPal.current
+    val on = vm.devMaster
+    var showPerf by remember { mutableStateOf(false) }
+    var stamp by remember { mutableIntStateOf(0) }
+    val logLines = remember(showPerf, vm.perfLogActive, stamp) { PerfLog.lines(2400) }
+    val shape = RoundedCornerShape(10.dp)
+    Column(Modifier.fillMaxSize().background(pal.background).verticalScroll(rememberScrollState())) {
+        Row(
+            Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 10.dp).clip(shape)
+                .background(if (on) pal.accent else pal.surface).border(1.dp, if (on) pal.accent else pal.divider, shape)
+                .clickable { vm.changeDevMaster(!on) }.padding(start = 16.dp, end = 12.dp, top = 8.dp, bottom = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(if (on) "オン" else "オフ", Modifier.weight(1f), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = if (on) pal.onAccent else pal.text)
+            Switch(checked = on, onCheckedChange = { vm.changeDevMaster(it) })
+        }
+        Group("デバッグ") {
+            SwitchRow(
+                "動作の記録", vm.perfLogOn, enabled = on,
+                subtitle = "重くなったときの原因調べ用です。オンの間だけ、メモリなどを端末の中に記録します",
+            ) { vm.setPerfLog(!vm.perfLogOn) }
+            HorizontalDivider(color = pal.divider)
+            LinkRow(
+                "動作の記録を見る",
+                if (logLines.isEmpty()) "記録はありません" else "${logLines.size} 行" + (PerfFormat.lastStamp(logLines)?.let { "・最後は $it" } ?: ""),
+                enabled = on,
+            ) { showPerf = true }
+        }
+        Group("テスト機能") {
+            Text("まだありません", Modifier.padding(horizontal = 16.dp, vertical = 12.dp), fontSize = 14.sp, color = pal.subText)
+        }
+        Spacer(Modifier.height(24.dp))
+    }
+    if (showPerf) PerfLogDialog { showPerf = false; stamp++ }
 }
 
 @Composable
@@ -64,6 +107,9 @@ private fun SettingsMain(vm: FmViewModel) {
     val crashRows = remember(crashStamp) { CrashLog.entries(ctx) }
     val crashUnseen = remember(crashStamp) { CrashLog.hasUnseen(ctx) }
     var showCrash by remember { mutableStateOf(false) }
+    // バージョンを続けて押した回数(開発者向けオプションを出すため)
+    var tapCount by remember { mutableIntStateOf(0) }
+    var tapAt by remember { mutableLongStateOf(0L) }
     var report by remember { mutableStateOf<Boolean?>(null) }
     Column(Modifier.fillMaxSize().background(pal.background).verticalScroll(rememberScrollState())) {
         // 一覧の右上の「表示設定」と同じ項目。ここからも変えられる
@@ -114,7 +160,24 @@ private fun SettingsMain(vm: FmViewModel) {
             ) { showCrash = true }
         }
         Group("このアプリについて") {
-            Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)) {
+            Column(
+                Modifier.fillMaxWidth().clickable {
+                    val now = android.os.SystemClock.elapsedRealtime()
+                    if (vm.devMode) {
+                        Toast.makeText(ctx, "開発者向けオプションは、すでに表示されています", Toast.LENGTH_SHORT).show()
+                        return@clickable
+                    }
+                    tapCount = DevTap.next(tapCount, tapAt, now)
+                    tapAt = now
+                    if (tapCount >= DevTap.NEED) {
+                        tapCount = 0
+                        vm.changeDevMode(true)
+                        Toast.makeText(ctx, "開発者向けオプションを表示しました", Toast.LENGTH_SHORT).show()
+                    } else {
+                        DevTap.remaining(tapCount)?.let { Toast.makeText(ctx, "あと $it 回押すと、開発者向けオプションが表示されます", Toast.LENGTH_SHORT).show() }
+                    }
+                }.padding(horizontal = 16.dp, vertical = 12.dp),
+            ) {
                 Text("ファイラー $version", style = MaterialTheme.typography.titleMedium, color = pal.text)
                 Text("広告のないファイルマネージャーです", fontSize = 13.sp, color = pal.subText)
                 Text(Credits.COPYRIGHT, fontSize = 13.sp, color = pal.subText)
@@ -126,6 +189,7 @@ private fun SettingsMain(vm: FmViewModel) {
             HorizontalDivider(color = pal.divider)
             LinkRow("対応しているファイル形式", "アプリの中で開ける形式の一覧") { vm.openSettings(SettingsPage.FORMATS) }
             LinkRow("ライセンス", "使っているもの ${Credits.list.size} 件") { vm.openSettings(SettingsPage.LICENSES) }
+            if (vm.devMode) LinkRow("開発者向けオプション", "デバッグ・テスト用の機能") { vm.openSettings(SettingsPage.DEVELOPER) }
         }
         Spacer(Modifier.height(24.dp))
     }
@@ -208,20 +272,25 @@ private fun SegmentRow(title: String, options: List<String>, selected: Int, onSe
 }
 /** 入り切りの行。 */
 @Composable
-internal fun SwitchRow(label: String, checked: Boolean, onToggle: () -> Unit) {
+internal fun SwitchRow(label: String, checked: Boolean, subtitle: String? = null, enabled: Boolean = true, onToggle: () -> Unit) {
+    val pal = LocalPal.current
     Row(
-        Modifier.fillMaxWidth().clickable(onClick = onToggle).padding(start = 16.dp, end = 12.dp, top = 2.dp, bottom = 2.dp),
+        Modifier.fillMaxWidth().alpha(if (enabled) 1f else 0.4f).clickable(enabled = enabled, onClick = onToggle)
+            .padding(start = 16.dp, end = 12.dp, top = if (subtitle == null) 2.dp else 8.dp, bottom = if (subtitle == null) 2.dp else 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(label, Modifier.weight(1f), fontSize = 16.sp, color = LocalPal.current.text)
-        Switch(checked = checked, onCheckedChange = { onToggle() })
+        Column(Modifier.weight(1f).padding(end = 8.dp)) {
+            Text(label, fontSize = 16.sp, color = pal.text)
+            if (subtitle != null) Text(subtitle, fontSize = 12.sp, color = pal.subText)
+        }
+        Switch(checked = checked, onCheckedChange = { onToggle() }, enabled = enabled)
     }
 }
-/** 押すと別の画面・ダイアログが開く行。warn は注意の色(異常終了の記録)。 */
+/** 押すと別の画面・ダイアログが開く行。warn は注意の色(異常終了の記録)。enabled が false のときは灰色で押せない。 */
 @Composable
-private fun LinkRow(title: String, subtitle: String? = null, warn: Boolean = false, onClick: () -> Unit) {
+private fun LinkRow(title: String, subtitle: String? = null, warn: Boolean = false, enabled: Boolean = true, onClick: () -> Unit) {
     val pal = LocalPal.current
-    Row(Modifier.fillMaxWidth().clickable(onClick = onClick).padding(start = 16.dp, end = 8.dp, top = 10.dp, bottom = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+    Row(Modifier.fillMaxWidth().alpha(if (enabled) 1f else 0.4f).clickable(enabled = enabled, onClick = onClick).padding(start = 16.dp, end = 8.dp, top = 10.dp, bottom = 10.dp), verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f)) {
             Text(title, fontSize = 16.sp, color = if (warn) MaterialTheme.colorScheme.error else pal.text)
             if (subtitle != null) Text(subtitle, fontSize = 12.sp, color = pal.subText)

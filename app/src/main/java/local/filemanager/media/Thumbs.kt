@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger
  */
 object Thumbs {
     /** NAS を読む専用のスレッド。端末内の読み込みとは別にして、少なめにしてある。 */
-    val dispatcher = Executors.newFixedThreadPool(2).asCoroutineDispatcher()
+    val dispatcher = backgroundPool(2, "filer-thumbs").asCoroutineDispatcher()
 
     private const val CACHE_LIMIT_BYTES = 150L * 1024 * 1024
     private const val VIDEO_READ_BUDGET = 48L * 1024 * 1024

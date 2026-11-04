@@ -46,13 +46,13 @@ private sealed interface FontLoad {
     data class Fail(val message: String) : FontLoad
 }
 
-private fun openFont(ctx: Context, fs: Fs, item: FileItem): FontLoad = try {
+private fun openFont(ctx: Context, fs: Fs, item: FileItem, task: BgTask): FontLoad = try {
     if (item.size > FONT_LIMIT) throw OpException("大きすぎて開けません(${FONT_LIMIT / 1024 / 1024} MB まで)")
     val dir = File(ctx.cacheDir, "fontview").also { it.mkdirs() }
     val f = File(dir, cacheKey(fs.id, item.path, item.size, item.modified) + "." + FileOps.extensionOf(item.name).ifEmpty { "ttf" })
     if (!(f.exists() && f.length() == item.size)) {
         val part = File(dir, f.name + ".part")
-        fs.open(item.path).use { i -> part.outputStream().use { o -> i.copyTo(o) } }
+        BgTasks.run(task, item.size) { task.download(fs, item.path, part) }
         f.delete()
         if (!part.renameTo(f)) throw IOException("一時ファイルを作れません")
     }
@@ -77,11 +77,12 @@ private fun openFont(ctx: Context, fs: Fs, item: FileItem): FontLoad = try {
 @Composable
 internal fun FontPane(fs: Fs, item: FileItem) {
     val ctx = LocalContext.current
+    val task = rememberBgTask(item.path, "「${item.name}」を取り込んでいます", "「${item.name}」の取り込みが終わりました", "「${item.name}」を取り込めませんでした")
     val load = produceState<FontLoad>(FontLoad.Busy, item.path) {
-        value = withContext(Dispatchers.IO) { openFont(ctx, fs, item) }
+        value = withContext(Dispatchers.IO) { openFont(ctx, fs, item, task) }
     }.value
     when (load) {
-        FontLoad.Busy -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator(color = Pv.text) }
+        FontLoad.Busy -> LoadingPanel(item.name, task, !fs.isLocal)
         is FontLoad.Fail -> Box(Modifier.fillMaxSize()) {
             Text(load.message, color = Pv.text, modifier = Modifier.align(Alignment.Center).padding(32.dp))
         }

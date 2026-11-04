@@ -27,7 +27,7 @@ sealed interface Screen {
     data class Settings(val page: SettingsPage = SettingsPage.MAIN) : Screen
 }
 
-enum class SettingsPage { MAIN, LICENSES, FORMATS }
+enum class SettingsPage { MAIN, LICENSES, FORMATS, DEVELOPER }
 
 /** ビューアの文字の大きさ(sp)の範囲。ビューアのメニューの文字サイズ欄と同じ。 */
 const val VIEWER_FONT_MIN = 9

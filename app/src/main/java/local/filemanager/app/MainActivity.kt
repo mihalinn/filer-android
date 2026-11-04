@@ -32,11 +32,16 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         // 落ちたときに、原因(スタックトレース)を次の起動で見られるよう記録する
         CrashLog.install(this)
+        PerfLog.start(this)
+        BgTasks.attach(this)
         // 上部バーは常に濃い色なので、ステータスバーの文字は常に白にする
         enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT))
         val actions = Actions(openFile = ::openFile, share = ::share, openUrl = ::openUrl)
         // 画面の回転などで作り直されたときは、同じ共有を二重に受け取らない
-        if (savedInstanceState == null) handleSharedIntent(intent)
+        if (savedInstanceState == null) {
+            handleSharedIntent(intent)
+            handleInstallIntent(intent)
+        }
         setContent {
             FmTheme(vm.themeMode) {
                 AppRoot(vm, hasAccess, onRequestAccess = ::requestAccess, actions = actions)
@@ -51,29 +56,41 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent)
         setIntent(intent)
         handleSharedIntent(intent)
+        handleInstallIntent(intent)
+    }
+
+    /** 「更新をダウンロードしました」の通知から開かれたら、インストールの画面を開く。 */
+    private fun handleInstallIntent(i: Intent?) {
+        if (i?.getBooleanExtra(TransferService.EXTRA_INSTALL_UPDATE, false) != true) return
+        i.removeExtra(TransferService.EXTRA_INSTALL_UPDATE)
+        vm.updater.installPending()
     }
 
     /** 他のアプリの「共有」で渡されたものを受け取り、保存先を選ぶ状態にする。 */
     private fun handleSharedIntent(i: Intent?) {
         if (i == null || (i.action != Intent.ACTION_SEND && i.action != Intent.ACTION_SEND_MULTIPLE)) return
-        val uris: List<Uri> = if (Build.VERSION.SDK_INT >= 33) {
-            if (i.action == Intent.ACTION_SEND) listOfNotNull(i.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java))
-            else i.getParcelableArrayListExtra(Intent.EXTRA_STREAM, Uri::class.java).orEmpty()
-        } else {
-            @Suppress("DEPRECATION")
-            if (i.action == Intent.ACTION_SEND) listOfNotNull(i.getParcelableExtra<Uri>(Intent.EXTRA_STREAM))
-            else i.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM).orEmpty()
-        }
-        // 他のアプリのファイルを file:// で直接渡されても、読めない・危ないので受け付けない(content:// だけ)
-        val files = uris.filter { it.scheme == "content" }.map { uri -> describe(uri) }.toMutableList()
-        if (files.isEmpty()) {
-            val text = i.getStringExtra(Intent.EXTRA_TEXT)
-            if (!text.isNullOrBlank()) {
-                val subject = i.getStringExtra(Intent.EXTRA_SUBJECT)?.takeIf { it.isNotBlank() }?.take(60) ?: "共有テキスト"
-                val name = FileOps.safeFileName(subject, "共有テキスト").let { if (it.endsWith(".txt", ignoreCase = true)) it else "$it.txt" }
-                files.add(IncomingFile(name, text.toByteArray().size.toLong(), null, text))
+        // 渡されたデータは相手のアプリ次第で、壊れていると読み取りで例外になる。落とさず「受け取れない」ことにする
+        val files = runCatching {
+            val uris: List<Uri> = if (Build.VERSION.SDK_INT >= 33) {
+                if (i.action == Intent.ACTION_SEND) listOfNotNull(i.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java))
+                else i.getParcelableArrayListExtra(Intent.EXTRA_STREAM, Uri::class.java).orEmpty()
+            } else {
+                @Suppress("DEPRECATION")
+                if (i.action == Intent.ACTION_SEND) listOfNotNull(i.getParcelableExtra<Uri>(Intent.EXTRA_STREAM))
+                else i.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM).orEmpty()
             }
-        }
+            // 他のアプリのファイルを file:// で直接渡されても、読めない・危ないので受け付けない(content:// だけ)
+            val list = uris.filter { it.scheme == "content" }.map { uri -> describe(uri) }.toMutableList()
+            if (list.isEmpty()) {
+                val text = i.getStringExtra(Intent.EXTRA_TEXT)
+                if (!text.isNullOrBlank()) {
+                    val subject = i.getStringExtra(Intent.EXTRA_SUBJECT)?.takeIf { it.isNotBlank() }?.take(60) ?: "共有テキスト"
+                    val name = FileOps.safeFileName(subject, "共有テキスト").let { if (it.endsWith(".txt", ignoreCase = true)) it else "$it.txt" }
+                    list.add(IncomingFile(name, text.toByteArray().size.toLong(), null, text))
+                }
+            }
+            list
+        }.getOrDefault(emptyList())
         if (files.isEmpty()) {
             Toast.makeText(this, "受け取れる内容がありません", Toast.LENGTH_SHORT).show()
             return
@@ -98,15 +115,48 @@ class MainActivity : ComponentActivity() {
 
     private var stoppedAt = 0L
 
+    // 画面の 1 コマごとの描画時間を、動作の記録に集める(重くなったときの確認用)。受け取りは、画面とは別のスレッドで行う
+    private val frameThread by lazy { android.os.HandlerThread("filer-frames").also { it.start() } }
+    private val frameListener = android.view.Window.OnFrameMetricsAvailableListener { _, metrics, _ ->
+        PerfLog.frame(metrics.getMetric(android.view.FrameMetrics.TOTAL_DURATION))
+    }
+
+    /** メモリが足りなくなったとき、作り直せるキャッシュ(サムネイル・PDF の絵)を手放す。 */
+    @Suppress("DEPRECATION")
+    override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
+        PerfLog.event("メモリの警告(レベル $level)")
+        if (level >= android.content.ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW) {
+            trimImageCaches()
+            clearPdfBitmaps()
+        }
+    }
+
+    /** 画面が見えていて、動作の記録がオンのときだけ、描画時間の計測を付ける(オフなら負荷をかけない)。 */
+    private fun syncFrameListener() {
+        runCatching { window.removeOnFrameMetricsAvailableListener(frameListener) }
+        if (Ops.appVisible && PerfLog.enabled) {
+            runCatching { window.addOnFrameMetricsAvailableListener(frameListener, android.os.Handler(frameThread.looper)) }
+        }
+    }
+
+    override fun onDestroy() {
+        PerfLog.onChange = null
+        super.onDestroy()
+    }
+
     override fun onStart() {
         super.onStart()
         Ops.appVisible = true
+        PerfLog.onChange = { runOnUiThread { syncFrameListener() } }
+        syncFrameListener()
         // しばらく裏にいたあとは NAS との接続が切れていることが多い。切れた接続で待たされないよう、先に捨てる
         if (stoppedAt != 0L && android.os.SystemClock.elapsedRealtime() - stoppedAt > 10_000) vm.recycleConnections()
     }
 
     override fun onStop() {
         Ops.appVisible = false
+        runCatching { window.removeOnFrameMetricsAvailableListener(frameListener) }
         stoppedAt = android.os.SystemClock.elapsedRealtime()
         super.onStop()
     }

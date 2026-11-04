@@ -118,10 +118,18 @@ private object PdfCache {
 
     fun get(key: String): Bitmap? = synchronized(cache) { cache.get(key) }
     fun put(key: String, b: Bitmap) = synchronized(cache) { cache.put(key, b) }
+    fun clear() = synchronized(cache) { cache.evictAll() }
+    fun bytes(): Long = synchronized(cache) { cache.size().toLong() }
 }
 
+/** メモリが足りなくなったとき、PDF のページの絵のキャッシュを手放す。 */
+internal fun clearPdfBitmaps() = PdfCache.clear()
+
+/** PDF のページの絵のキャッシュが使っているメモリ(バイト)。動作の記録に使う。 */
+internal fun pdfBitmapBytes(): Long = PdfCache.bytes()
+
 /** 端末内のファイルはそのまま、NAS のファイルは端末の一時領域に取り込んでから開く。 */
-private fun openPdf(ctx: Context, fs: Fs, item: FileItem): PdfLoad {
+private fun openPdf(ctx: Context, fs: Fs, item: FileItem, task: BgTask): PdfLoad {
     return try {
         val file: File = if (fs.isLocal) {
             File(item.path)
@@ -132,7 +140,7 @@ private fun openPdf(ctx: Context, fs: Fs, item: FileItem): PdfLoad {
             val dest = File(dir, name)
             if (!dest.exists() || dest.length() != item.size) {
                 val tmp = File(dir, "$name.part")
-                fs.open(item.path).use { input -> tmp.outputStream().use { input.copyTo(it) } }
+                BgTasks.run(task, item.size) { task.download(fs, item.path, tmp) }
                 if (!tmp.renameTo(dest)) throw java.io.IOException("一時ファイルを作れません")
             }
             dest.setLastModified(System.currentTimeMillis())
@@ -164,14 +172,12 @@ private fun trimPdfCache(dir: File, keep: File) {
 internal fun PdfPane(fs: Fs, item: FileItem, bars: Boolean, gotoDialog: Boolean, onGotoDismiss: () -> Unit, onTap: () -> Unit, dark: Boolean = false, copy: CopyHolder? = null) {
     val ctx = LocalContext.current
     val copyScope = rememberCoroutineScope()
+    val task = rememberBgTask(item.path, "「${item.name}」を取り込んでいます", "「${item.name}」の取り込みが終わりました", "「${item.name}」を取り込めませんでした")
     val load = produceState<PdfLoad>(PdfLoad.Busy, item.path) {
-        value = withContext(Dispatchers.IO) { openPdf(ctx, fs, item) }
+        value = withContext(Dispatchers.IO) { openPdf(ctx, fs, item, task) }
     }.value
     when (load) {
-        PdfLoad.Busy -> Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-            CircularProgressIndicator(color = Pv.text)
-            if (!fs.isLocal) Text("読み込み中…", color = Pv.dim, fontSize = 13.sp, modifier = Modifier.padding(top = 12.dp))
-        }
+        PdfLoad.Busy -> LoadingPanel(item.name, task, !fs.isLocal)
         is PdfLoad.Fail -> Box(Modifier.fillMaxSize().pointerInput(Unit) { detectTapGestures(onTap = { onTap() }) }) {
             Text(load.message, color = Pv.text, modifier = Modifier.align(Alignment.Center).padding(32.dp))
         }

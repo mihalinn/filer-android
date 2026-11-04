@@ -153,7 +153,8 @@ internal fun ReadProgressCard(tracker: ReadTracker, modifier: Modifier = Modifie
             val now = System.currentTimeMillis()
             val list = tracker.active()
             val s = ReadFormat.pick(list)
-            if (s == null) {
+            // 取り込み用の表示(LoadingPanel)が同じ情報を出すので、重ねない
+            if (s == null || BgTasks.anyActive()) {
                 cur = null
                 info = null
                 continue

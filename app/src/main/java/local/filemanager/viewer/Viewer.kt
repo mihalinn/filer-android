@@ -8,6 +8,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.key
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -167,6 +168,7 @@ internal fun ViewerScreen(
     }
 
     // 下の一覧に触れないよう、画面全体で触れた操作を受け止める
+    CompositionLocalProvider(LocalViewerClose provides onClose) {
     Box(Modifier.fillMaxSize().then(kb.container).background(if (themed && !officeKind) Pv.bg else Color.Black).pointerInput(Unit) { detectTapGestures { } }) {
         if (showImage) {
             HorizontalPager(state = pager, modifier = Modifier.fillMaxSize(), key = { req.files[it].path }) { page ->
@@ -360,6 +362,7 @@ internal fun ViewerScreen(
                 onClose = { editing = false },
             )
         }
+    }
     }
 }
 

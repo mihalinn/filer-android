@@ -30,11 +30,11 @@
 
 | フォルダ | 役割 | おもなファイル |
 |---|---|---|
-| `app/` | 入口と全体の状態 | `MainActivity`(起動・他アプリへの受け渡し)、`FmViewModel`(画面の状態と操作。節ごとにまとめてある)、`AppModels`(`Screen` `Place` `Clip` などの型)、`Screens`(画面の組み立て)、`Nav`(戻る・上への判断)、`Theme`(色)、`Incoming`(共有で受け取るもの)、`CrashLog`(異常終了の記録)、`Report`(不具合・要望の報告の URL を作る。画面は `browser/ReportUi`) |
-| `browser/` | 一覧とその周りの画面 | `ListUi` `Home` `HomeLayout` `Drawer` `Dialogs` `FileIcon` `SettingsUi` `AboutUi`(ライセンス) `AnalyzeUi` `ProgressUi` |
-| `storage/` | 場所(端末・NAS)の読み書き | `Fs`(抽象と端末内)、`SmbFs`(NAS。smbj)、`Remotes`(接続先の保存。暗号化)、`Trash`、`FileOps`(端末内の操作・拡張子の分類)、`Media`(MediaStore の分類)、`Analyzer`(容量の分析)、`ReadAhead` `WriteBehind` `ResumeStreams`(NAS を速く・切れにくくする)、`ReadProgress` |
-| `transfer/` | コピー・移動・圧縮の実行 | `Transfer`(Fs 間の操作)、`Progress`、`Ops`(実行中の操作の状態。アプリ全体で 1 つ)、`TransferService`(アプリを閉じても続けるサービス)、`Conflict`(同名の扱い) |
-| `viewer/` | プレビューの入口と文字・画像・PDF | `Viewer`(入口。種類で振り分け)、`ViewerMenu`、`Highlight`(`PreviewKind`)、`PreviewUi`(文書・Markdown・表・配色 `Pv`)、`PdfUi`(PDF。表示は PDFium) `PdfiumDoc`(PDFium の窓口) `PdfLayout`(文字の位置の計算) `PdfSelect`(文字の選択) `UnknownUi`(種類の分からないファイル) `ImageUi`、`TextEdit` `EditorUi`(文字ファイルの編集)、`Sniff`(種類の推測)、`TextDecode`、`Csv` `Pretty` `Markdown` `Json` `Svg` `ImageDecode` `PhotoInfo` `ExifFormat` `Vcard` `ContactUi` |
+| `app/` | 入口と全体の状態 | `MainActivity`(起動・他アプリへの受け渡し)、`FmViewModel`(画面の状態と操作。節ごとにまとめてある)、`AppModels`(`Screen` `Place` `Clip` などの型)、`Screens`(画面の組み立て)、`Nav`(戻る・上への判断)、`Theme`(色)、`Incoming`(共有で受け取るもの)、`CrashLog`(異常終了の記録)、`PerfLog`(動作の記録。開発者向けオプションでオンにしたときだけ取る)、`DevTap`(バージョンを続けて押して開発者向けオプションを出す数え方)、`Report`(不具合・要望の報告の URL を作る。画面は `browser/ReportUi`) |
+| `browser/` | 一覧とその周りの画面 | `ListUi` `Home` `HomeLayout` `Drawer` `Dialogs` `FileIcon` `SettingsUi`(開発者向けオプションの画面を含む) `AboutUi`(ライセンス) `AnalyzeUi` `ProgressUi` `PerfLogUi`(動作の記録の窓) |
+| `storage/` | 場所(端末・NAS)の読み書き | `Fs`(抽象と端末内)、`SmbFs`(NAS。smbj)、`Remotes`(接続先の保存。暗号化)、`Trash`、`FileOps`(端末内の操作・拡張子の分類)、`Media`(MediaStore の分類)、`Analyzer`(容量の分析)、`ReadAhead` `WriteBehind` `ResumeStreams`(NAS を速く・切れにくくする)、`ReadProgress`、`BackgroundPool`(サムネイルなどを作る低優先度のスレッド) |
+| `transfer/` | コピー・移動・圧縮の実行 | `Transfer`(Fs 間の操作)、`Progress`、`Ops`(実行中の操作の状態。アプリ全体で 1 つ)、`TransferService`(アプリを閉じても続けるサービス。コピー・移動と、`BgTasks` の通知を出す)、`BgTasks`(画面を消しても続けるダウンロード。アプリの更新とプレビューの取り込み。通知・中止つき)、`Conflict`(同名の扱い) |
+| `viewer/` | プレビューの入口と文字・画像・PDF | `Viewer`(入口。種類で振り分け)、`LoadingPanel`(NAS から取り込む間の読み込み画面)、`ViewerMenu`、`Highlight`(`PreviewKind`)、`PreviewUi`(文書・Markdown・表・配色 `Pv`)、`PdfUi`(PDF。表示は PDFium) `PdfiumDoc`(PDFium の窓口) `PdfLayout`(文字の位置の計算) `PdfSelect`(文字の選択) `UnknownUi`(種類の分からないファイル) `ImageUi`、`TextEdit` `EditorUi`(文字ファイルの編集)、`Sniff`(種類の推測)、`TextDecode`、`Csv` `Pretty` `Markdown` `Json` `Svg` `ImageDecode` `PhotoInfo` `ExifFormat` `Vcard` `ContactUi` |
 | `media/` | 動画・音声・MIDI | `Player` `PlayerSetup`(動画・音声。Media3/ExoPlayer + FFmpeg)、`PlayerChrome`(上のバー・再生ボタン・シークバー。音声と MIDI で共通)、`AudioUi`、`MediaSupport`(NAS 上のファイルを ExoPlayer に読ませる)、`Shims`(読めない形を読める形に見せかける。BDAV・AIFF)、`Caf`、`MusicInfo`、`MidiPlay`(MIDI は端末の MediaPlayer で鳴らすだけ。画面は音声と同じ部品)、`Thumbs` |
 | `office/` | Office・ODF・RTF | `Office` `OfficeUi` `OfficeTheme`、`Docx` `Doc`(旧 Word)、`Xlsx` `Xls` `SheetUi`、`SlideDeck` `SlideStyle` `SlideGeom` `SlideUi`(PowerPoint を絵にする)、`Ppt` `PptDeck`(旧 PowerPoint)、`Odf` `Odt` `Ods` `Odp`、`Rtf`、`Ole2`(旧形式の入れ物) |
 | `archive/` | 書庫・APK | `Archives`(zip/7z/rar/tar 系の窓口)、`ArchiveUi`(ZIP の画面)、`ApkUi` `BundleUi`、`Lzh`、`ZipReader` `ZipTree`、`ApkFormat` `ApkBundle` `BundleInstall`(.xapk などのまとめインストール) |
@@ -49,6 +49,7 @@
 - 一覧のファイルを押す → `FmViewModel.openOrView` → `ViewerRequest` → `viewer/Viewer.kt` の `ViewerScreen` が `PreviewKind.of(名前)` で種類を決めて、各フォルダの画面(`xxxPane`)を出す。動画・音声は `media/Player.kt` の `PlayerScreen`、MIDI は `media/MidiPlay.kt`。
 - NAS のファイルは `Fs.open` / `openRandom` で読む。ビューアに渡すときは `TrackedFs` で包んで、読んだ量を数える。
 - コピー・移動などは `FmViewModel.runOp` → `Ops` → `Transfer`。アプリを閉じても `TransferService` が続ける。
+- NAS のファイルを端末に取り込んでから開く形式(PDF・APK・SQLite・フォント・RAR)は、`BgTasks.run` で取り込む。大きいものは `TransferService` が通知を出し、画面を消しても続く。アプリの更新のダウンロードも同じ(`UpdateManager`)。
 - 形式の読み取り(`Docx` `Dxf` など)は、Android に依存しない純 Kotlin。画面側(`xxxUi.kt`)が結果を描く。
 - 新しい形式を足すとき: ① `viewer/Highlight.kt` の `PreviewKind` に種類と拡張子を足す ② 読み取りを書いて単体試験 ③ `xxxUi.kt` に画面 ④ `viewer/Viewer.kt` の振り分けと `ViewerMenu` に足す ⑤ 出どころ・ライセンスがあれば `browser/AboutUi.kt` の `Credits` と `assets/licenses/` に足す(`CreditsTest` が食い違いを見張る)。
 

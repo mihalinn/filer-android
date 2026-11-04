@@ -129,6 +129,14 @@ class UpdateManager(
         } ?: return
         promptVisible = true
         status = UpdateStatus.Downloading(info, 0, info.apkSize)
+        // 画面を消したりアプリを閉じたりしても続くよう、通知つきのダウンロード(BgTasks)として実行する
+        val task = BgTask(
+            "アプリの更新をダウンロードしています",
+            doneText = "更新をダウンロードしました。タップして、インストールしてください",
+            failText = "更新をダウンロードできませんでした",
+            installUpdate = true,
+        )
+        this.task = task
         job = scope.launch {
             val dir = File(app.cacheDir, "updates").apply { mkdirs() }
             dir.listFiles()?.forEach { it.delete() }
@@ -137,29 +145,38 @@ class UpdateManager(
             var lastTick = 0L
             val result = withContext(Dispatchers.IO) {
                 runCatching {
-                    UpdateNet.download(info, dest, { done, total ->
-                        val t = System.nanoTime()
-                        if (t - lastTick > 150_000_000L) {
-                            lastTick = t
-                            status = UpdateStatus.Downloading(info, done, total)
-                        }
-                    }, { me?.isActive != true })
-                    verify(dest)
+                    BgTasks.run(task, info.apkSize) {
+                        UpdateNet.download(info, dest, { done, total ->
+                            task.done = done
+                            if (total > 0) task.total = total
+                            val t = System.nanoTime()
+                            if (t - lastTick > 150_000_000L) {
+                                lastTick = t
+                                status = UpdateStatus.Downloading(info, done, total)
+                            }
+                        }, { task.cancelled || me?.isActive != true })
+                        verify(dest)
+                    }
                 }
             }
             result.onSuccess {
                 status = UpdateStatus.Ready(info, dest)
-                openFile(dest)
+                // アプリが見えていないときは、インストールの画面を勝手に開けない(通知のタップで開く)
+                if (Ops.appVisible) openFile(dest)
             }.onFailure { e ->
                 dest.delete()
-                status = UpdateStatus.Failed(e.message ?: "更新できませんでした", info)
+                status = if (task.cancelled) UpdateStatus.Available(info) else UpdateStatus.Failed(e.message ?: "更新できませんでした", info)
+                if (task.cancelled) promptVisible = false
             }
         }
     }
 
+    private var task: BgTask? = null
+
     /** ダウンロード中のキャンセル。 */
     fun cancel() {
         val info = (status as? UpdateStatus.Downloading)?.info
+        task?.cancel()
         job?.cancel()
         status = if (info != null) UpdateStatus.Available(info) else UpdateStatus.Idle
         promptVisible = false
@@ -168,6 +185,26 @@ class UpdateManager(
     /** ダウンロード済みのファイルで、インストールの画面をもう一度開く。 */
     fun install() {
         (status as? UpdateStatus.Ready)?.let { openFile(it.file) }
+    }
+
+    /**
+     * 「ダウンロードしました」の通知をタップして開いたとき。画面を作り直していてもインストールの画面を開けるよう、
+     * 保存してあるファイルを確かめて渡す。
+     */
+    fun installPending() {
+        if (status is UpdateStatus.Ready) {
+            install()
+            return
+        }
+        scope.launch {
+            val file = withContext(Dispatchers.IO) {
+                File(app.cacheDir, "updates").listFiles()?.filter { it.isFile && it.name.endsWith(".apk") }
+                    ?.firstOrNull { runCatching { verify(it) }.isSuccess }
+            }
+            // 起動直後は、画面がファイルを受け取る準備を終えるのを少し待つ
+            kotlinx.coroutines.delay(400)
+            if (file != null) openFile(file)
+        }
     }
 
     /** ダウンロードしたファイルが、このアプリの新しいバージョンで、署名が同じかを確かめる。 */

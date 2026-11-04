@@ -167,7 +167,8 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
     val shareRequests = MutableSharedFlow<List<File>>(extraBufferCapacity = 4)
 
     /** アプリの更新(GitHub のリリース)。確認・ダウンロード・インストールの画面への受け渡し。 */
-    val updater = UpdateManager(app, prefs, viewModelScope) { openRequests.tryEmit(it) }
+    // ダウンロードは画面(ViewModel)より長く生きる必要があるので、アプリ全体の Ops.scope で動かす
+    val updater = UpdateManager(app, prefs, Ops.scope) { openRequests.tryEmit(it) }
 
     /** ブラウザで URL を開く(Activity 側が受け取る)。 */
     fun openUrl(url: String) { updater.urlRequests.tryEmit(url) }
@@ -294,7 +295,7 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
         Screen.Trash -> "ごみ箱"
         Screen.Network -> "ネットワーク"
         is Screen.Analyze -> "容量の分析"
-        is Screen.Settings -> when (s.page) { SettingsPage.LICENSES -> "ライセンス"; SettingsPage.FORMATS -> "対応しているファイル形式"; else -> "設定" }
+        is Screen.Settings -> when (s.page) { SettingsPage.LICENSES -> "ライセンス"; SettingsPage.FORMATS -> "対応しているファイル形式"; SettingsPage.DEVELOPER -> "開発者向けオプション"; else -> "設定" }
         is Screen.Dir -> if (sameDir(s.path, rootPath(s))) {
             if (s.fsId == "local") rootLabelOf(rootPath(s)) else remoteName(s.fsId)
         } else s.path.trimEnd('/').substringAfterLast('/')
@@ -327,13 +328,21 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
 
     /** ホーム・ドロワーのショートカットから開く。「最近開いた場所」の先頭に入る。 */
     fun openShortcut(p: Place) {
-        if (p !in pinned) {
-            opened = (listOf(p) + opened.filter { it != p }).take(12)
-            writePlaces("opened", opened)
-        }
+        touchOpened(p)
         openPlace(p)
-        // 端末内のフォルダ(ダウンロードなど)は、そこを最上位にする。NAS は共有の直下まで上がれるままにする
-        if (p.fsId == "local") anchor = p.path
+        // 端末内のフォルダ(ダウンロードなど)は、そこを最上位にする。NAS は共有の直下まで上がれるままにする。
+        // 一覧をたどって開いた深いフォルダ(最近開いた場所から開くもの)は、親へ上がれるよう最上位にしない
+        if (p.fsId == "local" && (Nav.depth(rootOfLocal(p.path).path, p.path) <= 1 || isHomeShortcut(p) || p in pinned)) anchor = p.path
+    }
+
+    private fun isHomeShortcut(p: Place) = homeShortcuts.any { it.fsId == p.fsId && Nav.same(it.path, p.path) }
+
+    /** 「最近開いた場所」の先頭に入れる(固定した場所は入れない)。NAS の最初のフォルダは、接続先の項目と同じ扱いにする。最大 12 件。 */
+    private fun touchOpened(p: Place) {
+        val q = if (p.fsId.startsWith("smb:") && remotes.firstOrNull { "smb:${it.id}" == p.fsId }?.startDir?.let { Nav.same(it, p.path) } == true) Place(p.fsId, "") else p
+        if (q in pinned) return
+        opened = (listOf(q) + opened.filter { it != q }).take(12)
+        writePlaces("opened", opened)
     }
 
     fun pin(p: Place) {
@@ -384,6 +393,7 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
             val p = Place(fsId, path)
             history = (listOf(p) + history.filter { it != p }).take(30)
             writePlaces("history", history)
+            touchOpened(p)
         }
     }
 
@@ -571,6 +581,7 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
         val hidden = showHidden
         val ctx = getApplication<Application>()
         val dirs = volumes.map { it.dir }
+        val startedMs = android.os.SystemClock.elapsedRealtime()
         loadJob = viewModelScope.launch {
             try {
                 val (list, error) = withContext(Dispatchers.IO) {
@@ -594,6 +605,13 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
                 }
                 items = list ?: emptyList()
                 listError = error
+                // 動作の記録に、一覧を読むのにかかった時間を残す(場所の名前は残さない)
+                val where = when (s) {
+                    is Screen.Dir -> if (s.fsId == "local") "端末" else "NAS"
+                    is Screen.Cat -> "分類"
+                    else -> "ごみ箱"
+                }
+                PerfLog.event("一覧($where) ${items.size} 件 ${android.os.SystemClock.elapsedRealtime() - startedMs}ms")
             } finally {
                 loading = false
             }
@@ -619,6 +637,38 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
     /** NAS の画像・動画のサムネイルを読み込むか(通信が重いと感じるときに切れるようにしてある)。 */
     var nasThumbs by mutableStateOf(prefs.getBoolean("nasThumbs", true))
         private set
+
+    /** 設定に「開発者向けオプション」を出しているか。バージョンを何回か押すと出る。 */
+    var devMode by mutableStateOf(prefs.getBoolean("devMode", false))
+        private set
+
+    fun changeDevMode(on: Boolean) {
+        devMode = on
+        prefs.edit().putBoolean("devMode", on).apply()
+    }
+
+    /** 開発者向けオプションの一番上のスイッチ。オフの間は、中の機能がすべて止まる(各スイッチの選びは残す)。 */
+    var devMaster by mutableStateOf(prefs.getBoolean("devMaster", true))
+        private set
+
+    /** 動作の記録のスイッチの選び。実際に記録するのは、これと一番上のスイッチが両方オンのとき。 */
+    var perfLogOn by mutableStateOf(prefs.getBoolean("perfLogWanted", PerfLog.enabled))
+        private set
+
+    /** 動作の記録が、いま実際に動いているか。 */
+    val perfLogActive: Boolean get() = devMaster && perfLogOn
+
+    fun changeDevMaster(on: Boolean) {
+        devMaster = on
+        prefs.edit().putBoolean("devMaster", on).apply()
+        PerfLog.setEnabled(perfLogActive)
+    }
+
+    fun setPerfLog(on: Boolean) {
+        perfLogOn = on
+        prefs.edit().putBoolean("perfLogWanted", on).apply()
+        PerfLog.setEnabled(perfLogActive)
+    }
 
     fun toggleNasThumbs() {
         nasThumbs = !nasThumbs
