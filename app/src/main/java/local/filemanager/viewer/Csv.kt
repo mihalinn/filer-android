@@ -54,6 +54,27 @@ object Csv {
         return best
     }
 
+    /**
+     * 表を CSV の文字にする(行の区切りは LF。保存するときに、元の改行に直す)。
+     * 区切り・引用符・改行を含むセルだけを "" で囲む。1 列の表で空のセルは、空行と区別できるよう "" と書く。
+     */
+    fun write(rows: List<List<String>>, delimiter: Char): String {
+        val sb = StringBuilder()
+        for (row in rows) {
+            if (row.size == 1 && row[0].isEmpty()) {
+                sb.append("\"\"")
+            } else {
+                row.forEachIndexed { i, cell ->
+                    if (i > 0) sb.append(delimiter)
+                    val quote = cell.any { it == delimiter || it == '"' || it == '\n' || it == '\r' }
+                    if (quote) sb.append('"').append(cell.replace("\"", "\"\"")).append('"') else sb.append(cell)
+                }
+            }
+            sb.append('\n')
+        }
+        return sb.toString()
+    }
+
     fun parse(text: String, delimiter: Char, maxRows: Int = 50_000): Table {
         val rows = ArrayList<List<String>>()
         var row = ArrayList<String>()

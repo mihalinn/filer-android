@@ -80,7 +80,7 @@ import kotlin.math.abs
 
 // ---------------------------------------------------------------- 読み込み・保存
 
-private sealed interface EditLoad {
+internal sealed interface EditLoad {
     data object Busy : EditLoad
 
     /** stamp は読み込んだときの (大きさ, 更新日時)。保存の前に、ほかで変わっていないかの確認に使う。 */
@@ -88,7 +88,7 @@ private sealed interface EditLoad {
     class Fail(val message: String) : EditLoad
 }
 
-private sealed interface SaveResult {
+internal sealed interface SaveResult {
     class Saved(val stamp: Pair<Long, Long>?) : SaveResult
 
     /** 読み込んだあとに、ファイルがほかで変わっていた */
@@ -97,7 +97,7 @@ private sealed interface SaveResult {
 
 private fun stampOf(fs: Fs, path: String): Pair<Long, Long>? = runCatching { fs.stat(path) }.getOrNull()?.let { it.size to it.modified }
 
-private fun loadForEdit(fs: Fs, item: FileItem): EditLoad = try {
+internal fun loadForEdit(fs: Fs, item: FileItem): EditLoad = try {
     val stamp = stampOf(fs, item.path)
     val (bytes, truncated) = fs.open(item.path).use { TextDecode.readUpTo(it, TextFile.MAX_BYTES) }
     if (truncated) throw OpException("大きすぎて編集できません(${TextFile.MAX_BYTES / 1024 / 1024} MB まで)")
@@ -108,7 +108,7 @@ private fun loadForEdit(fs: Fs, item: FileItem): EditLoad = try {
 }
 
 /** 端末内は、別の名前で書いてから置き換える(途中で失敗しても元のファイルを壊さない)。NAS はそのまま上書きする。 */
-private fun writeBack(fs: Fs, item: FileItem, text: String, enc: TextEnc, eol: Eol, stamp: Pair<Long, Long>?, force: Boolean): SaveResult {
+internal fun writeBack(fs: Fs, item: FileItem, text: String, enc: TextEnc, eol: Eol, stamp: Pair<Long, Long>?, force: Boolean): SaveResult {
     val bytes = TextFile.encode(text, enc, eol)
     if (!force && stamp != null && stampOf(fs, item.path) != stamp) return SaveResult.Changed
     if (fs.isLocal) {

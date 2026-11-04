@@ -114,6 +114,8 @@ internal fun ViewerScreen(
     var mhtWide by remember { mutableStateOf(true) }
     // 文字のファイルの編集。保存したら reloadTick を進めて、表示を読み直す
     var editing by remember { mutableStateOf(false) }
+    // CSV・TSV を、表(セルを選んで書き換える)で編集する画面
+    var editingGrid by remember { mutableStateOf(false) }
     var reloadTick by remember { mutableIntStateOf(0) }
     val pager = rememberPagerState(initialPage = req.index) { req.files.size }
     val current = req.files[if (isImage) pager.currentPage.coerceIn(0, req.files.lastIndex) else 0]
@@ -248,7 +250,9 @@ internal fun ViewerScreen(
                         }
                     }
                     // 文字のファイルは、すぐ編集に入れる(種類が分からないファイルは、メニューの「編集」から)
-                    if (editable && kind != PreviewKind.UNKNOWN) IconButton(onClick = { editing = true }) { Icon(Icons.Default.Edit, "編集", tint = fg) }
+                    // CSV・TSV は、表で見ているときは表で編集する(テキストで見ているときは文字として編集する)
+                    val gridEdit = kind == PreviewKind.CSV && !raw
+                    if (editable && kind != PreviewKind.UNKNOWN) IconButton(onClick = { if (gridEdit) editingGrid = true else editing = true }) { Icon(Icons.Default.Edit, "編集", tint = fg) }
                     Box {
                         IconButton(onClick = { menu = true }) { Icon(Icons.Default.MoreVert, "メニュー", tint = fg) }
                         // 並びは固定: 開く・共有(最上段)→ 表示 → ファイル。種類によって変わるのは各まとまりの中身だけ
@@ -318,7 +322,14 @@ internal fun ViewerScreen(
                             if (sizeRow) add(VMenuItem.TextSize(fontSp, VIEWER_FONT_MIN, VIEWER_FONT_MAX) { fontSp = it })
                         }
                         val fileItems = ArrayList<VMenuItem>()
-                        if (editable) fileItems.add(VMenuItem.Action(Icons.Default.Edit, "編集") { editing = true })
+                        if (editable) {
+                            if (kind == PreviewKind.CSV && !raw) {
+                                fileItems.add(VMenuItem.Action(Icons.Default.Edit, "表で編集") { editingGrid = true })
+                                fileItems.add(VMenuItem.Action(Icons.Default.Edit, "テキストとして編集") { editing = true })
+                            } else {
+                                fileItems.add(VMenuItem.Action(Icons.Default.Edit, "編集") { editing = true })
+                            }
+                        }
                         if (searchable) fileItems.add(VMenuItem.Action(Icons.Default.Search, "検索") { searching = true })
                         val copyAct = copyHolder.action
                         val copyProv = copyHolder.provider
@@ -357,6 +368,13 @@ internal fun ViewerScreen(
         infoFor?.let { f -> PhotoInfoDialog(req.fs, f) { infoFor = null } }
         // ZIP の中から開いたもの。上のバーよりも前に出す
         inner?.let { r -> ViewerScreen(vm, r, onClose = { inner = null }, nested = true) }
+        if (editingGrid) {
+            CsvEditorScreen(
+                req.fs, current, headerOn, fontSp,
+                onSaved = { reloadTick++; vm.reload() },
+                onClose = { editingGrid = false },
+            )
+        }
         if (editing) {
             TextEditorScreen(
                 req.fs, current, fontSp, { fontSp = it },

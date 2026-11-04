@@ -142,6 +142,7 @@ private class SqlGridModel(private val header: List<String>, private val rows: L
     override val colCount = header.size
     override val frozenRows = 1
     override fun span(r: Int, c: Int) = 1
+    override val uniformRows: Boolean get() = true
 
     private val widths: List<Float> = List(header.size) { c ->
         fun w(s: String): Int {

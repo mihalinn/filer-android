@@ -13,13 +13,15 @@
 - **中身を見る**: ファイルを開くと、その場でプレビューします
   - 文字・Markdown・CSV・JSON・XML・HTML・EPUB・マンガ(cbz など)
   - 画像(HEIC・SVG を含む)・PDF
-  - 動画・音声・MIDI(ExoPlayer と FFmpeg)
+  - 動画・音声・MIDI(ExoPlayer と FFmpeg)。画面を消しても動画・音声の再生は続き、通知から操作できます
   - Word・Excel・PowerPoint(旧形式を含む)・ODF・RTF
   - 図面(DXF・JW_CAD・draw.io)と 3D(STL・OBJ・PLY・OFF・3MF)
   - 文字は、長押しして選んで、コピーできます(文字ファイル・Word・Excel・PowerPoint・PDF など)
+  - CSV・Excel などの表は、つまんで拡大・縮小でき、縦横斜めになめらかに動かせます
   - 書庫(zip・7z・tar 系・rar・lzh)・APK・.xapk などのまとめインストール
   - iPhone 系(plist・pkpass・iWork・ipa)・SQLite・フォント・連絡先(vCard)
-- **見た目**: ホーム画面の並べ替え、ライト/ダーク配色
+- **編集**: 文字のファイルの編集(検索・置換、文字コード・改行の指定)。CSV・TSV は、Excel のような表でセルを選んで編集できます
+- **見た目**: ホーム画面の並べ替え、ライト/ダーク配色、テーマカラー(藍・ティール・ワイン赤)
 
 ## ビルド
 
