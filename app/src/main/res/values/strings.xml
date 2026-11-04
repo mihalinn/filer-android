@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">ファイラー</string>
+    <string name="playback_channel_name">動画・音声の再生</string>
 </resources>

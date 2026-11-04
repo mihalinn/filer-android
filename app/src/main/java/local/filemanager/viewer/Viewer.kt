@@ -81,11 +81,13 @@ internal fun ViewerScreen(
     /** ZIP の中から開いたもの(端末の一時ファイル)。「ここに展開」などは出さない */
     nested: Boolean = false,
 ) {
-    BackHandler { onClose() }
-    // 動画・音声は専用のプレイヤー画面で開く
-    if (isPlayable(req.files[req.index].kind)) {
+    // 動画・音声は専用のプレイヤー画面で開く。画面を消しても再生は続くが、画面を閉じる(×・戻る)ときは再生も終える
+    val playable = isPlayable(req.files[req.index].kind)
+    val close: () -> Unit = if (playable) ({ PlaybackHolder.stop(); onClose() }) else onClose
+    BackHandler { close() }
+    if (playable) {
         // MIDI は ExoPlayer で鳴らせないので、端末の MediaPlayer で鳴らす専用の画面
-        if (isMidiName(req.files[req.index].name)) MidiScreen(vm, req, onClose) else PlayerScreen(vm, req, onClose)
+        if (isMidiName(req.files[req.index].name)) MidiScreen(vm, req, close) else PlayerScreen(vm, req, close)
         return
     }
     val isImage = req.files[req.index].kind == FileKind.IMAGE

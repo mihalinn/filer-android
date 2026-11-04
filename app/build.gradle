@@ -10,8 +10,8 @@ android {
         applicationId 'local.filemanager'
         minSdk 30
         targetSdk 34
-        versionCode 120
-        versionName '0.54.0'
+        versionCode 121
+        versionName '0.55.0'
         // 同梱するFFmpegの部品(約15MB)は、今のスマホで使う arm64 だけにする
         ndk { abiFilters 'arm64-v8a' }
     }
@@ -61,6 +61,8 @@ dependencies {
     implementation 'org.slf4j:slf4j-nop:2.0.9'
     // 動画・音声の再生(ExoPlayer)。画面の部品は自前で作るので、再生エンジンだけを使う
     implementation 'androidx.media3:media3-exoplayer:1.7.1'
+    // 画面を消しても再生を続け、通知から操作できるようにする(再生サービスと通知)
+    implementation 'androidx.media3:media3-session:1.7.1'
     // 端末に MPEG-2(放送録画のTS)のデコーダーが無いときの、ソフトウェア解読(FFmpeg)。Kotlin 部分は使わず Java のレンダラーだけ使う
     implementation 'io.github.anilbeesetti:nextlib-media3ext:1.7.1-0.9.0'
     // 7z・tar 系(gz/bz2/xz)・RAR の中身を読む

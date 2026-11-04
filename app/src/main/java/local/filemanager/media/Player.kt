@@ -101,25 +101,26 @@ private fun PlayerBody(vm: FmViewModel, req: FmViewModel.ViewerRequest, subs: Li
     val ctx = LocalContext.current
     val activity = remember(ctx) { ctx.findActivity() }
     val isAudio = req.files[req.index].kind == FileKind.AUDIO
-    val player = remember { createPlayer(ctx, req, subs) }
+    // 再生エンジンは PlaybackHolder が持つ(画面を消しても続く)。同じ依頼なら、続いている再生にそのままつなぐ
+    val player = remember { PlaybackHolder.acquire(ctx, req, subs) }
 
-    var wantPlay by remember { mutableStateOf(true) }
-    var state by remember { mutableIntStateOf(Player.STATE_IDLE) }
-    var index by remember { mutableIntStateOf(req.index) }
+    var wantPlay by remember { mutableStateOf(player.playWhenReady) }
+    var state by remember { mutableIntStateOf(player.playbackState) }
+    var index by remember { mutableIntStateOf(player.currentMediaItemIndex.coerceIn(0, req.files.lastIndex)) }
     var position by remember { mutableLongStateOf(0L) }
     var duration by remember { mutableLongStateOf(0L) }
     var error by remember { mutableStateOf<String?>(null) }
     var cues by remember { mutableStateOf("") }
     var videoNote by remember { mutableStateOf<String?>(null) }
-    var speed by remember { mutableFloatStateOf(1f) }
+    var speed by remember { mutableFloatStateOf(player.playbackParameters.speed) }
     var subsOn by remember { mutableStateOf(true) }
     var ratio by remember { mutableFloatStateOf(16f / 9f) }
     var controls by remember { mutableStateOf(true) }
     var touched by remember { mutableIntStateOf(0) }
     var landscape by remember { mutableStateOf(false) }
     var menu by remember { mutableStateOf(false) }
-    var trackInfo by remember { mutableStateOf(Tracks.EMPTY) }
-    var tags by remember { mutableStateOf(MediaMetadata.EMPTY) }
+    var trackInfo by remember { mutableStateOf(player.currentTracks) }
+    var tags by remember { mutableStateOf(player.mediaMetadata) }
     var songInfo by remember { mutableStateOf(false) }
     val current = req.files[index.coerceIn(0, req.files.lastIndex)]
     // 曲に埋め込まれたジャケット。無ければ、同じフォルダの cover.jpg などを探す
@@ -209,18 +210,32 @@ private fun PlayerBody(vm: FmViewModel, req: FmViewModel.ViewerRequest, subs: Li
             }
         }
         player.addListener(l)
+        // 続いている再生につないだときのために、いまの状態を取り込む
+        PlaybackHolder.attachUi()
+        trackInfo = player.currentTracks
+        tags = player.mediaMetadata
+        videoNote = if (isAudio) null else videoProblem(player.currentTracks)
+        updateRatio(player.videoSize)
         onDispose {
             player.removeListener(l)
-            player.release()
+            // 再生は止めない(止めるのは、画面を閉じたときの PlaybackHolder.stop)
+            PlaybackHolder.detachUi()
             // 全画面にしていたら、向きを元に戻す
             activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         }
     }
 
-    // アプリが見えなくなったら一時停止する
+    // アプリが見えなくなっても再生は続ける。動画は、映像を作らなくてよいぶん電池を使わないよう、音だけにする
     val owner = LocalLifecycleOwner.current
     DisposableEffect(owner, player) {
-        val obs = LifecycleEventObserver { _, e -> if (e == Lifecycle.Event.ON_STOP) player.pause() }
+        fun videoOff(off: Boolean) {
+            if (isAudio) return
+            player.trackSelectionParameters = player.trackSelectionParameters.buildUpon()
+                .setTrackTypeDisabled(C.TRACK_TYPE_VIDEO, off).build()
+        }
+        val obs = LifecycleEventObserver { _, e ->
+            if (e == Lifecycle.Event.ON_STOP) videoOff(true) else if (e == Lifecycle.Event.ON_START) videoOff(false)
+        }
         owner.lifecycle.addObserver(obs)
         onDispose { owner.lifecycle.removeObserver(obs) }
     }

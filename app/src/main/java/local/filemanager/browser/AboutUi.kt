@@ -61,7 +61,7 @@ internal object Credits {
             "libvpx 1.13.0(VP8・VP9 の読み取り用。FFmpeg に組み込まれています)", "BSD 3-Clause ライセンス",
             "著作権: The WebM Project authors。libavcodec.so に組み込まれています。", "libvpx.txt",
         ),
-        Credit("AndroidX Media3 1.7.1(ExoPlayer)", "Apache License 2.0", null, "apache-2.0.txt"),
+        Credit("AndroidX Media3 1.7.1(ExoPlayer・Session)", "Apache License 2.0", null, "apache-2.0.txt"),
         Credit(
             "Jetpack Compose・Material 3・AndroidX", "Apache License 2.0",
             "Activity、Core、Lifecycle、ExifInterface を含みます。画面のアイコンは Material Icons(Google)です。", "apache-2.0.txt",

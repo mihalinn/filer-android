@@ -13,8 +13,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import io.github.anilbeesetti.nextlib.media3ext.ffdecoder.FfmpegAudioRenderer
 import io.github.anilbeesetti.nextlib.media3ext.ffdecoder.FfmpegVideoRenderer
+import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
 import androidx.media3.common.MimeTypes
 import androidx.media3.common.Player
 import androidx.media3.common.Tracks
@@ -113,12 +115,24 @@ internal fun createPlayer(ctx: Context, req: FmViewModel.ViewerRequest, subs: Li
         .setTsExtractorFlags(DefaultTsPayloadReaderFactory.FLAG_ALLOW_NON_IDR_KEYFRAMES or DefaultTsPayloadReaderFactory.FLAG_DETECT_ACCESS_UNITS)
         .setConstantBitrateSeekingEnabled(true)
     val renderers = FfmpegRenderersFactory(ctx).setEnableDecoderFallback(true)
+    val isAudio = req.files[req.index].kind == FileKind.AUDIO
     val player = ExoPlayer.Builder(ctx, renderers)
         .setMediaSourceFactory(DefaultMediaSourceFactory(upstream, extractors))
+        // 他の音や通話があるときは譲り、戻ったら続ける。イヤホンが抜けたら止める
+        .setAudioAttributes(
+            AudioAttributes.Builder().setUsage(C.USAGE_MEDIA)
+                .setContentType(if (isAudio) C.AUDIO_CONTENT_TYPE_MUSIC else C.AUDIO_CONTENT_TYPE_MOVIE).build(),
+            true,
+        )
+        .setHandleAudioBecomingNoisy(true)
+        // 画面を消している間も、端末が眠って止まらないように(NAS から読むときは Wi-Fi も保つ)
+        .setWakeMode(if (fs.isLocal) C.WAKE_MODE_LOCAL else C.WAKE_MODE_NETWORK)
         .build()
     val items = req.files.mapIndexed { i, f ->
         val uri = if (fs.isLocal && !Shims.needed(f.name)) Uri.fromFile(File(f.path)) else Uri.Builder().scheme("filer").authority("nas").path(f.path).build()
-        MediaItem.Builder().setUri(uri).setMediaId(f.path).apply {
+        // 通知に出す名前(曲のタグに題名があれば、そちらが使われる)。画面の題名の判定には影響しないよう、displayTitle に入れる
+        val meta = MediaMetadata.Builder().setDisplayTitle(f.name).build()
+        MediaItem.Builder().setUri(uri).setMediaId(f.path).setMediaMetadata(meta).apply {
             if (i == req.index && subs.isNotEmpty()) {
                 setSubtitleConfigurations(
                     subs.mapIndexed { k, s ->

@@ -12,6 +12,8 @@
     <!-- アプリを閉じても、大きなコピー・移動を続けて進み具合を通知に出す -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <!-- 画面を消しても、動画・音声の再生を続けて通知に出す -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!-- コピー中に端末がスリープして止まらないようにする -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -50,6 +52,15 @@
             android:name=".TransferService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
+        <!-- 動画・音声の再生を続ける役。外からは使わせない(通知・ロック画面の操作は、アプリ自身の MediaSession 経由) -->
+        <service
+            android:name=".PlaybackService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback">
+            <intent-filter>
+                <action android:name="androidx.media3.session.MediaSessionService" />
+            </intent-filter>
+        </service>
 
         <!-- 他のアプリでファイルを開く・共有するための一時的なアクセス権の受け渡し -->
         <provider
