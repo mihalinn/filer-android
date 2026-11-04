@@ -31,6 +31,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -250,6 +251,8 @@ internal fun DocPane(
     fs: Fs, item: FileItem, kind: PreviewKind, fontSp: Int, bars: Boolean, raw: Boolean, headerOn: Boolean, onTap: () -> Unit,
     /** 検索の言葉と、何番目に当たった所を見せるか。当たった数は onHits で知らせる(行が出る表示のときだけ検索できる)。 */
     query: String = "", hit: Int = 0, onHits: (Int) -> Unit = {},
+    /** 「全文をコピー」の中身を入れる先(メニューの項目になる)。 */
+    copy: CopyHolder? = null,
 ) {
     val load = produceState<DocLoad>(DocLoad.Busy, item.path) {
         value = withContext(Dispatchers.IO) { readDoc(fs, item, kind) }
@@ -266,14 +269,25 @@ internal fun DocPane(
                     CircularProgressIndicator(Modifier.align(Alignment.Center), color = Pv.text)
                 } else {
                     val banner = if (s.truncated) "先頭の ${s.limitMb} MB だけ表示しています" else null
+                    DisposableEffect(view, copy) {
+                        val h = copy
+                        if (h != null) when (view) {
+                            is DocView.Lines -> h.set("全文をコピー") { view.lines.joinToString("\n") { it.text } }
+                            is DocView.Md -> h.set("全文をコピー") { s.text }
+                            is DocView.Grid -> h.set("表全体をコピー") {
+                                CopyText.tsv(view.table.rows.size, view.table.columns) { r, c -> view.table.rows[r].getOrElse(c) { "" } }
+                            }
+                        }
+                        onDispose { if (h != null) h.provider = null }
+                    }
                     val status = when (view) {
                         is DocView.Lines -> listOfNotNull(s.charset, "${view.lines.size}行", view.note).joinToString("・")
                         is DocView.Md -> "Markdown・${s.charset}"
                         is DocView.Grid -> "${view.table.rows.size}行×${view.table.columns}列・区切り「${delimiterName(view.table.delimiter)}」・${s.charset}"
                     }
                     when (view) {
-                        is DocView.Lines -> LinesPane(view.lines, banner, fontSp, query, hit, onHits)
-                        is DocView.Md -> MarkdownPane(view.blocks, banner, fontSp, onTap)
+                        is DocView.Lines -> CopyableArea { LinesPane(view.lines, banner, fontSp, query, hit, onHits) }
+                        is DocView.Md -> CopyableArea { MarkdownPane(view.blocks, banner, fontSp, onTap) }
                         is DocView.Grid -> TablePane(view.table, banner, headerOn, fontSp)
                     }
                     if (bars) {

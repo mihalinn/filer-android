@@ -3,6 +3,7 @@ package local.filemanager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -140,8 +141,9 @@ internal class CsvGridModel(private val table: Csv.Table, private val headerOn: 
  * Excel のような表(列は A・B・C…、行は番号、薄い罫線)。白い背景。上の見出しの行は固定で、横にも縦にもスクロールできる。
  * 長い文字のセルは、タップで全文を見られる。
  */
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
-internal fun SheetGrid(model: GridModel, fontSp: Int, modifier: Modifier = Modifier, dark: Boolean = false) {
+internal fun SheetGrid(model: GridModel, fontSp: Int, modifier: Modifier = Modifier, dark: Boolean = false, copyEnabled: Boolean = true) {
     val oc = remember(dark) { OfficeColors(dark) }
     val gridLine = oc.gridLine
     val headerFill = oc.headerFill
@@ -151,6 +153,8 @@ internal fun SheetGrid(model: GridModel, fontSp: Int, modifier: Modifier = Modif
     val numW = ((model.rowCount.toString().length * 9 + 22) * s).dp
     val rowH = (22f * s).dp
     var detail by remember { mutableStateOf<String?>(null) }
+    // 長押ししたセル(行, 列)。コピーのメニューを出す
+    var menu by remember { mutableStateOf<Pair<Int, Int>?>(null) }
     val hs = rememberScrollState()
 
     @Composable
@@ -164,16 +168,29 @@ internal fun SheetGrid(model: GridModel, fontSp: Int, modifier: Modifier = Modif
                 val span = model.span(r, c)
                 if (span == 0) { c++; continue }
                 val w: Dp = (c until minOf(c + span, model.colCount)).fold(0.dp) { a, i -> a + widths[i] }
+                val col = c  // 長押しの中で使う(c はあとで進むので、そのまま使うとずれる)
                 val cell = model.cell(r, c)
                 val tall = cell != null && (cell.text.length > 18 || cell.text.contains('\n'))
                 Box(
                     Modifier.width(w).fillMaxHeight().heightIn(min = rowH)
                         .background(cell?.fill?.let { oc.c(it) } ?: oc.paper)
                         .border(if (cell?.border == true) 0.8.dp else 0.5.dp, if (cell?.border == true) oc.strongLine else gridLine)
-                        .let { if (tall) it.clickable { detail = cell?.text } else it }
+                        .let { m ->
+                            if (copyEnabled && cell != null && cell.text.isNotEmpty()) m.combinedClickable(onClick = { if (tall) detail = cell.text }, onLongClick = { menu = r to col })
+                            else if (tall) m.clickable { detail = cell?.text } else m
+                        }
                         .padding(horizontal = 4.dp, vertical = 2.dp),
                     contentAlignment = when (cell?.align) { 0 -> Alignment.TopCenter; 1 -> Alignment.TopEnd; else -> Alignment.TopStart },
                 ) {
+                    if (menu == r to col) {
+                        CellCopyMenu(
+                            onDismiss = { menu = null },
+                            cell = cell?.text.orEmpty(),
+                            row = { CopyText.row(model.colCount) { model.cell(r, it)?.text.orEmpty() } },
+                            column = { CopyText.column(model.rowCount) { model.cell(it, col)?.text.orEmpty() } },
+                            all = { CopyText.tsv(model.rowCount, model.colCount) { rr, cc -> model.cell(rr, cc)?.text.orEmpty() } },
+                        )
+                    }
                     if (cell != null && cell.text.isNotEmpty()) {
                         Text(
                             cell.text,

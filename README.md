@@ -16,6 +16,7 @@
   - 動画・音声・MIDI(ExoPlayer と FFmpeg)
   - Word・Excel・PowerPoint(旧形式を含む)・ODF・RTF
   - 図面(DXF・JW_CAD・draw.io)と 3D(STL・OBJ・PLY・OFF・3MF)
+  - 文字は、長押しして選んで、コピーできます(文字ファイル・Word・Excel・PowerPoint・PDF など)
   - 書庫(zip・7z・tar 系・rar・lzh)・APK・.xapk などのまとめインストール
   - iPhone 系(plist・pkpass・iWork・ipa)・SQLite・フォント・連絡先(vCard)
 - **見た目**: ホーム画面の並べ替え、ライト/ダーク配色
@@ -37,7 +38,7 @@ echo "sdk.dir=/path/to/Android/sdk" > local.properties
 
 ## 不具合・要望
 
-[Issues](https://github.com/mihalinn/filer-android/issues) で受け付けています。アプリの「設定」→「不具合・要望の報告」からも、バージョンや端末の情報を入れた状態で、報告のページを開けます。
+[Issues](https://github.com/mihalinn/filer-android/issues) で受け付けています。アプリの「設定」→「不具合・要望・記録」からも、バージョンや端末の情報を入れた状態で、報告のページを開けます。
 
 - 不具合: [報告する](https://github.com/mihalinn/filer-android/issues/new?template=bug_report.yml)
 - 要望: [送る](https://github.com/mihalinn/filer-android/issues/new?template=feature_request.yml)

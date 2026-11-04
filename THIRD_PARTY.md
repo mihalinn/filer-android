@@ -15,6 +15,7 @@
 | smbj 0.13.0(NAS への接続) | Apache License 2.0 | 同じ作者の asn-one 0.6.0(Apache 2.0)も使っています |
 | Mbassador 1.3.0 | MIT | smbj が使っています。作者: Benjamin Diedrichsen |
 | Apache Commons Compress 1.27.1 | Apache License 2.0 | 7z・tar などを読むために使っています。Commons Codec 1.17.1・IO 2.16.1・Lang 3.16.0 も含みます。著作権表示(NOTICE)は `app/src/main/assets/licenses/commons-notice.txt` |
+| PDFium(PDF の表示と文字の選択)・PdfiumAndroidKt 1.0.35 | Apache License 2.0 | PDF を絵にして、文字の位置を調べるために使っています。PDFium が使う FreeType・ICU・libjpeg-turbo・libpng・zlib・HarfBuzz などの著作権表示とライセンスは `app/src/main/assets/licenses/pdfium-notice.txt` |
 | AndroidSVG 1.4 | Apache License 2.0 | |
 | Bouncy Castle 1.79 | MIT | |
 | SLF4J 2.0.17(API)・2.0.9(nop) | MIT | |

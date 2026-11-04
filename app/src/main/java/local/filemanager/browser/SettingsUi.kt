@@ -59,9 +59,10 @@ private fun SettingsMain(vm: FmViewModel) {
     val pal = LocalPal.current
     val ctx = LocalContext.current
     val version = remember { runCatching { ctx.packageManager.getPackageInfo(ctx.packageName, 0).versionName }.getOrNull() ?: "" }
-    // 異常終了の記録を消したら、行を隠すために数え直す
+    // 異常終了の記録を見た・消したら、行の表示を数え直す
     var crashStamp by remember { mutableIntStateOf(0) }
-    val hasCrash = remember(crashStamp) { CrashLog.read(ctx) != null || CrashLog.abnormalExits(ctx).isNotEmpty() }
+    val crashRows = remember(crashStamp) { CrashLog.entries(ctx) }
+    val crashUnseen = remember(crashStamp) { CrashLog.hasUnseen(ctx) }
     var showCrash by remember { mutableStateOf(false) }
     var report by remember { mutableStateOf<Boolean?>(null) }
     Column(Modifier.fillMaxSize().background(pal.background).verticalScroll(rememberScrollState())) {
@@ -102,10 +103,15 @@ private fun SettingsMain(vm: FmViewModel) {
             LinkRow("ごみ箱", FileOps.formatSize(vm.trashSize)) { vm.openTrash() }
         }
         Group("アプリの更新") { UpdateSettings(vm.updater) }
-        Group("不具合・要望の報告") {
+        Group("不具合・要望・記録") {
             LinkRow("不具合を報告", "動かない・表示がおかしいなど。GitHub に報告します") { report = true }
             LinkRow("要望を送る", "こんな機能がほしい、など") { report = false }
             LinkRow("報告の一覧を見る", "GitHub で、これまでの報告と対応を見られます") { vm.openUrl("${vm.updater.repoUrl}/issues") }
+            LinkRow(
+                "異常終了の記録",
+                if (crashRows.isEmpty()) "記録はありません" else "${crashRows.size} 件・最後は ${CrashLog.stamp(crashRows.first().time)}" + if (crashUnseen) "(まだ見ていません)" else "",
+                warn = crashUnseen,
+            ) { showCrash = true }
         }
         Group("このアプリについて") {
             Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)) {
@@ -120,11 +126,10 @@ private fun SettingsMain(vm: FmViewModel) {
             HorizontalDivider(color = pal.divider)
             LinkRow("対応しているファイル形式", "アプリの中で開ける形式の一覧") { vm.openSettings(SettingsPage.FORMATS) }
             LinkRow("ライセンス", "使っているもの ${Credits.list.size} 件") { vm.openSettings(SettingsPage.LICENSES) }
-            if (hasCrash) LinkRow("前回の異常終了の記録", "原因の記録を確認・コピーできます", warn = true) { showCrash = true }
         }
         Spacer(Modifier.height(24.dp))
     }
-    if (showCrash) CrashLogDialog(onCleared = { crashStamp++ }) { showCrash = false }
+    if (showCrash) CrashLogDialog(onCleared = { crashStamp++ }) { showCrash = false; crashStamp++ }
     report?.let { bug -> ReportDialog(vm, bug) { report = null } }
 }
 

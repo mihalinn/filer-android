@@ -4,7 +4,7 @@
 
 ## 1. ビルドと試験
 
-- 環境: Kotlin 1.9.22 / Compose BOM 2024.02 / AGP 8.2.2 / Gradle 8.5 / JDK 17(`C:\Program Files\Eclipse Adoptium\jdk-17.0.20.101-hotspot`)。minSdk 30、targetSdk 34。
+- 環境: Kotlin 1.9.22 / Compose BOM 2024.06 / AGP 8.2.2 / Gradle 8.5 / JDK 17(`C:\Program Files\Eclipse Adoptium\jdk-17.0.20.101-hotspot`)。minSdk 30、targetSdk 34。
 - 配布のビルド(約 9 分。メモリが足りなくなるので `-Xmx2g`・workers 3 まで)。
   ```
   $env:JAVA_HOME='C:\Program Files\Eclipse Adoptium\jdk-17.0.20.101-hotspot'
@@ -34,7 +34,7 @@
 | `browser/` | 一覧とその周りの画面 | `ListUi` `Home` `HomeLayout` `Drawer` `Dialogs` `FileIcon` `SettingsUi` `AboutUi`(ライセンス) `AnalyzeUi` `ProgressUi` |
 | `storage/` | 場所(端末・NAS)の読み書き | `Fs`(抽象と端末内)、`SmbFs`(NAS。smbj)、`Remotes`(接続先の保存。暗号化)、`Trash`、`FileOps`(端末内の操作・拡張子の分類)、`Media`(MediaStore の分類)、`Analyzer`(容量の分析)、`ReadAhead` `WriteBehind` `ResumeStreams`(NAS を速く・切れにくくする)、`ReadProgress` |
 | `transfer/` | コピー・移動・圧縮の実行 | `Transfer`(Fs 間の操作)、`Progress`、`Ops`(実行中の操作の状態。アプリ全体で 1 つ)、`TransferService`(アプリを閉じても続けるサービス)、`Conflict`(同名の扱い) |
-| `viewer/` | プレビューの入口と文字・画像・PDF | `Viewer`(入口。種類で振り分け)、`ViewerMenu`、`Highlight`(`PreviewKind`)、`PreviewUi`(文書・Markdown・表・配色 `Pv`)、`PdfUi` `UnknownUi`(種類の分からないファイル) `ImageUi`、`TextEdit` `EditorUi`(文字ファイルの編集)、`Sniff`(種類の推測)、`TextDecode`、`Csv` `Pretty` `Markdown` `Json` `Svg` `ImageDecode` `PhotoInfo` `ExifFormat` `Vcard` `ContactUi` |
+| `viewer/` | プレビューの入口と文字・画像・PDF | `Viewer`(入口。種類で振り分け)、`ViewerMenu`、`Highlight`(`PreviewKind`)、`PreviewUi`(文書・Markdown・表・配色 `Pv`)、`PdfUi`(PDF。表示は PDFium) `PdfiumDoc`(PDFium の窓口) `PdfLayout`(文字の位置の計算) `PdfSelect`(文字の選択) `UnknownUi`(種類の分からないファイル) `ImageUi`、`TextEdit` `EditorUi`(文字ファイルの編集)、`Sniff`(種類の推測)、`TextDecode`、`Csv` `Pretty` `Markdown` `Json` `Svg` `ImageDecode` `PhotoInfo` `ExifFormat` `Vcard` `ContactUi` |
 | `media/` | 動画・音声・MIDI | `Player` `PlayerSetup`(動画・音声。Media3/ExoPlayer + FFmpeg)、`PlayerChrome`(上のバー・再生ボタン・シークバー。音声と MIDI で共通)、`AudioUi`、`MediaSupport`(NAS 上のファイルを ExoPlayer に読ませる)、`Shims`(読めない形を読める形に見せかける。BDAV・AIFF)、`Caf`、`MusicInfo`、`MidiPlay`(MIDI は端末の MediaPlayer で鳴らすだけ。画面は音声と同じ部品)、`Thumbs` |
 | `office/` | Office・ODF・RTF | `Office` `OfficeUi` `OfficeTheme`、`Docx` `Doc`(旧 Word)、`Xlsx` `Xls` `SheetUi`、`SlideDeck` `SlideStyle` `SlideGeom` `SlideUi`(PowerPoint を絵にする)、`Ppt` `PptDeck`(旧 PowerPoint)、`Odf` `Odt` `Ods` `Odp`、`Rtf`、`Ole2`(旧形式の入れ物) |
 | `archive/` | 書庫・APK | `Archives`(zip/7z/rar/tar 系の窓口)、`ArchiveUi`(ZIP の画面)、`ApkUi` `BundleUi`、`Lzh`、`ZipReader` `ZipTree`、`ApkFormat` `ApkBundle` `BundleInstall`(.xapk などのまとめインストール) |

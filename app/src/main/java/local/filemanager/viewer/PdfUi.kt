@@ -1,12 +1,13 @@
 package local.filemanager
 
 import android.content.Context
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ContentCopy
 import android.graphics.Bitmap
-import android.graphics.Color as AColor
-import android.graphics.pdf.PdfRenderer
-import android.os.ParcelFileDescriptor
 import android.util.LruCache
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -19,6 +20,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
@@ -48,6 +50,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -57,6 +60,8 @@ import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
@@ -66,28 +71,45 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.text.KeyboardOptions
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.Closeable
 import java.io.File
+import kotlin.math.ceil
+import kotlin.math.floor
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.roundToInt
+import kotlin.math.sqrt
 
 // ---------------------------------------------------------------- PDF
 
 private sealed interface PdfLoad {
     data object Busy : PdfLoad
-    data class Ok(val doc: PdfDoc) : PdfLoad
+    data class Ok(val doc: PdfiumDoc) : PdfLoad
     data class Fail(val message: String) : PdfLoad
 }
 
 private const val PDF_REMOTE_LIMIT = 300L * 1024 * 1024
 private const val PDF_RENDER_MAX_PX = 2400
+/** 拡大したとき、見えている範囲だけを細かく描く(画面のピクセルの数に合わせる)。この倍率を超えたら描く */
+private const val PDF_DETAIL_FROM = 1.15f
+private const val PDF_DETAIL_MAX_PIXELS = 7_000_000f
 
 private object PdfCache {
     private val cache = object : LruCache<String, Bitmap>(64 * 1024 * 1024) {
@@ -96,60 +118,6 @@ private object PdfCache {
 
     fun get(key: String): Bitmap? = synchronized(cache) { cache.get(key) }
     fun put(key: String, b: Bitmap) = synchronized(cache) { cache.put(key, b) }
-}
-
-private class PdfDoc(val file: File) : Closeable {
-    private val pfd: ParcelFileDescriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
-    private lateinit var renderer: PdfRenderer
-    private var closed = false
-    var pageCount = 0
-        private set
-    var sizes: List<Pair<Int, Int>> = emptyList()
-        private set
-
-    init {
-        try {
-            renderer = PdfRenderer(pfd)
-            pageCount = renderer.pageCount
-            val list = ArrayList<Pair<Int, Int>>(pageCount)
-            for (i in 0 until pageCount) {
-                val p = renderer.openPage(i)
-                try {
-                    list.add(p.width.coerceAtLeast(1) to p.height.coerceAtLeast(1))
-                } finally {
-                    p.close()
-                }
-            }
-            sizes = list
-        } catch (e: Exception) {
-            runCatching { pfd.close() }
-            throw e
-        }
-    }
-
-    /** 幅 widthPx の画像にして返す。PdfRenderer は同時に 1 ページしか開けないので、順番に処理する。 */
-    fun render(index: Int, widthPx: Int): Bitmap? = synchronized(renderer) {
-        if (closed) return null
-        val page = renderer.openPage(index)
-        try {
-            val h = (widthPx.toLong() * page.height / page.width).toInt().coerceIn(1, 8000)
-            val bmp = Bitmap.createBitmap(widthPx, h, Bitmap.Config.ARGB_8888)
-            bmp.eraseColor(AColor.WHITE)
-            page.render(bmp, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-            bmp
-        } finally {
-            page.close()
-        }
-    }
-
-    override fun close() {
-        synchronized(renderer) {
-            if (closed) return
-            closed = true
-            runCatching { renderer.close() }
-            runCatching { pfd.close() }
-        }
-    }
 }
 
 /** 端末内のファイルはそのまま、NAS のファイルは端末の一時領域に取り込んでから開く。 */
@@ -171,7 +139,7 @@ private fun openPdf(ctx: Context, fs: Fs, item: FileItem): PdfLoad {
             trimPdfCache(dir, dest)
             dest
         }
-        PdfLoad.Ok(PdfDoc(file))
+        PdfLoad.Ok(PdfiumDoc(ctx, file))
     } catch (e: SecurityException) {
         PdfLoad.Fail("パスワード付きのPDFは表示できません。メニューの「他のアプリで開く」を使ってください")
     } catch (e: Exception) {
@@ -193,8 +161,9 @@ private fun trimPdfCache(dir: File, keep: File) {
 }
 
 @Composable
-internal fun PdfPane(fs: Fs, item: FileItem, bars: Boolean, gotoDialog: Boolean, onGotoDismiss: () -> Unit, onTap: () -> Unit, dark: Boolean = false) {
+internal fun PdfPane(fs: Fs, item: FileItem, bars: Boolean, gotoDialog: Boolean, onGotoDismiss: () -> Unit, onTap: () -> Unit, dark: Boolean = false, copy: CopyHolder? = null) {
     val ctx = LocalContext.current
+    val copyScope = rememberCoroutineScope()
     val load = produceState<PdfLoad>(PdfLoad.Busy, item.path) {
         value = withContext(Dispatchers.IO) { openPdf(ctx, fs, item) }
     }.value
@@ -208,13 +177,17 @@ internal fun PdfPane(fs: Fs, item: FileItem, bars: Boolean, gotoDialog: Boolean,
         }
         is PdfLoad.Ok -> {
             DisposableEffect(load.doc) { onDispose { load.doc.close() } }
-            PdfPages(load.doc, bars, gotoDialog, onGotoDismiss, onTap, dark)
+            DisposableEffect(load.doc, copy) {
+                copy?.setAction("全ページの文字をコピー") { pdfCopy(ctx, copyScope, load.doc, null) }
+                onDispose { copy?.action = null }
+            }
+            PdfPages(load.doc, bars, gotoDialog, onGotoDismiss, onTap, dark) { page -> pdfCopy(ctx, copyScope, load.doc, page) }
         }
     }
 }
 
 @Composable
-private fun PdfPages(doc: PdfDoc, bars: Boolean, gotoDialog: Boolean, onGotoDismiss: () -> Unit, onTap: () -> Unit, dark: Boolean) {
+private fun PdfPages(doc: PdfiumDoc, bars: Boolean, gotoDialog: Boolean, onGotoDismiss: () -> Unit, onTap: () -> Unit, dark: Boolean, onCopy: (Int?) -> Unit) {
     val list = rememberLazyListState()
     val scope = rememberCoroutineScope()
     // 拡大は「画面の上での拡大」にする(ページの並びは変えず、見た目だけ拡大・移動する)。
@@ -225,13 +198,31 @@ private fun PdfPages(doc: PdfDoc, bars: Boolean, gotoDialog: Boolean, onGotoDism
     val top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 56.dp
     val bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 8.dp
     val single = doc.pageCount == 1
+    // 文字を選んでいるページ(選択は、同時に 1 ページだけ)。ほかの所を短くタップすると外れる
+    var activePage by remember { mutableStateOf<Int?>(null) }
+    val activeNow = rememberUpdatedState(activePage)
+    var selText by remember { mutableStateOf<String?>(null) }
+    val selDrag = remember { BooleanArray(1) } // 選択のつまみを動かしている間は、ページを横に動かさない
+    var viewport by remember { mutableStateOf(Rect.Zero) }
+    val ctx = LocalContext.current
+
+    /** ページから選択の変化を受ける。text が null なら、そのページの選択が無くなった。 */
+    fun setSel(page: Int, text: String?) {
+        if (text != null) {
+            activePage = page
+            selText = text
+        } else if (activeNow.value == page) {
+            activePage = null
+            selText = null
+        }
+    }
 
     fun clampTx(t: Float, s: Float, viewW: Float) = t.coerceIn(viewW * (1f - s), 0f)
 
     /** (cx, cy) の位置にある中身が動かないように、倍率を newScale に変える。 */
     fun zoomAt(newScale: Float, cx: Float, cy: Float, viewW: Float) {
         val s0 = scale
-        var s1 = newScale.coerceIn(1f, 3f)
+        var s1 = newScale.coerceIn(1f, 5f)
         if (s1 < 1.03f) s1 = 1f
         if (s1 == s0) return
         val xLocal = (cx - tx) / s0
@@ -243,9 +234,15 @@ private fun PdfPages(doc: PdfDoc, bars: Boolean, gotoDialog: Boolean, onGotoDism
 
     BoxWithConstraints(
         Modifier.fillMaxSize().background(Pv.pdfBackdrop).clipToBounds()
+            .onGloballyPositioned { viewport = Rect(it.positionInRoot(), it.size.toSize()) }
             .pointerInput(Unit) {
                 detectTapGestures(
-                    onTap = { if (!panned[0]) onTap() },
+                    // 長押し・移動のあとに指を離したときもタップとして届くので、そのときは何もしない(選んだ直後に外れないように)
+                    onTap = {
+                        if (!panned[0]) {
+                            if (activeNow.value != null) { activePage = null; selText = null } else onTap()
+                        }
+                    },
                     onDoubleTap = { p -> zoomAt(if (scale > 1.05f) 1f else 2f, p.x, p.y, size.width.toFloat()) },
                 )
             }
@@ -270,7 +267,7 @@ private fun PdfPages(doc: PdfDoc, bars: Boolean, gotoDialog: Boolean, onGotoDism
                                 panned[0] = true
                                 event.changes.forEach { if (it.positionChanged()) it.consume() }
                             }
-                        } else if (fingers == 1 && scale > 1f) {
+                        } else if (fingers == 1 && scale > 1f && !selDrag[0]) {
                             val dx = event.changes.firstOrNull { it.pressed }?.positionChange()?.x ?: 0f
                             if (dx != 0f) {
                                 tx = clampTx(tx + dx, scale, viewW)
@@ -295,9 +292,25 @@ private fun PdfPages(doc: PdfDoc, bars: Boolean, gotoDialog: Boolean, onGotoDism
             contentPadding = if (single) PaddingValues(vertical = maxOf(top, bottom)) else PaddingValues(top = top, bottom = bottom),
             verticalArrangement = if (single) Arrangement.Center else Arrangement.spacedBy(8.dp),
         ) {
-            items(doc.pageCount) { i -> PdfPage(doc, i, (viewWpx * scale).toInt(), dark) }
+            items(doc.pageCount) { i -> PdfPage(doc, i, viewWpx, scale, viewport, dark, panned, selDrag, onCopy, activePage, ::setSel) }
         }
-        if (bars) {
+        val st = selText
+        if (st != null) {
+            // 選んだ文字のコピーと解除(拡大しても大きさが変わらないよう、拡大の外に置く)
+            Row(
+                Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 10.dp)
+                    .background(Color(0xEE202020), RoundedCornerShape(8.dp)),
+            ) {
+                Text(
+                    "コピー", color = Color.White, fontSize = 15.sp,
+                    modifier = Modifier.clickable { copyToClipboard(ctx, st); activePage = null; selText = null }.padding(horizontal = 20.dp, vertical = 10.dp),
+                )
+                Text(
+                    "解除", color = Color(0xFFBBBBBB), fontSize = 15.sp,
+                    modifier = Modifier.clickable { activePage = null; selText = null }.padding(horizontal = 20.dp, vertical = 10.dp),
+                )
+            }
+        } else if (bars) {
             Text(
                 "${list.firstVisibleItemIndex + 1} / ${doc.pageCount}" + if (scale > 1f) "  ×${"%.1f".format(scale)}" else "",
                 color = Color.White, fontSize = 13.sp,
@@ -334,12 +347,60 @@ private fun PdfPages(doc: PdfDoc, bars: Boolean, gotoDialog: Boolean, onGotoDism
     }
 }
 
-/** targetPx: 画面に出る見かけの幅(ピクセル。拡大中は大きくなる)。この幅に合わせて描く。 */
+/** 拡大したときに細かく描く範囲(ページの 0〜1 の割合)と、ページ全体を何ピクセルの幅にしたときの細かさか。 */
+private data class PdfDetailReq(val x0: Float, val y0: Float, val x1: Float, val y1: Float, val fullW: Int)
+
+/** 画面に見えている範囲(少し余分を付ける)を、PdfDetailReq にする。見えていなければ null。 */
+private fun pdfDetailFor(c: LayoutCoordinates, vp: Rect, scale: Float): PdfDetailReq? {
+    val p = c.positionInRoot()
+    val w = c.size.width * scale
+    val h = c.size.height * scale
+    if (w < 1f || h < 1f || vp.width < 1f) return null
+    val mx = vp.width * 0.2f
+    val my = vp.height * 0.2f
+    val ix0 = max(p.x, vp.left - mx)
+    val iy0 = max(p.y, vp.top - my)
+    val ix1 = min(p.x + w, vp.right + mx)
+    val iy1 = min(p.y + h, vp.bottom + my)
+    if (ix1 <= ix0 || iy1 <= iy0) return null
+    // 動くたびに描き直さないよう、範囲は 1/32 単位にそろえる
+    val x0 = (floor((ix0 - p.x) / w * 32f) / 32f).coerceIn(0f, 1f)
+    val y0 = (floor((iy0 - p.y) / h * 32f) / 32f).coerceIn(0f, 1f)
+    val x1 = (ceil((ix1 - p.x) / w * 32f) / 32f).coerceIn(0f, 1f)
+    val y1 = (ceil((iy1 - p.y) / h * 32f) / 32f).coerceIn(0f, 1f)
+    var fullW = ((w / 64f).roundToInt() * 64).coerceAtLeast(64)
+    val px = (x1 - x0) * fullW * ((y1 - y0) * fullW * h / w)
+    if (px > PDF_DETAIL_MAX_PIXELS) fullW = ((fullW * sqrt(PDF_DETAIL_MAX_PIXELS / px) / 64f).toInt() * 64).coerceAtLeast(64)
+    return PdfDetailReq(x0, y0, x1, y1, fullW)
+}
+
+/**
+ * 1 ページ分。viewWpx: 画面の幅(ピクセル、拡大前)。scale: いまの拡大。
+ * 全体は画面の幅で描き、拡大したときは、見えている範囲だけを画面のピクセルに合わせて細かく描き足す。
+ */
 @Composable
-private fun PdfPage(doc: PdfDoc, index: Int, targetPx: Int, dark: Boolean) {
+private fun PdfPage(
+    doc: PdfiumDoc, index: Int, viewWpx: Int, scale: Float, viewport: Rect, dark: Boolean, panned: BooleanArray, selDrag: BooleanArray,
+    onCopy: (Int?) -> Unit, activePage: Int?, onSel: (Int, String?) -> Unit,
+) {
+    // 文字の上を長押しすると、その単語が選ばれる(つまみで範囲を変えて、「コピー」)。文字の無い所を長押しすると、ページ・全ページの文字をコピーするメニュー。
+    // 触れた操作は消費しないので、拡大・移動は今まで通り
+    var menu by remember(index) { mutableStateOf(false) }
+    val pageScope = rememberCoroutineScope()
+    var lay by remember(index) { mutableStateOf<PdfPageText?>(null) }
+    var sel by remember(index) { mutableStateOf<IntRange?>(null) }
+    var boxW by remember { mutableFloatStateOf(1f) }
+    LaunchedEffect(activePage) { if (activePage != index) sel = null }
+    LaunchedEffect(sel, lay) {
+        val l = lay
+        val r = sel
+        onSel(index, if (l != null && r != null && !r.isEmpty()) l.textOf(r) else null)
+    }
+    DisposableEffect(index) { onDispose { onSel(index, null) } }
     val (pw, ph) = doc.sizes[index]
-    // 描く大きさは 256px 単位にそろえる(ズーム中に何度も描き直さない)
-    val renderPx = (((minOf(targetPx, PDF_RENDER_MAX_PX) + 255) / 256) * 256).coerceIn(512, PDF_RENDER_MAX_PX)
+    // 描く大きさは 256px 単位にそろえる。縦に長すぎるページは、絵が大きくなりすぎないよう幅を縮める
+    val maxW = (8000L * pw / ph).toInt().coerceAtLeast(64)
+    val renderPx = minOf((((minOf(viewWpx, PDF_RENDER_MAX_PX) + 255) / 256) * 256).coerceIn(512, PDF_RENDER_MAX_PX), maxW)
     val key = "${doc.file.path}#$index@$renderPx"
     var shown by remember(index) { mutableStateOf(PdfCache.get(key)) }
     var failed by remember(index) { mutableStateOf(false) }
@@ -365,17 +426,114 @@ private fun PdfPage(doc: PdfDoc, index: Int, targetPx: Int, dark: Boolean) {
             failed = true
         }
     }
-    Box(Modifier.fillMaxWidth().aspectRatio(pw.toFloat() / ph).background(if (dark) Color(0xFF1A1A1A) else Color.White), contentAlignment = Alignment.Center) {
+    // 拡大中は、見えている範囲を細かく描く。拡大や移動は描画だけで行うので、位置は一定の間隔で見に行く
+    val coordsRef = remember { arrayOfNulls<LayoutCoordinates>(1) }
+    val scaleNow by rememberUpdatedState(scale)
+    val viewportNow by rememberUpdatedState(viewport)
+    var detailReq by remember(index) { mutableStateOf<PdfDetailReq?>(null) }
+    var detail by remember(index) { mutableStateOf<PdfRegion?>(null) }
+    LaunchedEffect(index, scale > PDF_DETAIL_FROM) {
+        if (scale <= PDF_DETAIL_FROM) {
+            detailReq = null
+            return@LaunchedEffect
+        }
+        while (true) {
+            val c = coordsRef[0]
+            detailReq = if (c != null && c.isAttached) pdfDetailFor(c, viewportNow, scaleNow) else null
+            delay(150)
+        }
+    }
+    LaunchedEffect(detailReq) {
+        val r = detailReq
+        if (r == null) {
+            detail = null
+            return@LaunchedEffect
+        }
+        delay(100)
+        val reg = withContext(Dispatchers.IO) {
+            try {
+                doc.renderRegion(index, r.fullW, r.x0, r.y0, r.x1, r.y1)
+            } catch (e: Exception) {
+                null
+            } catch (e: OutOfMemoryError) {
+                null
+            }
+        }
+        if (reg != null) detail = reg
+    }
+    Box(
+        Modifier.fillMaxWidth().aspectRatio(pw.toFloat() / ph).background(if (dark) Color(0xFF1A1A1A) else Color.White)
+            .onSizeChanged { boxW = it.width.toFloat() }
+            .onGloballyPositioned { coordsRef[0] = it }
+            .onLongPressAt { pos ->
+                panned[0] = true  // 離したときに、上下のバーが出入りしないように
+                pageScope.launch {
+                    val lt = lay ?: withContext(Dispatchers.IO) { runCatching { doc.layout(index) }.getOrNull() }?.also { lay = it }
+                    val k = boxW / pw
+                    val i = lt?.hit(pos.x / k, pos.y / k) ?: -1
+                    val cur = sel
+                    if (lt != null && i >= 0) {
+                        if (cur == null || i !in cur) sel = lt.wordAround(i)
+                    } else {
+                        menu = true
+                    }
+                }
+            },
+        contentAlignment = Alignment.Center,
+    ) {
+        if (menu) {
+            ListMenu(
+                expanded = true, dark = Pv.dark, onDismiss = { menu = false },
+                items = listOf(
+                    VMenuItem.Action(Icons.Default.ContentCopy, "このページの文字をコピー") { onCopy(index) },
+                    VMenuItem.Action(Icons.Default.ContentCopy, "全ページの文字をコピー") { onCopy(null) },
+                ),
+            )
+        }
         val b = shown
         if (b != null) {
+            val filter = if (dark) ColorFilter.colorMatrix(ColorMatrix(DarkFilter.MATRIX)) else null
             Image(
                 b.asImageBitmap(), null, Modifier.fillMaxSize(), contentScale = ContentScale.FillBounds, filterQuality = FilterQuality.Medium,
-                colorFilter = if (dark) ColorFilter.colorMatrix(ColorMatrix(DarkFilter.MATRIX)) else null,
+                colorFilter = filter,
             )
+            val d = detail
+            if (d != null && scale > PDF_DETAIL_FROM) {
+                val img = remember(d) { d.bmp.asImageBitmap() }
+                Canvas(Modifier.fillMaxSize()) {
+                    val dx = (d.x0 * size.width).roundToInt()
+                    val dy = (d.y0 * size.height).roundToInt()
+                    drawImage(
+                        img, IntOffset.Zero, IntSize(img.width, img.height),
+                        IntOffset(dx, dy), IntSize((d.x1 * size.width).roundToInt() - dx, (d.y1 * size.height).roundToInt() - dy),
+                        filterQuality = FilterQuality.Medium, colorFilter = filter,
+                    )
+                }
+            }
         } else if (failed) {
             Text("このページを表示できません", color = Color.Gray, fontSize = 13.sp)
         } else {
             CircularProgressIndicator(Modifier.height(28.dp), color = Color.LightGray, strokeWidth = 2.dp)
+        }
+        val lt = lay
+        val range = sel
+        if (lt != null && range != null && !range.isEmpty() && boxW > 1f) {
+            PdfSelectionOverlay(lt, range, boxW / pw, scale, selDrag, onRange = { sel = it })
+        }
+    }
+}
+
+/** PDF の文字をコピーする。page は 0 から数えたページ(null なら全ページ)。取り出しは裏で行う。 */
+private fun pdfCopy(ctx: Context, scope: kotlinx.coroutines.CoroutineScope, doc: PdfiumDoc, page: Int?) {
+    android.widget.Toast.makeText(ctx, "文字を取り出しています", android.widget.Toast.LENGTH_SHORT).show()
+    scope.launch {
+        // 上限より 1 文字多く取り出して、超えたときは copyToClipboard が「先頭だけコピーした」と知らせる
+        val r = withContext(Dispatchers.IO) { runCatching { doc.extractText(page?.let { it..it }, CopyText.MAX_CHARS + 1) } }
+        r.onSuccess { res ->
+            if (res.hasText) copyToClipboard(ctx, res.text)
+            else android.widget.Toast.makeText(ctx, "文字がありません(スキャンした画像の PDF など)", android.widget.Toast.LENGTH_LONG).show()
+        }.onFailure { e ->
+            android.widget.Toast.makeText(ctx, e.message ?: "文字を取り出せませんでした", android.widget.Toast.LENGTH_LONG).show()
         }
     }
 }

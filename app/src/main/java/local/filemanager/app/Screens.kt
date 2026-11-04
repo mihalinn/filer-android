@@ -133,7 +133,12 @@ private fun MainScreen(vm: FmViewModel, actions: Actions) {
     LaunchedEffect(Unit) { vm.messages.collect { snackbar.showSnackbar(it) } }
     val appCtx = androidx.compose.ui.platform.LocalContext.current
     LaunchedEffect(Unit) {
-        if (CrashLog.read(appCtx) != null) vm.messages.emit("前回、アプリが異常終了しました。原因の記録は、「設定」の「このアプリについて」で確認できます")
+        // 同じ記録のお知らせは 1 度だけ(出したら「見た」ことにする)。記録は「設定」の「異常終了の記録」で見られる
+        val unseen = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { CrashLog.hasUnseen(appCtx) }
+        if (unseen) {
+            CrashLog.markSeen(appCtx)
+            vm.messages.emit("前回、アプリが異常終了しました。原因の記録は、「設定」の「異常終了の記録」で確認できます")
+        }
     }
     LaunchedEffect(Unit) { vm.openRequests.collect { actions.openFile(it) } }
     LaunchedEffect(Unit) { vm.updater.urlRequests.collect { actions.openUrl(it) } }

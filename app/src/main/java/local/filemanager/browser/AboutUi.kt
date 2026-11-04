@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
@@ -17,7 +18,9 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -78,6 +81,11 @@ internal object Credits {
             "7z・tar などを読むために使っています。Commons Codec 1.17.1・IO 2.16.1・Lang 3.16.0 も含みます。押すと著作権表示(NOTICE)を表示します。",
             "commons-notice.txt",
         ),
+        Credit(
+            "PDFium(PDF の表示と文字の選択)・PdfiumAndroidKt 1.0.35", "Apache License 2.0",
+            "PDF を絵にして、文字の位置を調べるために使っています。PDFium が使う FreeType・ICU・libjpeg-turbo・libpng・zlib・HarfBuzz などの著作権表示とライセンスも、押すと表示します",
+            "pdfium-notice.txt",
+        ),
         Credit("AndroidSVG 1.4", "Apache License 2.0", null, "apache-2.0.txt"),
         Credit("Bouncy Castle 1.79", "MIT ライセンス", null, "bc.txt"),
         Credit("SLF4J 2.0.17(API)・2.0.9(nop)", "MIT ライセンス", null, "slf4j.txt"),
@@ -93,39 +101,70 @@ internal object Credits {
     )
 }
 
-/** 前回の異常終了の記録。コピーできる。「消去」を押したら onCleared を呼ぶ。 */
+/**
+ * 異常終了の記録の画面。新しい順に 1 件ずつ見せる(日時・種類・内容)。内容はコピーできる。
+ * 開いた時点で「見た」ことにする(起動時のお知らせは、同じ記録では 2 度出ない)。「消去」を押したら onCleared を呼ぶ。
+ */
 @Composable
 internal fun CrashLogDialog(onCleared: () -> Unit, dismiss: () -> Unit) {
     val ctx = LocalContext.current
-    val crashText = remember { CrashLog.read(ctx) }
-    val exits = remember { CrashLog.abnormalExits(ctx) }
-    val full = buildString {
-        crashText?.let { append("【アプリの例外】\n").append(it).append("\n\n") }
-        if (exits.isNotEmpty()) append("【OS の記録】\n").append(exits.joinToString("\n\n"))
-    }
+    val pal = LocalPal.current
+    val entries = remember { CrashLog.entries(ctx) }
+    LaunchedEffect(Unit) { CrashLog.markSeen(ctx) }
+    val full = remember(entries) { entries.joinToString("\n\n") { "【${CrashLog.stamp(it.time)}  ${it.kind}】\n${it.body}".trimEnd() } }
     val clip = androidx.compose.ui.platform.LocalClipboardManager.current
+    var confirm by remember { mutableStateOf(false) }
+    val shape = RoundedCornerShape(8.dp)
     AlertDialog(
         onDismissRequest = dismiss,
         title = { Text("異常終了の記録") },
         text = {
-            Column(Modifier.verticalScroll(rememberScrollState())) {
-                Text("異常終了の原因の記録です。コピーできます。",fontSize = 12.sp, color = LocalPal.current.subText)
-                Spacer(Modifier.height(8.dp))
-                androidx.compose.foundation.text.selection.SelectionContainer {
-                    Text(full, fontSize = 10.sp, lineHeight = 13.sp, fontFamily = FontFamily.Monospace)
+            Column(Modifier.heightIn(max = 460.dp).verticalScroll(rememberScrollState())) {
+                if (entries.isEmpty()) {
+                    Text("異常終了の記録はありません", fontSize = 14.sp, color = pal.subText)
+                } else {
+                    Text(
+                        "アプリが止まったときの原因の記録です。不具合を報告するときに役立ちます。",
+                        fontSize = 12.sp, color = pal.subText,
+                    )
+                    androidx.compose.foundation.text.selection.SelectionContainer {
+                        Column(verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp)) {
+                            Spacer(Modifier.height(0.dp))
+                            entries.forEach { e ->
+                                Column(Modifier.fillMaxWidth().clip(shape).background(pal.surface).border(1.dp, pal.divider, shape).padding(10.dp)) {
+                                    Text(e.kind, fontSize = 14.sp, color = pal.text, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+                                    Text(CrashLog.stamp(e.time), fontSize = 12.sp, color = pal.subText)
+                                    if (e.body.isNotBlank()) {
+                                        Spacer(Modifier.height(6.dp))
+                                        Text(e.body.trim(), fontSize = 10.sp, lineHeight = 13.sp, fontFamily = FontFamily.Monospace, color = pal.text)
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         },
         confirmButton = { TextButton(onClick = dismiss) { Text("閉じる") } },
         dismissButton = {
-            Row {
-                TextButton(onClick = { clip.setText(androidx.compose.ui.text.AnnotatedString(full)) }) { Text("コピー") }
-                TextButton(onClick = { CrashLog.clear(ctx); onCleared(); dismiss() }) { Text("消去") }
+            if (entries.isNotEmpty()) {
+                Row {
+                    TextButton(onClick = { clip.setText(androidx.compose.ui.text.AnnotatedString(full)) }) { Text("コピー") }
+                    TextButton(onClick = { confirm = true }) { Text("消去") }
+                }
             }
         },
     )
+    if (confirm) {
+        AlertDialog(
+            onDismissRequest = { confirm = false },
+            title = { Text("記録を消去") },
+            text = { Text("いまある記録をすべて消去します。消去した記録は元に戻せません") },
+            confirmButton = { TextButton(onClick = { CrashLog.clear(ctx); onCleared(); dismiss() }) { Text("消去") } },
+            dismissButton = { TextButton(onClick = { confirm = false }) { Text("キャンセル") } },
+        )
+    }
 }
-
 /** ライセンスの名前の小さなラベル。 */
 @Composable
 internal fun LicenseTag(text: String) {

@@ -33,8 +33,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.foundation.text.selection.DisableSelection
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -74,9 +80,9 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -110,13 +116,17 @@ private class SlideImages(private val read: (String) -> ByteArray?) {
  * 倍率は、画面の上での拡大(ピンチ・ダブルタップ)。
  */
 @Composable
-internal fun SlidesView(deck: SlideDeck, read: (String) -> ByteArray?, dark: Boolean = false) {
+internal fun SlidesView(deck: SlideDeck, read: (String) -> ByteArray?, dark: Boolean = false, copy: CopyHolder? = null) {
     val images = remember(deck) { SlideImages(read) }
     // スライドの絵はそのまま。まわりの背景だけを暗くする
     val backdrop = if (dark) Color(0xFF0E0E0E) else slideBackdrop
     if (deck.slides.isEmpty()) {
         Box(Modifier.fillMaxSize().background(backdrop)) { Text("スライドがありません", color = if (dark) Color(0xFFB0B0B0) else Color.DarkGray, modifier = Modifier.align(Alignment.Center)) }
         return
+    }
+    DisposableEffect(deck, copy) {
+        copy?.set("全スライドの文字をコピー") { deck.plainText() }
+        onDispose { copy?.provider = null }
     }
     val list = rememberLazyListState()
     val scope = rememberCoroutineScope()
@@ -168,6 +178,7 @@ internal fun SlidesView(deck: SlideDeck, read: (String) -> ByteArray?, dark: Boo
             },
     ) {
         val cardWidth = maxWidth - 16.dp
+        CopyableArea {
         LazyColumn(
             state = list,
             modifier = Modifier.fillMaxWidth().height(maxHeight / scale).graphicsLayer {
@@ -180,6 +191,7 @@ internal fun SlidesView(deck: SlideDeck, read: (String) -> ByteArray?, dark: Boo
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             items(deck.slides.size) { i -> SlideCard(deck.slides[i], deck, cardWidth, images, dark) }
+        }
         }
         Text(
             "${list.firstVisibleItemIndex + 1} / ${deck.slides.size}" + if (scale > 1f) "  ×${"%.1f".format(scale)}" else "",
@@ -200,7 +212,7 @@ private fun SlideCard(slide: SlideDoc, deck: SlideDeck, cardWidth: Dp, images: S
         )
         Box(Modifier.width(cardWidth).height((deck.heightPt * s).dp).clipToBounds().background(Color.White)) {
             Background(slide.background, images)
-            for (sh in slide.shapes) ShapeView(sh, s, images)
+            for (sh in slide.shapes) ShapeView(sh, s, images, slide, deck)
         }
     }
 }
@@ -295,14 +307,20 @@ private fun DrawScope.drawGeometry(sh: SShape, contours: List<Contour>, k: Float
 }
 
 @Composable
-private fun ShapeView(sh: SShape, s: Float, images: SlideImages) {
+private fun ShapeView(sh: SShape, s: Float, images: SlideImages, slide: SlideDoc, deck: SlideDeck) {
     val density = LocalDensity.current
     val wDp = (sh.w * s).dp.coerceAtLeast(1.dp)
     val hDp = (sh.h * s).dp.coerceAtLeast(1.dp)
     val k = s * density.density
     val contours = remember(sh) { sh.geom?.let { SlideGeom.contours(it, sh.w, sh.h, sh.flipH, sh.flipV) } }
+    // 傾けた文字・縦書きの文字は、Compose の文字選択の仕組みが位置を合わせられず、長押しで落ちる。
+    // そこだけ選択の対象から外し、長押しでメニューを出して、文字をコピーする(まっすぐな文字は、今まで通り長押しで選べる)
+    val special = sh.rot != 0f || sh.text?.vert?.let { it != "horz" } == true
+    var menu by remember { mutableStateOf(false) }
+    val ctx = LocalContext.current
     Box(
-        Modifier.offset((sh.x * s).dp, (sh.y * s).dp).size(wDp, hDp).graphicsLayer { rotationZ = sh.rot },
+        Modifier.offset((sh.x * s).dp, (sh.y * s).dp).size(wDp, hDp).graphicsLayer { rotationZ = sh.rot }
+            .let { if (special) it.onLongPress { menu = true } else it },
     ) {
         val pic = sh.picture
         if (pic != null) {
@@ -310,8 +328,22 @@ private fun ShapeView(sh: SShape, s: Float, images: SlideImages) {
         } else if (contours != null && (sh.fill != null || sh.line != null)) {
             Canvas(Modifier.fillMaxSize()) { drawGeometry(sh, contours, k) }
         }
-        sh.table?.let { TableView(it, s, density) }
-        sh.text?.let { BodyText(it, s, sh.w, sh.h, density) }
+        val words: @Composable () -> Unit = {
+            sh.table?.let { TableView(it, s, density) }
+            sh.text?.let { BodyText(it, s, sh.w, sh.h, density) }
+        }
+        if (special) DisableSelection { words() } else words()
+        if (menu) {
+            val own = (sh.text?.takeIf { it.hasText }?.plainText() ?: sh.table?.plainText()).orEmpty()
+            ListMenu(
+                expanded = true, dark = Pv.dark, onDismiss = { menu = false },
+                items = listOfNotNull(
+                    if (own.isNotBlank()) VMenuItem.Action(Icons.Default.ContentCopy, "この文字をコピー") { copyToClipboard(ctx, own) } else null,
+                    VMenuItem.Action(Icons.Default.ContentCopy, "このスライドの文字をコピー") { copyToClipboard(ctx, slide.plainText()) },
+                    VMenuItem.Action(Icons.Default.ContentCopy, "全スライドの文字をコピー") { copyToClipboard(ctx, deck.plainText()) },
+                ),
+            )
+        }
     }
 }
 

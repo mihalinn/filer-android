@@ -93,6 +93,20 @@ internal class SShape(
 
 internal class SlideDoc(val number: Int, val hidden: Boolean, val background: Paint?, val shapes: List<SShape>)
 
+// ---- 文字のコピー用(スライドの文字だけを取り出す)
+
+internal fun STextBody.plainText(): String =
+    paras.joinToString("\n") { p -> (p.marker?.let { "$it " } ?: "") + p.runs.joinToString("") { it.text } }
+
+internal fun STable.plainText(): String =
+    rows.joinToString("\n") { row -> row.joinToString("\t") { c -> CopyText.tsvCell(c.body.plainText()) } }
+
+/** 1 枚のスライドの文字(図形の文字・表)。上から順に並んだ図形の順で。 */
+internal fun SlideDoc.plainText(): String =
+    shapes.mapNotNull { sh -> sh.text?.takeIf { it.hasText }?.plainText() ?: sh.table?.plainText()?.takeIf { it.isNotBlank() } }.joinToString("\n")
+
+internal fun SlideDeck.plainText(): String = slides.joinToString("\n\n") { "スライド ${it.number}\n" + it.plainText() }
+
 internal class SlideDeck(val widthPt: Float, val heightPt: Float, val slides: List<SlideDoc>)
 
 // ---------------------------------------------------------------- 読み取り

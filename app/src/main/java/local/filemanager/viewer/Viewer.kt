@@ -36,6 +36,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.InvertColorsOff
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Unarchive
 import androidx.compose.material.icons.filled.Code
@@ -88,6 +89,9 @@ internal fun ViewerScreen(
     }
     val isImage = req.files[req.index].kind == FileKind.IMAGE
     val kb = rememberKeyboardAvoid()
+    val appCtx = androidx.compose.ui.platform.LocalContext.current
+    // 「全文をコピー」の中身。画面(文字・表・Word・スライド)が、読み込んだあとに入れる
+    val copyHolder = remember(req.files[req.index].path) { CopyHolder() }
     var bars by remember { mutableStateOf(true) }
     var fontSp by remember { mutableIntStateOf(vm.viewerFontSp) }
     var raw by remember { mutableStateOf(false) }
@@ -169,7 +173,7 @@ internal fun ViewerScreen(
                 ZoomableImage(req.fs, req.files[page], active = pager.currentPage == page, onTap = { bars = !bars })
             }
         } else if (kind == PreviewKind.PDF) {
-            PdfPane(req.fs, current, bars, gotoDialog, { gotoDialog = false }, onTap = { bars = !bars }, dark = Pv.dark && !keepColors)
+            PdfPane(req.fs, current, bars, gotoDialog, { gotoDialog = false }, onTap = { bars = !bars }, dark = Pv.dark && !keepColors, copy = copyHolder)
         } else if (kind == PreviewKind.DRAWIO) {
             DrawioPane(req.fs, current, bars, onTap = { bars = !bars }, dark = Pv.dark && !keepColors)
         } else if (kind == PreviewKind.STL || kind == PreviewKind.MODEL) {
@@ -185,7 +189,7 @@ internal fun ViewerScreen(
         } else if (kind == PreviewKind.BUNDLE) {
             BundlePane(req.fs, current, onInstall = { vm.installBundle(req.fs, current); onClose() }, onList = { bundleList = true })
         } else if (kind != null && kind.isOffice) {
-            OfficePane(req.fs, current, kind, fontSp)
+            OfficePane(req.fs, current, kind, fontSp, copyHolder)
         } else if (kind == PreviewKind.APK) {
             ApkPane(req.fs, current) {
                 if (req.fs.isLocal) {
@@ -216,14 +220,14 @@ internal fun ViewerScreen(
             key(reloadTick) {
                 UnknownPane(
                     req.fs, current, fontSp, bars, onTap = { bars = !bars }, onExternal = { vm.openItem(current, req.fs) },
-                    query = activeQuery, hit = hit, onHits = { hitCount = it },
+                    query = activeQuery, hit = hit, onHits = { hitCount = it }, copy = copyHolder,
                 )
             }
         } else {
             key(reloadTick) {
                 DocPane(
                     req.fs, current, if (kind == PreviewKind.HTML) PreviewKind.CODE else if (kind == PreviewKind.MHTML) PreviewKind.TEXT else if (kind == PreviewKind.WEBARCHIVE) PreviewKind.XML else if (kind == PreviewKind.CAD) PreviewKind.TEXT else kind ?: PreviewKind.TEXT, fontSp, bars, raw, headerOn,
-                    onTap = { bars = !bars }, query = activeQuery, hit = hit, onHits = { hitCount = it },
+                    onTap = { bars = !bars }, query = activeQuery, hit = hit, onHits = { hitCount = it }, copy = copyHolder,
                 )
             }
         }
@@ -312,6 +316,10 @@ internal fun ViewerScreen(
                         val fileItems = ArrayList<VMenuItem>()
                         if (editable) fileItems.add(VMenuItem.Action(Icons.Default.Edit, "編集") { editing = true })
                         if (searchable) fileItems.add(VMenuItem.Action(Icons.Default.Search, "検索") { searching = true })
+                        val copyAct = copyHolder.action
+                        val copyProv = copyHolder.provider
+                        if (copyAct != null) fileItems.add(VMenuItem.Action(Icons.Default.ContentCopy, copyHolder.label) { copyAct() })
+                        else if (copyProv != null) fileItems.add(VMenuItem.Action(Icons.Default.ContentCopy, copyHolder.label) { copyToClipboard(appCtx, copyProv()) })
                         if (kind == PreviewKind.PDF) fileItems.add(VMenuItem.Action(Icons.Default.Pageview, "ページ移動…") { gotoDialog = true })
                         if (kind == PreviewKind.CAD && !(raw && cadIsText)) fileItems.add(VMenuItem.Action(Icons.Default.Layers, "レイヤー…") { layersDialog = true })
                         if (isImage && !currentIsSvg) fileItems.add(VMenuItem.Action(Icons.Default.Info, "写真の情報") { infoFor = current })

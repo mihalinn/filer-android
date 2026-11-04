@@ -24,3 +24,7 @@
 -keep class com.github.junrar.** { *; }
 -keep class com.caverock.androidsvg.** { *; }
 -dontwarn com.caverock.androidsvg.**
+
+# PDF の表示と文字の位置(PDFium)。ネイティブの部品から呼ばれるので、名前を変えない
+-keep class io.legere.pdfiumandroid.** { *; }
+-dontwarn io.legere.pdfiumandroid.suspend.**

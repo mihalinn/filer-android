@@ -181,7 +181,7 @@ private fun loadOffice(fs: Fs, item: FileItem, kind: PreviewKind): OfficeLoad {
  * Excel は表(シートごと)、Word は白い紙のような見た目、PowerPoint はスライドの位置・図形・画像・表・書式のとおりの絵。
  */
 @Composable
-internal fun OfficePane(fs: Fs, item: FileItem, kind: PreviewKind, fontSp: Int) {
+internal fun OfficePane(fs: Fs, item: FileItem, kind: PreviewKind, fontSp: Int, copy: CopyHolder? = null) {
     // 配色はビューアの「配色」(ライト/ダーク)に従う
     val dark = Pv.dark
     val load = produceState<OfficeLoad>(OfficeLoad.Busy, item.path) {
@@ -194,21 +194,21 @@ internal fun OfficePane(fs: Fs, item: FileItem, kind: PreviewKind, fontSp: Int) 
         }
         is OfficeLoad.Excel -> {
             DisposableEffect(load) { onDispose { load.src.close() } }
-            ExcelView(load.file, fontSp, dark)
+            ExcelView(load.file, fontSp, dark, copy)
         }
         is OfficeLoad.Word -> {
             DisposableEffect(load) { onDispose { load.src.close() } }
-            WordView(load.doc, load.read, fontSp, dark)
+            WordView(load.doc, load.read, fontSp, dark, copy)
         }
         is OfficeLoad.Slides -> {
             DisposableEffect(load) { onDispose { load.src.close() } }
-            if (load.deck != null) SlidesView(load.deck, load.read, dark) else TextSlidesView(load.texts, fontSp, dark)
+            if (load.deck != null) SlidesView(load.deck, load.read, dark, copy) else TextSlidesView(load.texts, fontSp, dark, copy)
         }
     }
 }
 
 @Composable
-private fun ExcelView(file: SheetBook, fontSp: Int, dark: Boolean) {
+private fun ExcelView(file: SheetBook, fontSp: Int, dark: Boolean, copy: CopyHolder? = null) {
     val oc = remember(dark) { OfficeColors(dark) }
     var sheetIndex by remember { mutableIntStateOf(0) }
     val sheet = produceState<Result<XlsxSheet>?>(null, sheetIndex) {
@@ -228,6 +228,10 @@ private fun ExcelView(file: SheetBook, fontSp: Int, dark: Boolean) {
                             Text("このシートは空", color = oc.headerText, modifier = Modifier.align(Alignment.Center))
                         } else {
                             val model = remember(s, file) { XlsxGridModel(s, file) }
+                            DisposableEffect(model, copy) {
+                                copy?.set("このシートをコピー") { CopyText.tsv(model.rowCount, model.colCount) { r, c -> model.cell(r, c)?.text.orEmpty() } }
+                                onDispose { copy?.provider = null }
+                            }
                             Column(Modifier.fillMaxSize()) {
                                 if (s.truncated) Text("大きいため、先頭の一部だけ表示しています", color = Color(0xFFB26A00), fontSize = 12.sp, modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp))
                                 SheetGrid(model, fontSp, Modifier.weight(1f).fillMaxWidth(), dark)
@@ -306,7 +310,7 @@ private fun wordText(p: DocBlock.Para, k: Float, oc: OfficeColors): AnnotatedStr
 private class WordItem(val block: DocBlock, val first: Boolean, val last: Boolean, val gapAfter: Boolean)
 
 @Composable
-private fun WordView(doc: DocxDoc, read: (String) -> ByteArray?, fontSp: Int, dark: Boolean) {
+private fun WordView(doc: DocxDoc, read: (String) -> ByteArray?, fontSp: Int, dark: Boolean, copy: CopyHolder? = null) {
     val oc = remember(dark) { OfficeColors(dark) }
     // 文字の大きさは、ポイント → sp。Word の 10.5pt が、標準(14)で読みやすい大きさになるよう、少し大きめにする
     val k = fontSp / 14f * 1.2f
@@ -321,6 +325,11 @@ private fun WordView(doc: DocxDoc, read: (String) -> ByteArray?, fontSp: Int, da
         Box(Modifier.fillMaxSize().background(oc.backdrop)) { Text("文章がありません(図や表だけの文書かもしれません)", color = oc.note, modifier = Modifier.align(Alignment.Center).padding(32.dp)) }
         return
     }
+    DisposableEffect(items, copy) {
+        copy?.set("全文をコピー") { items.joinToString("\n") { wordBlockText(it.block) } }
+        onDispose { copy?.provider = null }
+    }
+    CopyableArea {
     LazyColumn(Modifier.fillMaxSize().background(oc.backdrop).belowBars(), contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp)) {
         items(items.size) { i ->
             val it = items[i]
@@ -339,6 +348,16 @@ private fun WordView(doc: DocxDoc, read: (String) -> ByteArray?, fontSp: Int, da
             }
         }
     }
+    }
+}
+
+/** Word の 1 つのまとまり(段落・表)の文字。表は、タブと改行で区切る。 */
+private fun wordBlockText(b: DocBlock): String = when (b) {
+    is DocBlock.Para -> b.text
+    is DocBlock.Table -> b.rows.joinToString("\n") { row ->
+        row.joinToString("\t") { cell -> CopyText.tsvCell(cell.blocks.filterIsInstance<DocBlock.Para>().joinToString(" ") { it.text }) }
+    }
+    is DocBlock.Image -> ""
 }
 
 @Composable
@@ -427,13 +446,20 @@ private fun WordImage(img: DocBlock.Image, k: Float, read: (String) -> ByteArray
 }
 /** スライドの位置どおりの表示が読めなかったときの、文字だけの表示。 */
 @Composable
-private fun TextSlidesView(slides: List<Slide>, fontSp: Int, dark: Boolean) {
+private fun TextSlidesView(slides: List<Slide>, fontSp: Int, dark: Boolean, copy: CopyHolder? = null) {
     val oc = remember(dark) { OfficeColors(dark) }
     if (slides.isEmpty()) {
         Box(Modifier.fillMaxSize().background(oc.backdrop)) { Text("スライドがありません", color = oc.note, modifier = Modifier.align(Alignment.Center)) }
         return
     }
     val k = fontSp / 14f
+    DisposableEffect(slides, copy) {
+        copy?.set("全スライドの文字をコピー") {
+            slides.joinToString("\n\n") { s -> "スライド ${s.number}\n" + (listOfNotNull(s.title) + s.lines).joinToString("\n") }
+        }
+        onDispose { copy?.provider = null }
+    }
+    CopyableArea {
     LazyColumn(
         Modifier.fillMaxSize().background(oc.backdrop).belowBars(),
         contentPadding = PaddingValues(12.dp),
@@ -453,5 +479,6 @@ private fun TextSlidesView(slides: List<Slide>, fontSp: Int, dark: Boolean) {
                 }
             }
         }
+    }
     }
 }

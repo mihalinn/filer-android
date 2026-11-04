@@ -27,7 +27,7 @@ import kotlinx.coroutines.withContext
 @Composable
 internal fun UnknownPane(
     fs: Fs, item: FileItem, fontSp: Int, bars: Boolean, onTap: () -> Unit, onExternal: () -> Unit,
-    query: String, hit: Int, onHits: (Int) -> Unit,
+    query: String, hit: Int, onHits: (Int) -> Unit, copy: CopyHolder? = null,
 ) {
     val head = produceState<Pair<ByteArray, Boolean>?>(null, item.path) {
         value = withContext(Dispatchers.IO) { runCatching { fs.open(item.path).use { TextDecode.readUpTo(it, 64 * 1024) } }.getOrNull() ?: (ByteArray(0) to false) }
@@ -38,7 +38,7 @@ internal fun UnknownPane(
     }
     val guess = Sniff.detect(head.first)
     if (guess.isText) {
-        DocPane(fs, item, PreviewKind.TEXT, fontSp, bars, false, true, onTap, query, hit, onHits)
+        DocPane(fs, item, PreviewKind.TEXT, fontSp, bars, false, true, onTap, query, hit, onHits, copy)
         return
     }
     Column(Modifier.fillMaxSize().belowBars()) {
