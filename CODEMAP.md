@@ -30,7 +30,7 @@
 
 | フォルダ | 役割 | おもなファイル |
 |---|---|---|
-| `app/` | 入口と全体の状態 | `MainActivity`(起動・他アプリへの受け渡し)、`FmViewModel`(画面の状態と操作。節ごとにまとめてある)、`AppModels`(`Screen` `Place` `Clip` などの型)、`Screens`(画面の組み立て)、`Nav`(戻る・上への判断)、`Theme`(色)、`Incoming`(共有で受け取るもの)、`CrashLog`(異常終了の記録)、`PerfLog`(動作の記録。開発者向けオプションでオンにしたときだけ取る)、`DevTap`(バージョンを続けて押して開発者向けオプションを出す数え方)、`Report`(不具合・要望の報告の URL を作る。画面は `browser/ReportUi`) |
+| `app/` | 入口と全体の状態 | `MainActivity`(起動・他アプリへの受け渡し)、`FmViewModel`(画面の状態と操作。節ごとにまとめてある)、`AppModels`(`Screen` `Place` `Clip` などの型)、`Screens`(画面の組み立て)、`Nav`(戻る・上への判断)、`Theme`(色。テーマカラー `ThemeColor` は藍・ティール・ワイン赤。色を足すときは `palOf` と `ThemeColorTest`)、`Incoming`(共有で受け取るもの)、`CrashLog`(異常終了の記録)、`PerfLog`(動作の記録。開発者向けオプションでオンにしたときだけ取る)、`DevTap`(バージョンを続けて押して開発者向けオプションを出す数え方)、`Report`(不具合・要望の報告の URL を作る。画面は `browser/ReportUi`) |
 | `browser/` | 一覧とその周りの画面 | `ListUi` `Home` `HomeLayout` `Drawer` `Dialogs` `FileIcon` `SettingsUi`(開発者向けオプションの画面を含む) `AboutUi`(ライセンス) `AnalyzeUi` `ProgressUi` `PerfLogUi`(動作の記録の窓) |
 | `storage/` | 場所(端末・NAS)の読み書き | `Fs`(抽象と端末内)、`SmbFs`(NAS。smbj)、`Remotes`(接続先の保存。暗号化)、`Trash`、`FileOps`(端末内の操作・拡張子の分類)、`Media`(MediaStore の分類)、`Analyzer`(容量の分析)、`ReadAhead` `WriteBehind` `ResumeStreams`(NAS を速く・切れにくくする)、`ReadProgress`、`BackgroundPool`(サムネイルなどを作る低優先度のスレッド) |
 | `transfer/` | コピー・移動・圧縮の実行 | `Transfer`(Fs 間の操作)、`Progress`、`Ops`(実行中の操作の状態。アプリ全体で 1 つ)、`TransferService`(アプリを閉じても続けるサービス。コピー・移動と、`BgTasks` の通知を出す)、`BgTasks`(画面を消しても続けるダウンロード。アプリの更新とプレビューの取り込み。通知・中止つき)、`Conflict`(同名の扱い) |

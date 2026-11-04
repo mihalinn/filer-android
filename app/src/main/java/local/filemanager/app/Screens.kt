@@ -230,7 +230,7 @@ private fun TopBar(vm: FmViewModel, onMenu: () -> Unit, onPending: (Pending) -> 
                     IconButton(onClick = vm::selectAll) { Icon(Icons.Default.SelectAll, "すべて選択") }
                     IconButton(onClick = vm::invertSelection) { Icon(Icons.Default.FlipToBack, "選択を反転") }
                 },
-                colors = barColors(pal.selectedRow, pal.onBar),
+                colors = barColors(pal.selectBar, pal.onBar),
             )
 
         query != null -> {

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material.icons.Icons
@@ -124,6 +125,8 @@ private fun SettingsMain(vm: FmViewModel) {
             HorizontalDivider(color = pal.divider)
             val themes = listOf("light", "dark", "system")
             SegmentRow("アプリのテーマ", listOf("ライト", "ダーク", "端末に合わせる"), themes.indexOf(vm.themeMode).coerceAtLeast(0)) { vm.changeTheme(themes[it]) }
+            HorizontalDivider(color = pal.divider)
+            ThemeColorRow(vm.themeColor) { vm.changeThemeColor(it) }
         }
         Group("ビューア(ファイルを開いた画面)") {
             val viewerThemes = listOf("dark", "light", "app")
@@ -270,6 +273,38 @@ private fun SegmentRow(title: String, options: List<String>, selected: Int, onSe
         }
     }
 }
+/** テーマカラーを選ぶ行。丸い見本(バーの色と差し色)を並べ、選んでいるものに枠を付ける。 */
+@Composable
+private fun ThemeColorRow(selected: String, onSelect: (String) -> Unit) {
+    val pal = LocalPal.current
+    Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp)) {
+        Text("テーマカラー", Modifier.padding(start = 4.dp, bottom = 6.dp), fontSize = 13.sp, color = pal.subText)
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+            ThemeColor.entries.forEach { c ->
+                val on = c.id == selected
+                // 見本はライトの色で描く(ダークでも、どんな色か分かるように)
+                val sample = palOf(c, false)
+                Column(
+                    Modifier.weight(1f).clip(RoundedCornerShape(8.dp)).clickable { onSelect(c.id) }.padding(vertical = 4.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Row(
+                        Modifier.size(44.dp).clip(androidx.compose.foundation.shape.CircleShape)
+                            .border(if (on) 3.dp else 1.dp, if (on) pal.accent else pal.divider, androidx.compose.foundation.shape.CircleShape),
+                    ) {
+                        Box(Modifier.weight(1f).fillMaxSize().background(sample.topBar))
+                        Box(Modifier.weight(1f).fillMaxSize().background(sample.accent))
+                    }
+                    Text(
+                        c.label, Modifier.padding(top = 4.dp), fontSize = 12.sp, maxLines = 1,
+                        color = if (on) pal.accent else pal.text, fontWeight = if (on) FontWeight.Bold else null,
+                    )
+                }
+            }
+        }
+    }
+}
+
 /** 入り切りの行。 */
 @Composable
 internal fun SwitchRow(label: String, checked: Boolean, subtitle: String? = null, enabled: Boolean = true, onToggle: () -> Unit) {

@@ -32,13 +32,144 @@ class Pal(
     /** 上のバー・下の操作バーの上に置く文字と記号の色 */
     val onBar: Color,
     val actionAccent: Color,
+    /** 選んだ行の地(文字は text)。 */
     val selectedRow: Color,
+    /** ファイルを選んでいる間の、上のバーの色(文字は onBar)。 */
+    val selectBar: Color,
     val tileBg: Color,
     val tileBorder: Color,
     val accent: Color,
     /** accent の上に置く文字の色 */
     val onAccent: Color,
 )
+
+/** テーマカラー。藍が既定(パステル調)。ティールは、濃いバーに青緑の差し色。ワイン赤は、深い赤のバー。 */
+enum class ThemeColor(val id: String, val label: String) {
+    INDIGO("indigo", "藍"),
+    TEAL("teal", "ティール"),
+    WINE("wine", "ワイン赤");
+
+    companion object {
+        fun of(id: String): ThemeColor = entries.firstOrNull { it.id == id } ?: INDIGO
+    }
+}
+
+/** 見た目で、ファイルの種類の色を濃くするか(ティール・ワイン赤)。composition の最初に FmTheme が決める。 */
+object KindPalette {
+    @Volatile
+    var saturated = false
+}
+
+internal fun palOf(c: ThemeColor, dark: Boolean): Pal = when (c) {
+    ThemeColor.INDIGO -> if (dark) DarkPal else LightPal
+    ThemeColor.TEAL -> if (dark) TealDark else TealLight
+    ThemeColor.WINE -> if (dark) WineDark else WineLight
+}
+
+private val TealLight = Pal(
+    dark = false,
+    background = Color(0xFFFAFAFA),
+    surface = Color.White,
+    text = Color(0xFF212121),
+    subText = Color(0xFF6B6B6B),
+    divider = Color(0xFFD9D9D9),
+    topBar = Color(0xFF1F1F1F),
+    actionBar = Color(0xFF12303F),
+    onBar = Color(0xFFF2F2F2),
+    actionAccent = Color(0xFF3B9BD9),
+    selectedRow = Color(0xFFBFE3DE),
+    selectBar = Color(0xFF1B5E56),
+    tileBg = Color(0xFFF0F4F3),
+    tileBorder = Color(0xFFDDDDDD),
+    accent = Color(0xFF00796B),
+    onAccent = Color.White,
+)
+
+private val TealDark = Pal(
+    dark = true,
+    background = Color(0xFF121212),
+    surface = Color(0xFF1E1E1E),
+    text = Color(0xFFE6E6E6),
+    subText = Color(0xFFA0A0A0),
+    divider = Color(0xFF2F2F2F),
+    topBar = Color(0xFF1F1F1F),
+    actionBar = Color(0xFF12303F),
+    onBar = Color(0xFFF2F2F2),
+    actionAccent = Color(0xFF3B9BD9),
+    selectedRow = Color(0xFF2E6E66),
+    selectBar = Color(0xFF2E6E66),
+    tileBg = Color(0xFF2A2A2A),
+    tileBorder = Color(0xFF3A3A3A),
+    accent = Color(0xFF66B9AD),
+    onAccent = Color(0xFF003731),
+)
+
+private val WineLight = Pal(
+    dark = false,
+    background = Color(0xFFFAF7F6),
+    surface = Color.White,
+    text = Color(0xFF261A1A),
+    subText = Color(0xFF6F5D5D),
+    divider = Color(0xFFE8DEDD),
+    topBar = Color(0xFFB71C1C),
+    actionBar = Color(0xFF7F1D1D),
+    onBar = Color(0xFFFFF3F0),
+    actionAccent = Color(0xFFFFCC80),
+    selectedRow = Color(0xFFF6D6D4),
+    selectBar = Color(0xFF7F1D1D),
+    tileBg = Color(0xFFFBEFEE),
+    tileBorder = Color(0xFFF1DCDA),
+    accent = Color(0xFFB71C1C),
+    onAccent = Color.White,
+)
+
+private val WineDark = Pal(
+    dark = true,
+    background = Color(0xFF140E0E),
+    surface = Color(0xFF211717),
+    text = Color(0xFFEBDDDD),
+    subText = Color(0xFFA89A9A),
+    divider = Color(0xFF372A2A),
+    topBar = Color(0xFF5C1414),
+    actionBar = Color(0xFF430E0E),
+    onBar = Color(0xFFF5E6E6),
+    actionAccent = Color(0xFFFFB74D),
+    selectedRow = Color(0xFF6B2626),
+    selectBar = Color(0xFF6B2626),
+    tileBg = Color(0xFF2B1D1D),
+    tileBorder = Color(0xFF3A2828),
+    accent = Color(0xFFEF9A9A),
+    onAccent = Color(0xFF4A0E0E),
+)
+
+private fun schemeOf(p: Pal) = if (p.dark) {
+    darkColorScheme(
+        primary = p.accent, onPrimary = p.onAccent, primaryContainer = p.selectedRow, onPrimaryContainer = p.text,
+        secondary = p.subText, background = p.background, onBackground = p.text, surface = p.surface, onSurface = p.text,
+        surfaceVariant = p.tileBg, onSurfaceVariant = p.subText, outline = p.subText,
+        surfaceContainerHigh = p.tileBg, surfaceContainer = p.surface,
+    )
+} else {
+    lightColorScheme(
+        primary = p.accent, onPrimary = p.onAccent, primaryContainer = p.selectedRow, onPrimaryContainer = p.text,
+        secondary = p.subText, background = p.background, onBackground = p.text, surface = p.surface, onSurface = p.text,
+        surfaceVariant = p.tileBg, onSurfaceVariant = p.subText, outline = p.subText,
+        surfaceContainerHigh = p.surface, surfaceContainer = p.background,
+    )
+}
+
+/** 色の明るさ(0〜1。WCAG の相対輝度)。 */
+internal fun relLuminance(c: Color): Double {
+    fun lin(v: Float): Double = v.toDouble().let { if (it <= 0.03928) it / 12.92 else Math.pow((it + 0.055) / 1.055, 2.4) }
+    return 0.2126 * lin(c.red) + 0.7152 * lin(c.green) + 0.0722 * lin(c.blue)
+}
+
+/** 2 色の見分けやすさ(1〜21。文字は 4.5 以上が目安)。 */
+internal fun contrastRatio(a: Color, b: Color): Double {
+    val la = relLuminance(a)
+    val lb = relLuminance(b)
+    return (maxOf(la, lb) + 0.05) / (minOf(la, lb) + 0.05)
+}
 
 private val LightPal = Pal(
     dark = false,
@@ -52,6 +183,7 @@ private val LightPal = Pal(
     onBar = Color(0xFF2A2E47),
     actionAccent = Color(0xFFAAB6F3),
     selectedRow = Color(0xFFDFE5FF),
+    selectBar = Color(0xFFDFE5FF),
     tileBg = Color(0xFFEEF1FC),
     tileBorder = Color(0xFFEEF1FC),
     accent = Color(0xFF5766D6),
@@ -70,6 +202,7 @@ private val DarkPal = Pal(
     onBar = Color(0xFFE6E8F5),
     actionAccent = Color(0xFF7986CB),
     selectedRow = Color(0xFF3A4180),
+    selectBar = Color(0xFF3A4180),
     tileBg = Color(0xFF262A45),
     tileBorder = Color(0xFF262A45),
     accent = Color(0xFF9FA8DA),
@@ -112,26 +245,36 @@ private val DarkScheme = darkColorScheme(
 
 /** mode: "light"(既定) / "dark" / "system"(端末の設定に合わせる) */
 @Composable
-fun FmTheme(mode: String, content: @Composable () -> Unit) {
+fun FmTheme(mode: String, color: String = "indigo", content: @Composable () -> Unit) {
     val dark = when (mode) {
         "dark" -> true
         "system" -> isSystemInDarkTheme()
         else -> false
     }
+    val theme = ThemeColor.of(color)
+    val pal = palOf(theme, dark)
     SideEffect { Pv.appDark = dark }
-    // ライトのバーは淡い色なので、状態バー・ナビゲーションバーの記号は暗くする
+    // 子の画面より先に決める(SideEffect だと、切り替えた直後の 1 回は古い色で描かれる)
+    KindPalette.saturated = theme != ThemeColor.INDIGO
+    // バーが淡い色のときは、状態バー・ナビゲーションバーの記号を暗くする(濃い色のバーなら明るくする)
     val view = LocalView.current
-    DisposableEffect(dark) {
+    val lightStatus = relLuminance(pal.topBar) > 0.4
+    val lightNav = relLuminance(pal.background) > 0.4
+    DisposableEffect(lightStatus, lightNav) {
         val window = (view.context as? Activity)?.window
         if (window != null) {
             val ctl = WindowCompat.getInsetsController(window, view)
-            ctl.isAppearanceLightStatusBars = !dark
-            ctl.isAppearanceLightNavigationBars = !dark
+            ctl.isAppearanceLightStatusBars = lightStatus
+            ctl.isAppearanceLightNavigationBars = lightNav
         }
         onDispose {}
     }
-    CompositionLocalProvider(LocalPal provides (if (dark) DarkPal else LightPal)) {
-        MaterialTheme(colorScheme = if (dark) DarkScheme else LightScheme, shapes = AppShapes, content = content)
+    val scheme = when (theme) {
+        ThemeColor.INDIGO -> if (dark) DarkScheme else LightScheme
+        else -> schemeOf(pal)
+    }
+    CompositionLocalProvider(LocalPal provides pal) {
+        MaterialTheme(colorScheme = scheme, shapes = AppShapes, content = content)
     }
 }
 
@@ -144,7 +287,21 @@ fun Color.deeper(f: Float) = Color(red = red * f, green = green * f, blue = blue
 /** 色を明るくする(f=0〜1。大きいほど白に近い) */
 fun Color.lighter(f: Float) = Color(red = red + (1f - red) * f, green = green + (1f - green) * f, blue = blue + (1f - blue) * f, alpha = alpha)
 
-fun kindColor(kind: FileKind): Color = when (kind) {
+fun kindColor(kind: FileKind): Color = if (KindPalette.saturated) saturatedKindColor(kind) else pastelKindColor(kind)
+
+/** 濃いテーマ用の、はっきりした種類の色。 */
+private fun saturatedKindColor(kind: FileKind): Color = when (kind) {
+    FileKind.FOLDER -> Color(0xFFDDB06C)
+    FileKind.IMAGE -> Color(0xFF943FE5)
+    FileKind.VIDEO -> Color(0xFFD92525)
+    FileKind.AUDIO -> Color(0xFF00B2AC)
+    FileKind.DOCUMENT -> Color(0xFF2987D9)
+    FileKind.ARCHIVE -> Color(0xFF6D7D7A)
+    FileKind.APK -> Color(0xFFA0C639)
+    FileKind.OTHER -> Color(0xFFB4BDBB)
+}
+
+private fun pastelKindColor(kind: FileKind): Color = when (kind) {
     FileKind.FOLDER -> Color(0xFFFFC26B)
     FileKind.IMAGE -> Color(0xFFF08FB4)
     FileKind.VIDEO -> Color(0xFFFF9E7A)

@@ -712,6 +712,15 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
         prefs.edit().putString("theme", mode).apply()
     }
 
+    /** テーマカラー(ThemeColor の id)。 */
+    var themeColor by mutableStateOf(ThemeColor.of(prefs.getString("themeColor", "indigo") ?: "indigo").id)
+        private set
+
+    fun changeThemeColor(id: String) {
+        themeColor = ThemeColor.of(id).id
+        prefs.edit().putString("themeColor", themeColor).apply()
+    }
+
     // ---- 選択 ----
 
     fun toggleSelect(item: FileItem) {

@@ -43,7 +43,7 @@ class MainActivity : ComponentActivity() {
             handleInstallIntent(intent)
         }
         setContent {
-            FmTheme(vm.themeMode) {
+            FmTheme(vm.themeMode, vm.themeColor) {
                 AppRoot(vm, hasAccess, onRequestAccess = ::requestAccess, actions = actions)
             }
         }
