@@ -125,7 +125,7 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
             homeShortcuts = homeShortcuts + s
             prefs.edit().putString("homeShortcuts", HomeLayout.encodeShortcuts(homeShortcuts)).apply()
         }
-        messages.tryEmit("ホームに追加しました")
+        messages.tryEmit(Txt(R.string.fm_view_model_001))
     }
 
     /** いま開いているフォルダの中のフォルダ item を、ホームに置く。 */
@@ -224,10 +224,10 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
     fun fsOf(id: String): Fs = when {
         id == "local" -> LocalFs
         id.startsWith("smb:") -> smbCache.getOrPut(id) {
-            val cfg = remotes.firstOrNull { "smb:${it.id}" == id } ?: throw OpException("接続先が見つかりません")
+            val cfg = remotes.firstOrNull { "smb:${it.id}" == id } ?: throw OpException(Txt(R.string.fm_view_model_002))
             SmbFs(cfg)
         }
-        else -> throw OpException("場所が不明です")
+        else -> throw OpException(Txt(R.string.fm_view_model_003))
     }
 
     // ---- ストレージ ----
@@ -242,7 +242,7 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
             .filter { it.state == Environment.MEDIA_MOUNTED || it.state == Environment.MEDIA_MOUNTED_READ_ONLY }
             .mapNotNull { v ->
                 val d = v.directory ?: return@mapNotNull null
-                val label = if (v.isPrimary) "メインストレージ" else (v.getDescription(ctx) ?: d.name)
+                val label = if (v.isPrimary) Txt(R.string.fm_view_model_004) else (v.getDescription(ctx) ?: d.name)
                 Volume(label, d, d.totalSpace, d.freeSpace)
             }
     }
@@ -255,7 +255,7 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
     /** 最上位の表示名。ダウンロードは日本語で、そのほかのフォルダは名前、ストレージはその名前。 */
     private fun rootLabelOf(root: String): String {
         if (volumes.none { it.dir.path == root } && root != "/") {
-            if (root == downloadPath()) return "ダウンロード"
+            if (root == downloadPath()) return Txt(R.string.fm_view_model_005)
             return File(root).name
         }
         return labelOfRoot(File(root))
@@ -264,7 +264,7 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
     private fun downloadPath(): String = File(volumes.firstOrNull()?.dir ?: File("/storage/emulated/0"), "Download").path
 
     fun labelOfRoot(root: File): String =
-        if (root.path == "/") "システム" else volumes.firstOrNull { it.dir.path == root.path }?.label ?: root.name
+        if (root.path == "/") Txt(R.string.fm_view_model_006) else volumes.firstOrNull { it.dir.path == root.path }?.label ?: root.name
 
     private fun rootPath(d: Screen.Dir): String =
         if (d.fsId == "local") Nav.effectiveRoot(d.path, anchor, rootOfLocal(d.path).path) else "/"
@@ -290,12 +290,12 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
 
     /** 画面上部に出す題名。 */
     fun titleOf(s: Screen): String = when (s) {
-        Screen.Home -> "ファイラー"
+        Screen.Home -> Txt(R.string.app_name)
         is Screen.Cat -> s.cat.label
-        Screen.Trash -> "ごみ箱"
-        Screen.Network -> "ネットワーク"
-        is Screen.Analyze -> "容量の分析"
-        is Screen.Settings -> when (s.page) { SettingsPage.LICENSES -> "ライセンス"; SettingsPage.FORMATS -> "対応しているファイル形式"; SettingsPage.DEVELOPER -> "開発者向けオプション"; else -> "設定" }
+        Screen.Trash -> Txt(R.string.fm_view_model_007)
+        Screen.Network -> Txt(R.string.fm_view_model_008)
+        is Screen.Analyze -> Txt(R.string.fm_view_model_009)
+        is Screen.Settings -> when (s.page) { SettingsPage.LICENSES -> Txt(R.string.fm_view_model_010); SettingsPage.FORMATS -> Txt(R.string.fm_view_model_011); SettingsPage.DEVELOPER -> Txt(R.string.fm_view_model_012); else -> Txt(R.string.fm_view_model_013) }
         is Screen.Dir -> if (sameDir(s.path, rootPath(s))) {
             if (s.fsId == "local") rootLabelOf(rootPath(s)) else remoteName(s.fsId)
         } else s.path.trimEnd('/').substringAfterLast('/')
@@ -303,7 +303,7 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
 
     fun placeLabel(p: Place): String = when {
         p.fsId == "cat" -> runCatching { Category.valueOf(p.path).label }.getOrDefault(p.path)
-        p.fsId == "local" -> File(p.path).name.ifEmpty { "システム" }
+        p.fsId == "local" -> File(p.path).name.ifEmpty { Txt(R.string.fm_view_model_014) }
         p.path.isEmpty() -> remoteName(p.fsId)
         else -> "${remoteName(p.fsId)}: ${p.path.trimEnd('/').substringAfterLast('/').ifEmpty { "/" }}"
     }
@@ -510,7 +510,7 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                analysisError = e.message ?: "調べられませんでした"
+                analysisError = e.message ?: Txt(R.string.fm_view_model_015)
             } finally {
                 analyzing = false
             }
@@ -596,11 +596,11 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
                             }.map { it.item }
                             else -> emptyList()
                         }
-                        l to (if (l == null) "このフォルダは開けません" else null)
+                        l to (if (l == null) Txt(R.string.fm_view_model_016) else null)
                     } catch (e: OpException) {
                         null to e.message
                     } catch (e: Exception) {
-                        null to "読み込めませんでした: ${e.message}"
+                        null to Txt(R.string.list_error_read, e.message)
                     }
                 }
                 items = list ?: emptyList()
@@ -780,7 +780,7 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
                     } catch (e: CancellationException) {
                         throw e
                     } catch (e: Exception) {
-                        messages.tryEmit(e.message ?: "検索できませんでした")
+                        messages.tryEmit(e.message ?: Txt(R.string.fm_view_model_017))
                         emptyList()
                     }
                 }
@@ -802,8 +802,7 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
         val fsId = (screen as? Screen.Dir)?.fsId ?: "local"
         clip = Clip(fsId, its, move)
         selected = emptySet()
-        val verb = if (move) "移動" else "コピー"
-        messages.tryEmit("${its.size}件を選びました。${verb}先のフォルダを開いて、「貼り付け」を押してください")
+        messages.tryEmit(if (move) Txt.n(R.plurals.clip_selected_move, its.size) else Txt.n(R.plurals.clip_selected_copy, its.size))
     }
 
     fun cancelClip() {
@@ -837,7 +836,7 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
         val c = clip ?: return
         val d = screen as? Screen.Dir ?: return
         if (Ops.busy != null) {
-            messages.tryEmit("別の処理が終わるまでお待ちください")
+            messages.tryEmit(Txt(R.string.fm_view_model_018))
             return
         }
         if (checkingConflicts || conflictPrompt != null) return
@@ -849,7 +848,7 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
                     runCatching { Transfer.conflicts(fsOf(c.fsId), c.items, fsOf(d.fsId), d.path) }
                 }
                 // 調べられなかったときは、何も壊さない「両方残す」で進める(黙って進めず、そのことを知らせる)
-                checked.exceptionOrNull()?.let { messages.tryEmit("同じ名前のファイルを確認できませんでした。同じ名前のものは「名前 (1)」の形で貼り付けます") }
+                checked.exceptionOrNull()?.let { messages.tryEmit(Txt(R.string.fm_view_model_019)) }
                 val found = checked.getOrDefault(emptyList())
                 if (found.isEmpty()) startPaste(c, d, emptyMap()) else conflictPrompt = ConflictPrompt(c, d, found, emptyMap())
             } finally {
@@ -878,17 +877,16 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
 
     /** decisions: 同名があったものごとの答え(無いものは、あれば「両方残す」と同じ扱い)。 */
     private fun startPaste(c: Clip, d: Screen.Dir, decisions: Map<String, ConflictAction>) {
-        val verb = if (c.move) "移動" else "コピー"
         val items = c.items.filter { decisions[it.path] != ConflictAction.SKIP }
         val skipped = c.items.size - items.size
         if (items.isEmpty()) {
-            messages.tryEmit("すべてスキップしました")
+            messages.tryEmit(Txt(R.string.fm_view_model_020))
             clip = null
             return
         }
-        val progress = Progress(verb)
+        val progress = Progress(if (c.move) OpKind.MOVE else OpKind.COPY)
         // コピーも移動も、貼り付けが終わったら貼り付けバーを消す(続けて貼りたいときはもう一度コピーする)
-        runOp("${verb}中…", onDone = { clip = null }, progress = progress) { check ->
+        runOp(Txt(if (c.move) R.string.op_moving else R.string.op_copying), onDone = { clip = null }, progress = progress) { check ->
             val src = fsOf(c.fsId)
             val dst = fsOf(d.fsId)
             progress.itemsTotal = items.size
@@ -900,7 +898,12 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
                 if (c.move) Transfer.move(src, item, dst, d.path, check, progress, overwrite)
                 else Transfer.copy(src, item, dst, d.path, check, progress, overwrite)
             }
-            err ?: ("${items.size}件を${verb}しました" + if (skipped > 0) "(${skipped}件スキップ)" else "")
+            err ?: when {
+                c.move && skipped > 0 -> Txt.n(R.plurals.op_moved_skipped, items.size, skipped)
+                c.move -> Txt.n(R.plurals.op_moved, items.size)
+                skipped > 0 -> Txt.n(R.plurals.op_copied_skipped, items.size, skipped)
+                else -> Txt.n(R.plurals.op_copied, items.size)
+            }
         }
     }
 
@@ -916,7 +919,7 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
         val fs = itemFs
         val toTrash = deletesToTrash
         // ごみ箱へは名前の付け替えで一瞬。完全削除(NAS など)は時間がかかることがあるので守る
-        runOp(if (toTrash) "ごみ箱へ移動中…" else "削除中…", keepAlive = !toTrash) { check ->
+        runOp(if (toTrash) Txt(R.string.fm_view_model_021) else Txt(R.string.fm_view_model_022), keepAlive = !toTrash) { check ->
             val err = forEachSafe(its) {
                 check()
                 when {
@@ -928,22 +931,22 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
                     else -> fs.delete(it.path)
                 }
             }
-            err ?: "${its.size}件を${if (toTrash) "ごみ箱に移動" else "削除"}しました"
+            err ?: if (toTrash) Txt.n(R.plurals.op_trashed, its.size) else Txt.n(R.plurals.op_deleted, its.size)
         }
     }
 
     fun restoreSelected() {
         val its = selectedItems()
         if (its.isEmpty()) return
-        runOp("元に戻しています…") { check ->
+        runOp(Txt(R.string.fm_view_model_023)) { check ->
             val err = forEachSafe(its) { check(); Trash.restore(File(it.path)) }
-            err ?: "${its.size}件を元に戻しました"
+            err ?: Txt.n(R.plurals.op_restored, its.size)
         }
     }
 
     fun emptyTrash() {
         val dirs = volumes.map { it.dir }
-        runOp("ごみ箱を空にしています…", keepAlive = true) { Trash.empty(dirs); "ごみ箱を空にしました" }
+        runOp(Txt(R.string.fm_view_model_024), keepAlive = true) { Trash.empty(dirs); Txt(R.string.fm_view_model_025) }
     }
 
     // ---- 名前・フォルダ・ZIP ----
@@ -951,19 +954,19 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
     fun renameSelected(newName: String) {
         val item = selectedItems().singleOrNull() ?: return
         val fs = itemFs
-        runOp("名前を変更中…") { fs.rename(item.path, newName.trim()); "名前を変更しました" }
+        runOp(Txt(R.string.fm_view_model_026)) { fs.rename(item.path, newName.trim()); Txt(R.string.fm_view_model_027) }
     }
 
     fun newFolder(name: String) {
         val d = screen as? Screen.Dir ?: return
         val fs = fsOf(d.fsId)
-        runOp("作成中…") {
+        runOp(Txt(R.string.fm_view_model_028)) {
             val n = name.trim()
             FileOps.validateName(n)?.let { throw OpException(it) }
             val p = fs.child(d.path, n)
-            if (fs.exists(p)) throw OpException("同じ名前のファイルがすでにあります")
+            if (fs.exists(p)) throw OpException(Txt(R.string.fm_view_model_029))
             fs.mkdir(p)
-            "フォルダを作成しました"
+            Txt(R.string.fm_view_model_030)
         }
     }
 
@@ -972,23 +975,23 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
         val d = screen as? Screen.Dir
         if (its.isEmpty() || d == null) return
         val n = name.trim().let { if (it.endsWith(".zip", ignoreCase = true)) it else "$it.zip" }
-        val progress = Progress("圧縮")
+        val progress = Progress(OpKind.ZIP)
         val fs = fsOf(d.fsId)
-        runOp("圧縮中…", progress = progress) { check ->
+        runOp(Txt(R.string.fm_view_model_032), progress = progress) { check ->
             FileOps.validateName(n)?.let { throw OpException(it) }
             progress.itemsTotal = its.size
             progress.totalBytes = Transfer.stats(fs, its, check).bytes
             if (fs.isLocal) FileOps.zip(its.map { File(it.path) }, File(d.path, n), check, progress)
             else Transfer.zip(fs, its, fs.child(d.path, n), check, progress)
             progress.itemsDone = its.size
-            "ZIPを作成しました"
+            Txt(R.string.fm_view_model_033)
         }
     }
 
     /** .xapk / .apkm / .apks を、この端末に合う部品を選んで、まとめてインストールする(確認画面まで進める)。 */
     fun installBundle(fs: Fs, item: FileItem) {
-        val progress = Progress("インストールの準備").also { it.itemsTotal = 1 }
-        runOp("インストールの準備中…", progress = progress, keepAlive = true) { check ->
+        val progress = Progress(OpKind.INSTALL).also { it.itemsTotal = 1 }
+        runOp(Txt(R.string.fm_view_model_035), progress = progress, keepAlive = true) { check ->
             BundleInstaller.install(getApplication(), fs, item, check, progress)
         }
     }
@@ -1000,13 +1003,13 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
     /** ZIP を、同じ場所の「拡張子を除いた名前」のフォルダに展開する。 */
     fun unzipItem(z: FileItem) {
         val fs = itemFs
-        val progress = Progress("展開").also { it.itemsTotal = 1 }
-        runOp("展開中…", progress = progress) { check ->
+        val progress = Progress(OpKind.UNZIP).also { it.itemsTotal = 1 }
+        runOp(Txt(R.string.fm_view_model_037), progress = progress) { check ->
             val outName = if (Archives.isOtherArchive(z.name)) Transfer.extractArchive(fs, z, getApplication<Application>().cacheDir, check, progress).substringAfterLast('/')
             else if (fs.isLocal) FileOps.unzip(File(z.path), check, progress).name
             else Transfer.unzip(fs, z, check, progress).substringAfterLast('/')
             progress.itemsDone = 1
-            "「$outName」に展開しました"
+            Txt(R.string.op_unzipped, outName)
         }
     }
 
@@ -1028,21 +1031,21 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
     fun saveIncoming() {
         val files = incoming ?: return
         val d = screen as? Screen.Dir ?: run {
-            messages.tryEmit("保存先のフォルダを開いてください")
+            messages.tryEmit(Txt(R.string.fm_view_model_038))
             return
         }
         if (Ops.busy != null) {
-            messages.tryEmit("別の処理が終わるまでお待ちください")
+            messages.tryEmit(Txt(R.string.fm_view_model_039))
             return
         }
         incoming = null
-        val progress = Progress("保存").also {
+        val progress = Progress(OpKind.SAVE).also {
             it.itemsTotal = files.size
             // 大きさが1つでも分からないときは、全体の割合を出さない(動き続けるバーにする)
             if (files.all { f -> f.size >= 0 }) it.totalBytes = files.sumOf { f -> f.size }
         }
         val cr = getApplication<Application>().contentResolver
-        runOp("保存中…", progress = progress) { check ->
+        runOp(Txt(R.string.fm_view_model_041), progress = progress) { check ->
             val fs = fsOf(d.fsId)
             // 共有元から渡されたアクセス権は、アプリを閉じると取り消されることがある。先に全部開いておけば、開いたものは読み続けられる
             val opened = files.map { f ->
@@ -1056,7 +1059,7 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
                 for ((f, input) in opened) {
                     try {
                         check()
-                        if (input == null) throw OpException("「${f.name}」を開けませんでした")
+                        if (input == null) throw OpException(Txt(R.string.incoming_open_failed, f.name))
                         input.use { Transfer.importStream(fs, d.path, f.name, it, check, progress) }
                     } catch (e: CancellationException) {
                         throw e
@@ -1066,7 +1069,7 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
                     }
                     progress.itemsDone++
                 }
-                if (failed == 0) "${files.size}件を保存しました" else "${failed}件失敗しました: $first"
+                if (failed == 0) Txt.n(R.plurals.op_saved, files.size) else Txt.n(R.plurals.op_failed_first, failed, first)
             } finally {
                 opened.forEach { runCatching { it.second?.close() } }
             }
@@ -1123,8 +1126,8 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
             openRequests.tryEmit(File(item.path))
             return
         }
-        val progress = Progress("ダウンロード").also { it.itemsTotal = 1; it.totalBytes = item.size }
-        runOp("ダウンロード中…", progress = progress) { check ->
+        val progress = Progress(OpKind.DOWNLOAD).also { it.itemsTotal = 1; it.totalBytes = item.size }
+        runOp(Txt(R.string.fm_view_model_043), progress = progress) { check ->
             openRequests.tryEmit(download(fs, item, check, progress))
             progress.itemsDone = 1
             null
@@ -1137,15 +1140,15 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
         val fs = fsOverride ?: itemFs
         val files = items.filter { !it.isDir }
         if (files.isEmpty()) {
-            messages.tryEmit("フォルダは共有できません。ZIPに圧縮してから共有してください")
+            messages.tryEmit(Txt(R.string.fm_view_model_044))
             return
         }
         if (fs.isLocal) {
             shareRequests.tryEmit(files.map { File(it.path) })
             return
         }
-        val progress = Progress("ダウンロード").also { it.itemsTotal = files.size; it.totalBytes = files.sumOf { f -> f.size } }
-        runOp("ダウンロード中…", progress = progress) { check ->
+        val progress = Progress(OpKind.DOWNLOAD).also { it.itemsTotal = files.size; it.totalBytes = files.sumOf { f -> f.size } }
+        runOp(Txt(R.string.fm_view_model_046), progress = progress) { check ->
             shareRequests.tryEmit(files.map { download(fs, it, check, progress).also { progress.itemsDone++ } })
             null
         }
@@ -1154,7 +1157,7 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
     /** NAS のファイルを、他のアプリに渡せるよう端末の一時領域に取り込む。 */
     private fun download(fs: Fs, item: FileItem, check: () -> Unit, progress: Progress): File {
         val dir = File(getApplication<Application>().cacheDir, "remote/${UUID.randomUUID()}")
-        if (!dir.mkdirs()) throw OpException("一時フォルダを作成できませんでした")
+        if (!dir.mkdirs()) throw OpException(Txt(R.string.fm_view_model_047))
         val out = File(dir, item.name)
         progress.begin(item.path, out.path)
         fs.open(item.path).use { i -> out.outputStream().use { o -> Transfer.pump(i, o, check, progress) } }
@@ -1174,7 +1177,7 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
             bookmarks = bookmarks + p
             writePlaces("bookmarks", bookmarks)
         }
-        messages.tryEmit("ブックマークに追加しました")
+        messages.tryEmit(Txt(R.string.fm_view_model_048))
         selected = emptySet()
     }
 
@@ -1253,7 +1256,7 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
             }
             if (progress != null) progress.itemsDone++
         }
-        return if (failed == 0) null else "${failed}件失敗しました: $first"
+        return if (failed == 0) null else Txt.n(R.plurals.op_failed_first, failed, first)
     }
 
     fun hideProgress() {
@@ -1277,7 +1280,7 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
         block: (check: () -> Unit) -> String?,
     ) {
         if (Ops.busy != null) {
-            messages.tryEmit("別の処理が終わるまでお待ちください")
+            messages.tryEmit(Txt(R.string.fm_view_model_049))
             return
         }
         Ops.busy = msg
@@ -1308,11 +1311,11 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
             try {
                 outcome = withContext(Dispatchers.IO) { block { ensureActive() } }
             } catch (e: CancellationException) {
-                outcome = "中止しました"
+                outcome = Txt(R.string.fm_view_model_050)
             } catch (e: OpException) {
-                outcome = e.message ?: "失敗しました"
+                outcome = e.message ?: Txt(R.string.fm_view_model_051)
             } catch (e: Exception) {
-                outcome = "失敗しました: ${e.message}"
+                outcome = Txt(R.string.op_failed_reason, e.message)
             } finally {
                 ticker?.cancel()
                 outcome?.let { messages.tryEmit(it) }

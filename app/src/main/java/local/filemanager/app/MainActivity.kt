@@ -28,6 +28,11 @@ class MainActivity : ComponentActivity() {
     private val vm: FmViewModel by viewModels()
     private var hasAccess by mutableStateOf(false)
 
+    /** 設定で選んだ言語を、画面(Compose の標準の文字も)に反映する */
+    override fun attachBaseContext(newBase: android.content.Context) {
+        super.attachBaseContext(Languages.wrap(newBase))
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // 落ちたときに、原因(スタックトレース)を次の起動で見られるよう記録する
@@ -84,15 +89,15 @@ class MainActivity : ComponentActivity() {
             if (list.isEmpty()) {
                 val text = i.getStringExtra(Intent.EXTRA_TEXT)
                 if (!text.isNullOrBlank()) {
-                    val subject = i.getStringExtra(Intent.EXTRA_SUBJECT)?.takeIf { it.isNotBlank() }?.take(60) ?: "共有テキスト"
-                    val name = FileOps.safeFileName(subject, "共有テキスト").let { if (it.endsWith(".txt", ignoreCase = true)) it else "$it.txt" }
+                    val subject = i.getStringExtra(Intent.EXTRA_SUBJECT)?.takeIf { it.isNotBlank() }?.take(60) ?: Txt(R.string.main_activity_001)
+                    val name = FileOps.safeFileName(subject, Txt(R.string.main_activity_002)).let { if (it.endsWith(".txt", ignoreCase = true)) it else "$it.txt" }
                     list.add(IncomingFile(name, text.toByteArray().size.toLong(), null, text))
                 }
             }
             list
         }.getOrDefault(emptyList())
         if (files.isEmpty()) {
-            Toast.makeText(this, "受け取れる内容がありません", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, Txt(R.string.main_activity_003), Toast.LENGTH_SHORT).show()
             return
         }
         vm.receiveShared(files)
@@ -204,7 +209,7 @@ class MainActivity : ComponentActivity() {
         try {
             startActivity(intent)
         } catch (e: ActivityNotFoundException) {
-            Toast.makeText(this, "このファイルを開けるアプリがありません", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, Txt(R.string.main_activity_004), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -212,14 +217,14 @@ class MainActivity : ComponentActivity() {
         try {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
         } catch (e: ActivityNotFoundException) {
-            Toast.makeText(this, "ブラウザが見つかりません", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, Txt(R.string.main_activity_005), Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun share(files: List<File>) {
         val onlyFiles = files.filter { it.isFile }
         if (onlyFiles.isEmpty()) {
-            Toast.makeText(this, "フォルダは共有できません。ZIPに圧縮してから共有してください", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, Txt(R.string.main_activity_006), Toast.LENGTH_SHORT).show()
             return
         }
         val intent = if (onlyFiles.size == 1) {
@@ -231,6 +236,6 @@ class MainActivity : ComponentActivity() {
                 .setType("*/*")
                 .putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(onlyFiles.map { uriOf(it) }))
         }.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        startActivity(Intent.createChooser(intent, "共有"))
+        startActivity(Intent.createChooser(intent, Txt(R.string.main_activity_007)))
     }
 }

@@ -226,7 +226,7 @@ object Markdown {
                     val m = linkAt(s, i + 1)
                     if (m != null) {
                         flush()
-                        out.add(base.copy(text = "[画像: ${m.text.ifBlank { m.url }}]", italic = true))
+                        out.add(base.copy(text = Txt(R.string.markdown_001, m.text.ifBlank { m.url }), italic = true))
                         i = m.end
                         continue
                     }

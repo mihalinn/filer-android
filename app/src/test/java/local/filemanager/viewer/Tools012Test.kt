@@ -89,18 +89,27 @@ class TextSearchTest {
 }
 
 class TrackLabelsTest {
+    /** 言語名はアプリの言語(JVM の既定)で書くので、日本語の文面を確かめる間だけ日本語にする */
+    private fun inJapanese(block: () -> Unit) {
+        val saved = java.util.Locale.getDefault()
+        java.util.Locale.setDefault(java.util.Locale.JAPANESE)
+        try { block() } finally { java.util.Locale.setDefault(saved) }
+    }
+
     @Test
-    fun 言語名() {
+    fun 言語名() = inJapanese {
         assertEquals("日本語", TrackLabels.languageName("ja"))
         assertEquals("日本語", TrackLabels.languageName("jpn"))
         assertEquals("英語", TrackLabels.languageName("en"))
         assertNull(TrackLabels.languageName(null))
         assertNull(TrackLabels.languageName("und"))
         assertNull(TrackLabels.languageName(""))
+        // 英語のときは英語で書く
+        assertEquals("Japanese", TrackLabels.languageName("ja", java.util.Locale.ENGLISH))
     }
 
     @Test
-    fun 音声の名前() {
+    fun 音声の名前() = inJapanese {
         assertEquals("音声1: 日本語・ステレオ・AAC", TrackLabels.audio(1, "ja", null, 2, "audio/mp4a-latm"))
         assertEquals("音声2: 英語・5.1ch・E-AC3", TrackLabels.audio(2, "eng", null, 6, "audio/eac3"))
         assertEquals("音声1: 副音声・ステレオ", TrackLabels.audio(1, null, "副音声", 2, null))
@@ -110,7 +119,7 @@ class TrackLabelsTest {
     }
 
     @Test
-    fun 字幕の名前() {
+    fun 字幕の名前() = inJapanese {
         assertEquals("字幕1: 日本語・ASS", TrackLabels.text(1, "ja", null, "text/x-ssa"))
         assertEquals("字幕2: SRT", TrackLabels.text(2, null, null, "application/x-subrip"))
         assertEquals("字幕1", TrackLabels.text(1, null, null, null))

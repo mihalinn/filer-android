@@ -18,7 +18,7 @@ object Dxf {
 
     fun parse(bytes: ByteArray): CadDrawing {
         if (bytes.size >= 22 && String(bytes, 0, 22, Charsets.ISO_8859_1).startsWith("AutoCAD Binary DXF")) {
-            throw OpException("バイナリ形式の DXF には対応していません")
+            throw OpException(Txt(R.string.dxf_001))
         }
         val text = decode(bytes)
         val ents = readEntities(text)
@@ -187,8 +187,8 @@ object Dxf {
                 b.layer(name, !off)
             }
             run(doc.entities, Ctx(Xf.ID, null, 0, 0))
-            if (b.shapes == 0 && skipped > 0) throw OpException("このファイルの図形には対応していません(${skipped} 個)")
-            val note = if (skipped > 0) "対応していない図形が ${skipped} 個あります" else ""
+            if (b.shapes == 0 && skipped > 0) throw OpException(Txt.n(R.plurals.dxf_unsupported_all, skipped))
+            val note = if (skipped > 0) Txt.n(R.plurals.dxf_unsupported_some, skipped) else ""
             return b.build(note)
         }
 

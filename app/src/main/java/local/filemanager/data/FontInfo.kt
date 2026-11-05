@@ -24,15 +24,15 @@ class FontInfo(
 
     /** 何割くらいの文字を持っているかの目安として、見本の文字がそろっているか。 */
     fun coverage(): List<Pair<String, Boolean>> = listOf(
-        "英数字(ABC abc 123)" to ("AZaz09".all { supports(it.code) }),
-        "ひらがな" to supports(0x3042),
-        "カタカナ" to supports(0x30A2),
-        "漢字(常用)" to ("日本語漢字永".all { supports(it.code) }),
-        "全角記号(。、「」)" to ("。、「」".all { supports(it.code) }),
-        "ハングル" to supports(0xAC00),
-        "キリル文字" to supports(0x0416),
-        "ギリシャ文字" to supports(0x03A9),
-        "アクセントつきラテン文字(é ü ñ)" to ("éüñ".all { supports(it.code) }),
+        Txt(R.string.font_info_001) to ("AZaz09".all { supports(it.code) }),
+        Txt(R.string.font_info_002) to supports(0x3042),
+        Txt(R.string.font_info_003) to supports(0x30A2),
+        Txt(R.string.font_cover_kanji) to ("日本語漢字永".all { supports(it.code) }),
+        Txt(R.string.font_cover_symbols) to ("。、「」".all { supports(it.code) }),
+        Txt(R.string.font_info_004) to supports(0xAC00),
+        Txt(R.string.font_info_005) to supports(0x0416),
+        Txt(R.string.font_info_006) to supports(0x03A9),
+        Txt(R.string.font_info_007) to ("éüñ".all { supports(it.code) }),
     )
 
     companion object {

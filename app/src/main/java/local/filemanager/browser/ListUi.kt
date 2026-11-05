@@ -158,12 +158,12 @@ internal fun ListScreen(vm: FmViewModel, screen: Screen, actions: Actions) {
             }
             if (list.isEmpty()) {
                 val text = when {
-                    inSearch && vm.searchQuery.isNullOrBlank() -> "ファイル名の一部を入力してください"
-                    inSearch -> if (vm.searching) "検索中…" else "見つかりませんでした"
-                    vm.loading -> "読み込み中…"
+                    inSearch && vm.searchQuery.isNullOrBlank() -> Txt(R.string.list_ui_001)
+                    inSearch -> if (vm.searching) Txt(R.string.list_ui_002) else Txt(R.string.list_ui_003)
+                    vm.loading -> Txt(R.string.list_ui_004)
                     vm.listError != null -> vm.listError!!
-                    screen == Screen.Trash -> "ごみ箱は空です"
-                    else -> "このフォルダは空です"
+                    screen == Screen.Trash -> Txt(R.string.list_ui_005)
+                    else -> Txt(R.string.list_ui_006)
                 }
                 Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
                     Text(text, color = pal.subText)
@@ -186,7 +186,7 @@ private fun Breadcrumb(vm: FmViewModel, dir: Screen.Dir) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
-            Icons.Default.Home, "ホーム", tint = pal.accent,
+            Icons.Default.Home, Txt(R.string.list_ui_007), tint = pal.accent,
             modifier = Modifier.size(34.dp).clickable { vm.goHome() }.padding(4.dp),
         )
         crumbs.forEachIndexed { i, c ->
@@ -218,7 +218,7 @@ private fun GridCell(
 ) {
     val pal = LocalPal.current
     val count = rememberChildCount(item, local)
-    val info = if (item.isDir) (count?.let { "${it}項目" } ?: "") else FileOps.formatSize(item.size)
+    val info = if (item.isDir) (count?.let { Txt.n(R.plurals.item_count, it) } ?: "") else FileOps.formatSize(item.size)
     val textColor = if (selected) Color.Black else pal.text
     Column(
         Modifier.clip(RoundedCornerShape(8.dp))
@@ -258,7 +258,7 @@ private fun FileRow(
     val pal = LocalPal.current
     val count = rememberChildCount(item, local)
     val info = when {
-        item.isDir -> if (count != null) "${count}項目" else ""
+        item.isDir -> if (count != null) Txt.n(R.plurals.item_count, count) else ""
         else -> FileOps.formatSize(item.size)
     }
     val date = remember(item.modified) { FileOps.formatDay(item.modified) }

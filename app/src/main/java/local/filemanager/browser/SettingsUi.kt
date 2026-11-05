@@ -75,23 +75,23 @@ private fun DeveloperPage(vm: FmViewModel) {
                 .clickable { vm.changeDevMaster(!on) }.padding(start = 16.dp, end = 12.dp, top = 8.dp, bottom = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(if (on) "オン" else "オフ", Modifier.weight(1f), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = if (on) pal.onAccent else pal.text)
+            Text(if (on) Txt(R.string.settings_ui_001) else Txt(R.string.settings_ui_002), Modifier.weight(1f), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = if (on) pal.onAccent else pal.text)
             Switch(checked = on, onCheckedChange = { vm.changeDevMaster(it) })
         }
-        Group("デバッグ") {
+        Group(Txt(R.string.settings_ui_003)) {
             SwitchRow(
-                "動作の記録", vm.perfLogOn, enabled = on,
-                subtitle = "重くなったときの原因調べ用です。オンの間だけ、メモリなどを端末の中に記録します",
+                Txt(R.string.settings_ui_004), vm.perfLogOn, enabled = on,
+                subtitle = Txt(R.string.settings_ui_005),
             ) { vm.setPerfLog(!vm.perfLogOn) }
             HorizontalDivider(color = pal.divider)
             LinkRow(
-                "動作の記録を見る",
-                if (logLines.isEmpty()) "記録はありません" else "${logLines.size} 行" + (PerfFormat.lastStamp(logLines)?.let { "・最後は $it" } ?: ""),
+                Txt(R.string.settings_ui_006),
+                if (logLines.isEmpty()) Txt(R.string.settings_ui_007) else PerfFormat.lastStamp(logLines).let { last -> if (last != null) Txt.n(R.plurals.settings_log_summary_last, logLines.size, last) else Txt.n(R.plurals.settings_log_summary, logLines.size) },
                 enabled = on,
             ) { showPerf = true }
         }
-        Group("テスト機能") {
-            Text("まだありません", Modifier.padding(horizontal = 16.dp, vertical = 12.dp), fontSize = 14.sp, color = pal.subText)
+        Group(Txt(R.string.settings_ui_008)) {
+            Text(Txt(R.string.settings_ui_009), Modifier.padding(horizontal = 16.dp, vertical = 12.dp), fontSize = 14.sp, color = pal.subText)
         }
         Spacer(Modifier.height(24.dp))
     }
@@ -114,60 +114,76 @@ private fun SettingsMain(vm: FmViewModel) {
     var report by remember { mutableStateOf<Boolean?>(null) }
     Column(Modifier.fillMaxSize().background(pal.background).verticalScroll(rememberScrollState())) {
         // 一覧の右上の「表示設定」と同じ項目。ここからも変えられる
-        Group("表示") {
-            SegmentRow("並べ替え", SortKey.entries.map { it.label }, SortKey.entries.indexOf(vm.sortKey)) { vm.setSort(SortKey.entries[it], vm.sortAsc) }
+        Group(Txt(R.string.settings_ui_010)) {
+            SegmentRow(Txt(R.string.settings_ui_011), SortKey.entries.map { it.label }, SortKey.entries.indexOf(vm.sortKey)) { vm.setSort(SortKey.entries[it], vm.sortAsc) }
             HorizontalDivider(color = pal.divider)
-            SegmentRow("順番", listOf("昇順", "降順"), if (vm.sortAsc) 0 else 1) { vm.setSort(vm.sortKey, it == 0) }
+            SegmentRow(Txt(R.string.settings_ui_012), listOf(Txt(R.string.settings_ui_013), Txt(R.string.settings_ui_014)), if (vm.sortAsc) 0 else 1) { vm.setSort(vm.sortKey, it == 0) }
             HorizontalDivider(color = pal.divider)
-            SwitchRow("隠しファイルを表示", vm.showHidden) { vm.toggleHidden() }
+            SwitchRow(Txt(R.string.settings_ui_015), vm.showHidden) { vm.toggleHidden() }
             HorizontalDivider(color = pal.divider)
-            SwitchRow("NASのサムネイルを表示", vm.nasThumbs) { vm.toggleNasThumbs() }
+            SwitchRow(Txt(R.string.settings_ui_016), vm.nasThumbs) { vm.toggleNasThumbs() }
             HorizontalDivider(color = pal.divider)
             val themes = listOf("light", "dark", "system")
-            SegmentRow("アプリのテーマ", listOf("ライト", "ダーク", "端末に合わせる"), themes.indexOf(vm.themeMode).coerceAtLeast(0)) { vm.changeTheme(themes[it]) }
+            SegmentRow(Txt(R.string.settings_ui_017), listOf(Txt(R.string.settings_ui_018), Txt(R.string.settings_ui_019), Txt(R.string.settings_ui_020)), themes.indexOf(vm.themeMode).coerceAtLeast(0)) { vm.changeTheme(themes[it]) }
             HorizontalDivider(color = pal.divider)
             ThemeColorRow(vm.themeColor) { vm.changeThemeColor(it) }
+            HorizontalDivider(color = pal.divider)
+            // 言語は、このアプリの中で選ぶ(選ぶと画面を作り直して、すぐ反映する)。「端末に合わせる」が初期値
+            var lang by remember { mutableStateOf(Languages.saved(ctx)) }
+            val langs = Languages.supported
+            SegmentRow(
+                Txt(R.string.settings_language),
+                listOf(Txt(R.string.settings_language_system)) + langs.map { it.name },
+                if (lang.isEmpty()) 0 else langs.indexOfFirst { it.tag == lang } + 1,
+            ) { i ->
+                val tag = if (i == 0) "" else langs[i - 1].tag
+                if (tag != lang) {
+                    lang = tag
+                    Languages.change(ctx, tag)
+                    ctx.findActivity()?.recreate()
+                }
+            }
         }
-        Group("ビューア(ファイルを開いた画面)") {
+        Group(Txt(R.string.settings_ui_021)) {
             val viewerThemes = listOf("dark", "light", "app")
-            SegmentRow("配色(画像・動画は黒のまま)", listOf("ダーク", "ライト", "アプリと同じ"), viewerThemes.indexOf(vm.viewerTheme).coerceAtLeast(0)) { vm.changeViewerTheme(viewerThemes[it]) }
+            SegmentRow(Txt(R.string.settings_ui_022), listOf(Txt(R.string.settings_ui_023), Txt(R.string.settings_ui_024), Txt(R.string.settings_ui_025)), viewerThemes.indexOf(vm.viewerTheme).coerceAtLeast(0)) { vm.changeViewerTheme(viewerThemes[it]) }
             HorizontalDivider(color = pal.divider)
             Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp, top = 4.dp, bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
-                    Text("文字の大きさ", fontSize = 16.sp, color = pal.text)
-                    Text("文書・電子書籍を開いたときの大きさ", fontSize = 12.sp, color = pal.subText)
+                    Text(Txt(R.string.settings_ui_026), fontSize = 16.sp, color = pal.text)
+                    Text(Txt(R.string.settings_ui_027), fontSize = 12.sp, color = pal.subText)
                 }
                 TextButton(onClick = { vm.changeViewerFontSp(vm.viewerFontSp - 1) }, enabled = vm.viewerFontSp > VIEWER_FONT_MIN) { Text("−", fontSize = 20.sp) }
                 Text("${vm.viewerFontSp}", fontSize = 16.sp, color = pal.text)
                 TextButton(onClick = { vm.changeViewerFontSp(vm.viewerFontSp + 1) }, enabled = vm.viewerFontSp < VIEWER_FONT_MAX) { Text("+", fontSize = 20.sp) }
             }
             HorizontalDivider(color = pal.divider)
-            SegmentRow("マンガ(.cbz など)をめくる向き", listOf("右から左", "左から右"), if (vm.comicRtl) 0 else 1) { if ((it == 0) != vm.comicRtl) vm.toggleComicRtl() }
+            SegmentRow(Txt(R.string.settings_ui_028), listOf(Txt(R.string.settings_ui_029), Txt(R.string.settings_ui_030)), if (vm.comicRtl) 0 else 1) { if ((it == 0) != vm.comicRtl) vm.toggleComicRtl() }
         }
-        Group("ホーム画面") {
-            LinkRow("ホーム画面を編集", "並び替え・表示/非表示・1行の数・追加") { vm.goHome(); vm.homeEditing = true }
+        Group(Txt(R.string.settings_ui_031)) {
+            LinkRow(Txt(R.string.settings_ui_032), Txt(R.string.settings_ui_033)) { vm.goHome(); vm.homeEditing = true }
         }
-        Group("場所") {
-            LinkRow("NAS の接続先", if (vm.remotes.isEmpty()) "まだありません" else "${vm.remotes.size} 件") { vm.openNetwork() }
-            LinkRow("ごみ箱", FileOps.formatSize(vm.trashSize)) { vm.openTrash() }
+        Group(Txt(R.string.settings_ui_034)) {
+            LinkRow(Txt(R.string.settings_ui_035), if (vm.remotes.isEmpty()) Txt(R.string.settings_ui_036) else Txt.n(R.plurals.settings_remotes_count, vm.remotes.size)) { vm.openNetwork() }
+            LinkRow(Txt(R.string.settings_ui_037), FileOps.formatSize(vm.trashSize)) { vm.openTrash() }
         }
-        Group("アプリの更新") { UpdateSettings(vm.updater) }
-        Group("不具合・要望・記録") {
-            LinkRow("不具合を報告", "動かない・表示がおかしいなど。GitHub に報告します") { report = true }
-            LinkRow("要望を送る", "こんな機能がほしい、など") { report = false }
-            LinkRow("報告の一覧を見る", "GitHub で、これまでの報告と対応を見られます") { vm.openUrl("${vm.updater.repoUrl}/issues") }
+        Group(Txt(R.string.settings_ui_038)) { UpdateSettings(vm.updater) }
+        Group(Txt(R.string.settings_ui_039)) {
+            LinkRow(Txt(R.string.settings_ui_040), Txt(R.string.settings_ui_041)) { report = true }
+            LinkRow(Txt(R.string.settings_ui_042), Txt(R.string.settings_ui_043)) { report = false }
+            LinkRow(Txt(R.string.settings_ui_044), Txt(R.string.settings_ui_045)) { vm.openUrl("${vm.updater.repoUrl}/issues") }
             LinkRow(
-                "異常終了の記録",
-                if (crashRows.isEmpty()) "記録はありません" else "${crashRows.size} 件・最後は ${CrashLog.stamp(crashRows.first().time)}" + if (crashUnseen) "(まだ見ていません)" else "",
+                Txt(R.string.settings_ui_046),
+                if (crashRows.isEmpty()) Txt(R.string.settings_ui_047) else if (crashUnseen) Txt.n(R.plurals.settings_crash_last_unseen, crashRows.size, CrashLog.stamp(crashRows.first().time)) else Txt.n(R.plurals.settings_crash_last, crashRows.size, CrashLog.stamp(crashRows.first().time)),
                 warn = crashUnseen,
             ) { showCrash = true }
         }
-        Group("このアプリについて") {
+        Group(Txt(R.string.settings_ui_048)) {
             Column(
                 Modifier.fillMaxWidth().clickable {
                     val now = android.os.SystemClock.elapsedRealtime()
                     if (vm.devMode) {
-                        Toast.makeText(ctx, "開発者向けオプションは、すでに表示されています", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(ctx, Txt(R.string.settings_ui_049), Toast.LENGTH_SHORT).show()
                         return@clickable
                     }
                     tapCount = DevTap.next(tapCount, tapAt, now)
@@ -175,24 +191,24 @@ private fun SettingsMain(vm: FmViewModel) {
                     if (tapCount >= DevTap.NEED) {
                         tapCount = 0
                         vm.changeDevMode(true)
-                        Toast.makeText(ctx, "開発者向けオプションを表示しました", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(ctx, Txt(R.string.settings_ui_050), Toast.LENGTH_SHORT).show()
                     } else {
-                        DevTap.remaining(tapCount)?.let { Toast.makeText(ctx, "あと $it 回押すと、開発者向けオプションが表示されます", Toast.LENGTH_SHORT).show() }
+                        DevTap.remaining(tapCount)?.let { Toast.makeText(ctx, Txt.n(R.plurals.settings_dev_remaining, it), Toast.LENGTH_SHORT).show() }
                     }
                 }.padding(horizontal = 16.dp, vertical = 12.dp),
             ) {
-                Text("ファイラー $version", style = MaterialTheme.typography.titleMedium, color = pal.text)
-                Text("広告のないファイルマネージャーです", fontSize = 13.sp, color = pal.subText)
+                Text(Txt(R.string.settings_app_version, version), style = MaterialTheme.typography.titleMedium, color = pal.text)
+                Text(Txt(R.string.settings_ui_051), fontSize = 13.sp, color = pal.subText)
                 Text(Credits.COPYRIGHT, fontSize = 13.sp, color = pal.subText)
                 if (Credits.SOURCE_URL.isNotBlank()) {
                     Spacer(Modifier.height(4.dp))
-                    Text("ソースコード: ${Credits.SOURCE_URL}", fontSize = 13.sp, color = pal.text)
+                    Text(Txt(R.string.settings_source_code, Credits.SOURCE_URL), fontSize = 13.sp, color = pal.text)
                 }
             }
             HorizontalDivider(color = pal.divider)
-            LinkRow("対応しているファイル形式", "アプリの中で開ける形式の一覧") { vm.openSettings(SettingsPage.FORMATS) }
-            LinkRow("ライセンス", "使っているもの ${Credits.list.size} 件") { vm.openSettings(SettingsPage.LICENSES) }
-            if (vm.devMode) LinkRow("開発者向けオプション", "デバッグ・テスト用の機能") { vm.openSettings(SettingsPage.DEVELOPER) }
+            LinkRow(Txt(R.string.settings_ui_052), Txt(R.string.settings_ui_053)) { vm.openSettings(SettingsPage.FORMATS) }
+            LinkRow(Txt(R.string.settings_ui_054), Txt.n(R.plurals.settings_licenses_count, Credits.list.size)) { vm.openSettings(SettingsPage.LICENSES) }
+            if (vm.devMode) LinkRow(Txt(R.string.settings_ui_055), Txt(R.string.settings_ui_056)) { vm.openSettings(SettingsPage.DEVELOPER) }
         }
         Spacer(Modifier.height(24.dp))
     }
@@ -218,7 +234,7 @@ private fun LicensesPage() {
     ) {
         item {
             Text(
-                "このアプリが使っているものと、そのライセンスです。押すと全文を表示します。",
+                Txt(R.string.settings_ui_057),
                 Modifier.padding(start = 6.dp, top = 2.dp, bottom = 4.dp), fontSize = 13.sp, color = pal.subText,
             )
         }
@@ -274,11 +290,17 @@ private fun SegmentRow(title: String, options: List<String>, selected: Int, onSe
     }
 }
 /** テーマカラーを選ぶ行。丸い見本(バーの色と差し色)を並べ、選んでいるものに枠を付ける。 */
+private tailrec fun android.content.Context.findActivity(): android.app.Activity? = when (this) {
+    is android.app.Activity -> this
+    is android.content.ContextWrapper -> baseContext.findActivity()
+    else -> null
+}
+
 @Composable
 private fun ThemeColorRow(selected: String, onSelect: (String) -> Unit) {
     val pal = LocalPal.current
     Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp)) {
-        Text("テーマカラー", Modifier.padding(start = 4.dp, bottom = 6.dp), fontSize = 13.sp, color = pal.subText)
+        Text(Txt(R.string.settings_ui_058), Modifier.padding(start = 4.dp, bottom = 6.dp), fontSize = 13.sp, color = pal.subText)
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
             ThemeColor.entries.forEach { c ->
                 val on = c.id == selected

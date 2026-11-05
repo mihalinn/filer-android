@@ -44,20 +44,20 @@ internal fun PerfLogDialog(dismiss: () -> Unit) {
     val shape = RoundedCornerShape(8.dp)
     AlertDialog(
         onDismissRequest = dismiss,
-        title = { Text("動作の記録") },
+        title = { Text(Txt(R.string.perf_log_ui_001)) },
         text = {
             Column(Modifier.heightIn(max = 460.dp)) {
                 Text(
-                    "アプリが重くなったときの原因を調べるための記録です。端末の中にだけ残り、外には送りません。",
+                    Txt(R.string.perf_log_ui_002),
                     fontSize = 12.sp, color = pal.subText,
                 )
                 Text(
-                    "重いと感じたら、再起動する前に開いて、コピーしてください。",
+                    Txt(R.string.perf_log_ui_003),
                     fontSize = 12.sp, color = pal.subText, modifier = Modifier.padding(top = 4.dp),
                 )
                 Spacer(Modifier.height(8.dp))
                 if (lines.isEmpty()) {
-                    Text("まだ記録がありません", fontSize = 14.sp, color = pal.subText)
+                    Text(Txt(R.string.perf_log_ui_004), fontSize = 14.sp, color = pal.subText)
                 } else {
                     Column(Modifier.fillMaxWidth().clip(shape).background(pal.surface).border(1.dp, pal.divider, shape).verticalScroll(rememberScrollState()).padding(10.dp)) {
                         SelectionContainer {
@@ -67,13 +67,13 @@ internal fun PerfLogDialog(dismiss: () -> Unit) {
                 }
             }
         },
-        confirmButton = { TextButton(onClick = dismiss) { Text("閉じる") } },
+        confirmButton = { TextButton(onClick = dismiss) { Text(Txt(R.string.perf_log_ui_005)) } },
         dismissButton = {
             Row {
-                TextButton(onClick = { stamp++ }) { Text("更新") }
+                TextButton(onClick = { stamp++ }) { Text(Txt(R.string.perf_log_ui_006)) }
                 if (lines.isNotEmpty()) {
-                    TextButton(onClick = { clip.setText(AnnotatedString(lines.joinToString("\n"))) }) { Text("コピー") }
-                    TextButton(onClick = { confirm = true }) { Text("消去") }
+                    TextButton(onClick = { clip.setText(AnnotatedString(lines.joinToString("\n"))) }) { Text(Txt(R.string.perf_log_ui_007)) }
+                    TextButton(onClick = { confirm = true }) { Text(Txt(R.string.perf_log_ui_008)) }
                 }
             }
         },
@@ -81,10 +81,10 @@ internal fun PerfLogDialog(dismiss: () -> Unit) {
     if (confirm) {
         AlertDialog(
             onDismissRequest = { confirm = false },
-            title = { Text("記録を消去") },
-            text = { Text("動作の記録をすべて消去します。消去した記録は元に戻せません") },
-            confirmButton = { TextButton(onClick = { PerfLog.clear(); stamp++; confirm = false }) { Text("消去") } },
-            dismissButton = { TextButton(onClick = { confirm = false }) { Text("キャンセル") } },
+            title = { Text(Txt(R.string.perf_log_ui_009)) },
+            text = { Text(Txt(R.string.perf_log_ui_010)) },
+            confirmButton = { TextButton(onClick = { PerfLog.clear(); stamp++; confirm = false }) { Text(Txt(R.string.perf_log_ui_011)) } },
+            dismissButton = { TextButton(onClick = { confirm = false }) { Text(Txt(R.string.perf_log_ui_012)) } },
         )
     }
 }

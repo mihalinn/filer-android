@@ -55,30 +55,30 @@ private fun loadCad(fs: Fs, item: FileItem): CadLoad = try {
     val ext = FileOps.extensionOf(item.name)
     if (ext == "dwg") {
         val ver = fs.open(item.path).use { s -> val b = ByteArray(6); val n = s.read(b); if (n == 6) String(b, Charsets.ISO_8859_1) else "" }
-        throw OpException("DWG(AutoCAD の図面)は形式が公開されていないため、表示できません。" + (dwgVersion(ver)?.let { "\nバージョン: $it" } ?: "") + "\nDXF で書き出すと見られます。")
+        throw OpException(Txt(R.string.cad_ui_001) + (dwgVersion(ver)?.let { Txt(R.string.cad_ui_002, it) } ?: "") + Txt(R.string.cad_ui_003))
     }
     val limit = if (ext == "dxf") Dxf.MAX_BYTES else Jww.MAX_BYTES
-    if (item.size > limit) throw OpException("大きすぎて表示できません(${limit / 1024 / 1024} MB まで)")
+    if (item.size > limit) throw OpException(Txt(R.string.cad_ui_004, limit / 1024 / 1024))
     val bytes = fs.open(item.path).use { it.readBytes() }
     val d = when (ext) {
         "dxf" -> Dxf.parse(bytes)
         "jww" -> Jww.parse(bytes)
         "jwc" -> Jwc.parse(bytes)
-        else -> throw OpException("図面として読めません")
+        else -> throw OpException(Txt(R.string.cad_ui_005))
     }
     CadLoad.Ok(d)
 } catch (e: OpException) {
-    CadLoad.Fail(e.message ?: "読み込めません")
+    CadLoad.Fail(e.message ?: Txt(R.string.cad_ui_006))
 } catch (e: Exception) {
-    CadLoad.Fail(e.message ?: "読み込めません")
+    CadLoad.Fail(e.message ?: Txt(R.string.cad_ui_007))
 } catch (e: OutOfMemoryError) {
-    CadLoad.Fail("大きすぎて読み込めません")
+    CadLoad.Fail(Txt(R.string.cad_ui_008))
 }
 
 /** DWG の先頭 6 文字(AC10xx)から、AutoCAD の版を示す */
 internal fun dwgVersion(code: String): String? = when (code) {
     "AC1006" -> "R10"
-    "AC1009" -> "R11・R12"
+    "AC1009" -> Txt(R.string.cad_ui_009)
     "AC1012" -> "R13"
     "AC1014" -> "R14"
     "AC1015" -> "AutoCAD 2000"
@@ -159,8 +159,8 @@ private fun CadView(d: CadDrawing, bars: Boolean, layersDialog: Boolean, onLayer
             val shown = visible.count { it }
             val used = d.layers.count { it.count > 0 }
             Text(
-                "図形 ${d.shapeCount}・レイヤー ${used}" + (if (shown < visible.size) "(表示 ${d.layers.indices.count { visible[it] && d.layers[it].count > 0 }})" else "") +
-                    (if (d.note.isNotEmpty()) "・${d.note}" else ""),
+                Txt(R.string.cad_ui_010, d.shapeCount, used) + (if (shown < visible.size) Txt(R.string.cad_ui_011, d.layers.indices.count { visible[it] && d.layers[it].count > 0 }) else "") +
+                    (if (d.note.isNotEmpty()) Txt(R.string.cad_ui_012, d.note) else ""),
                 color = Color(0xFFCCCCCC), fontSize = 12.sp,
                 modifier = Modifier.align(Alignment.BottomEnd).navigationBarsPadding().background(Color(0x99000000)).padding(horizontal = 8.dp, vertical = 2.dp),
             )
@@ -170,7 +170,7 @@ private fun CadView(d: CadDrawing, bars: Boolean, layersDialog: Boolean, onLayer
         val shown = d.layers.indices.filter { d.layers[it].count > 0 }.sortedBy { d.layers[it].name }
         AlertDialog(
             onDismissRequest = onLayersClose,
-            title = { Text("レイヤー(${shown.size})") },
+            title = { Text(Txt(R.string.cad_ui_013, shown.size)) },
             text = {
                 LazyColumn {
                     items(shown) { i ->
@@ -181,11 +181,11 @@ private fun CadView(d: CadDrawing, bars: Boolean, layersDialog: Boolean, onLayer
                     }
                 }
             },
-            confirmButton = { TextButton(onClick = onLayersClose) { Text("閉じる") } },
+            confirmButton = { TextButton(onClick = onLayersClose) { Text(Txt(R.string.cad_ui_014)) } },
             dismissButton = {
                 Row {
-                    TextButton(onClick = { shown.forEach { visible[it] = true } }) { Text("すべて表示") }
-                    TextButton(onClick = { shown.forEach { visible[it] = false } }) { Text("すべて隠す") }
+                    TextButton(onClick = { shown.forEach { visible[it] = true } }) { Text(Txt(R.string.cad_ui_015)) }
+                    TextButton(onClick = { shown.forEach { visible[it] = false } }) { Text(Txt(R.string.cad_ui_016)) }
                 }
             },
         )

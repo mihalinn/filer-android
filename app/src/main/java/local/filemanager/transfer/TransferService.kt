@@ -121,7 +121,7 @@ class TransferService : Service() {
             .setSilent(true)
             .setCategory(NotificationCompat.CATEGORY_PROGRESS)
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
-            .addAction(0, "キャンセル", cancel)
+            .addAction(0, Txt(R.string.transfer_service_001), cancel)
         if (c.text.isNotEmpty()) b.setContentText(c.text).setStyle(NotificationCompat.BigTextStyle().bigText(c.detail))
         if (c.percent != null) b.setProgress(100, c.percent, false) else b.setProgress(0, 0, true)
         return b.build()
@@ -177,7 +177,7 @@ class TransferService : Service() {
         private fun resultNotification(ctx: Context, text: String, installUpdate: Boolean): Notification =
             NotificationCompat.Builder(ctx, CHANNEL_RESULT)
                 .setSmallIcon(R.drawable.ic_stat_transfer)
-                .setContentTitle("ファイラー")
+                .setContentTitle(Txt(R.string.app_name))
                 .setContentText(text)
                 .setStyle(NotificationCompat.BigTextStyle().bigText(text))
                 .setContentIntent(openApp(ctx, installUpdate))
@@ -195,12 +195,12 @@ class TransferService : Service() {
         fun ensureChannels(ctx: Context) {
             val nm = ctx.getSystemService(NotificationManager::class.java)
             nm.createNotificationChannel(
-                NotificationChannel(CHANNEL_PROGRESS, "コピー・移動・ダウンロードの進み具合", NotificationManager.IMPORTANCE_LOW)
-                    .apply { description = "実行中のコピー・移動・圧縮・ダウンロードなどの進み具合を表示します"; setShowBadge(false) },
+                NotificationChannel(CHANNEL_PROGRESS, Txt(R.string.transfer_service_002), NotificationManager.IMPORTANCE_LOW)
+                    .apply { description = Txt(R.string.transfer_service_003); setShowBadge(false) },
             )
             nm.createNotificationChannel(
-                NotificationChannel(CHANNEL_RESULT, "完了のお知らせ", NotificationManager.IMPORTANCE_DEFAULT)
-                    .apply { description = "アプリを閉じている間に終わった処理をお知らせします" },
+                NotificationChannel(CHANNEL_RESULT, Txt(R.string.transfer_service_004), NotificationManager.IMPORTANCE_DEFAULT)
+                    .apply { description = Txt(R.string.transfer_service_005) },
             )
         }
     }

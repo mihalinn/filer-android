@@ -113,7 +113,7 @@ class SourceChannel(private val src: RandomSource) : SeekableByteChannel {
                 var got = 0
                 while (got < len) {
                     val n = src.readAt(start + got, buf, got, len - got)
-                    if (n <= 0) throw IOException("途中で読めなくなりました")
+                    if (n <= 0) throw IOException(Txt(R.string.archives_001))
                     got += n
                 }
                 block = buf
@@ -131,7 +131,7 @@ class SourceChannel(private val src: RandomSource) : SeekableByteChannel {
     override fun write(src: ByteBuffer): Int = throw java.nio.channels.NonWritableChannelException()
     override fun position(): Long = pos
     override fun position(newPosition: Long): SeekableByteChannel {
-        if (newPosition < 0) throw IllegalArgumentException("負の位置")
+        if (newPosition < 0) throw IllegalArgumentException(Txt(R.string.archives_002))
         pos = newPosition
         return this
     }
@@ -163,9 +163,9 @@ private class SevenZArchive(private val src: RandomSource) : ArchiveSource {
         try {
             file = SevenZFile.builder().setSeekableByteChannel(SourceChannel(src)).get()
         } catch (e: PasswordRequiredException) {
-            throw OpException("パスワード付きの7zは未対応")
+            throw OpException(Txt(R.string.archives_003))
         } catch (e: IOException) {
-            throw OpException("7zとして読めません(${e.message ?: e.javaClass.simpleName})")
+            throw OpException(Txt(R.string.archives_004, e.message ?: e.javaClass.simpleName))
         }
         list = file.entries.toList()
         entries = list.mapIndexed { i, e ->
@@ -176,7 +176,7 @@ private class SevenZArchive(private val src: RandomSource) : ArchiveSource {
     override fun open(e: ZipReader.Entry): InputStream = try {
         file.getInputStream(list[e.localOffset.toInt()])
     } catch (ex: PasswordRequiredException) {
-        throw OpException("パスワード付きの7zは未対応")
+        throw OpException(Txt(R.string.archives_005))
     }
 
     override fun close() {
@@ -221,7 +221,7 @@ private class TarArchive(private val type: ArchiveType, private val src: RandomS
             }
         } catch (e: IOException) {
             // 途中まで読めたぶんは出す。1 つも読めなかったときだけエラーにする
-            if (out.isEmpty()) throw OpException("書庫として読めません(${e.message ?: e.javaClass.simpleName})")
+            if (out.isEmpty()) throw OpException(Txt(R.string.archives_006, e.message ?: e.javaClass.simpleName))
         }
         entries = out
     }
@@ -231,7 +231,7 @@ private class TarArchive(private val type: ArchiveType, private val src: RandomS
         try {
             var i = 0
             while (true) {
-                tar.nextEntry ?: throw OpException("書庫の中に見つかりません")
+                tar.nextEntry ?: throw OpException(Txt(R.string.archives_007))
                 if (i == e.localOffset.toInt()) break
                 i++
             }
@@ -280,7 +280,7 @@ private class RarArchive(file: File) : ArchiveSource {
         try {
             archive = Archive(file)
         } catch (e: Exception) {
-            throw OpException("RARとして読めませんでした。パスワード付きか、未対応の形式かもしれません(${e.message ?: e.javaClass.simpleName})")
+            throw OpException(Txt(R.string.archives_008, e.message ?: e.javaClass.simpleName))
         }
         headers = archive.fileHeaders.toList()
         entries = headers.mapIndexed { i, h ->
@@ -290,7 +290,7 @@ private class RarArchive(file: File) : ArchiveSource {
 
     override fun open(e: ZipReader.Entry): InputStream {
         val h = headers[e.localOffset.toInt()]
-        if (h.isEncrypted) throw OpException("パスワード付きのRARは未対応")
+        if (h.isEncrypted) throw OpException(Txt(R.string.archives_009))
         return archive.getInputStream(h)
     }
 
@@ -331,12 +331,12 @@ object ArchiveOpener {
 
     /** tmpDir: RAR を NAS から読むときの、一時コピーを置く場所。 */
     fun open(fs: Fs, item: FileItem, tmpDir: File): ArchiveHandle {
-        val type = Archives.typeOf(item.name) ?: (if (FileOps.extensionOf(item.name) == "key") ArchiveType.ZIP else null) ?: throw OpException("対応していない書庫")
+        val type = Archives.typeOf(item.name) ?: (if (FileOps.extensionOf(item.name) == "key") ArchiveType.ZIP else null) ?: throw OpException(Txt(R.string.archives_010))
         val src = try {
             openSource(fs, item.path)
         } catch (e: Exception) {
             null
-        } ?: throw OpException("このファイルを開けません")
+        } ?: throw OpException(Txt(R.string.archives_011))
         try {
             val source: ArchiveSource = when (type) {
                 ArchiveType.ZIP -> ZipArchive(ZipReader(src), src)
@@ -361,13 +361,13 @@ object ArchiveOpener {
     }
 
     private fun copyForRar(item: FileItem, src: RandomSource, tmpDir: File): File {
-        if (src.size > RAR_COPY_LIMIT) throw OpException("大きすぎて開けません(RARは ${RAR_COPY_LIMIT / 1024 / 1024} MB まで)")
+        if (src.size > RAR_COPY_LIMIT) throw OpException(Txt(R.string.archives_012, RAR_COPY_LIMIT / 1024 / 1024))
         val dir = File(tmpDir, "rarview").also { it.mkdirs() }
         val out = File(dir, cacheKey(item.path, item.size, item.modified) + ".rar")
         if (!(out.exists() && out.length() == src.size)) {
             val part = File(dir, out.name + ".part")
             // 大きいので、通知を出して画面オフでも続ける(利用者が通知から止められる)
-            val task = BgTask("「${item.name}」を取り込んでいます", "「${item.name}」の取り込みが終わりました", "「${item.name}」を取り込めませんでした")
+            val task = BgTask(Txt(R.string.archives_013, item.name), Txt(R.string.archives_014, item.name), Txt(R.string.archives_015, item.name))
             try {
                 BgTasks.run(task, src.size) {
                     part.outputStream().use { o ->
@@ -376,7 +376,7 @@ object ArchiveOpener {
                         while (pos < src.size) {
                             task.check()
                             val n = src.readAt(pos, buf, 0, minOf(buf.size.toLong(), src.size - pos).toInt())
-                            if (n <= 0) throw IOException("途中で読めなくなりました")
+                            if (n <= 0) throw IOException(Txt(R.string.archives_016))
                             o.write(buf, 0, n)
                             pos += n
                             task.done = pos
@@ -388,7 +388,7 @@ object ArchiveOpener {
                 throw e
             }
             out.delete()
-            if (!part.renameTo(out)) throw IOException("一時ファイルを作れませんでした")
+            if (!part.renameTo(out)) throw IOException(Txt(R.string.archives_017))
         }
         out.setLastModified(System.currentTimeMillis())
         trimCacheTree(dir, out, 1536L * 1024 * 1024, 24L * 3600 * 1000)

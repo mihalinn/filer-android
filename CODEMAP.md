@@ -19,6 +19,16 @@
 ## 2. 作業の決まり
 
 - **画面に出す文字は場面で使い分ける**。ボタン・見出し・メニューは短い言葉(「コピー」「削除」)。お知らせ・エラー・説明・空の画面は、ていねいな言い方(「〜しました」「〜できませんでした」「〜してください」)。「〜である」や体言止めの文は使わない。1 文だけの短い文は、最後の「。」を付けない。
+- **画面に出す文字は、ソースに直接書かず `res/values/strings.xml` に置く**(言語を増やせるように)。取り出すのは `Txt` の 1 か所だけ:
+  `Txt(R.string.名前)` / `Txt(R.string.名前, 値…)`(`%1$s` に入る) / `Txt.n(R.plurals.名前, 件数, 値…)`(件数で言い方が変わる文。件数は `%1$d`、続く値は `%2$s` から)。Compose の中でも、読み取り処理の失敗メッセージ(`OpException(Txt(…))`)でも、同じ書き方でよい。
+  - 文を部品でつなぎ合わせない(言語によって語順が変わる)。「〜を移動しました」と「〜をコピーしました」は別の文にする。
+  - 名前は、場所が分かるつけ方にする(`op_moved`・`detail_count` など)。同じ日本語でも、場面が違えば別の名前にする(訳し分けるため)。
+  - 実行時に言語が変わっても追従するよう、`val x = Txt(…)` を object やトップレベルに置かない(関数か `get()` にする)。列挙型の名前は `@StringRes val labelRes` を持たせ、`val label get() = Txt(labelRes)` にする。
+  - 日本語のまま残すもの: 動作の記録・異常終了の記録の中身(開発者向けの診断)、GitHub の報告テンプレート、ファイルの中身との照合に使う語(Word の「見出し」、フォント名の判定など)。
+  - PC の単体試験では Context が無いので、`TestStrings`(試験側)が `values-ja/strings.xml`(日本語)を読んで同じ文を返す。試験が日本語の文面を確かめているのは、このため。
+  - **言語の置き場所**: `res/values/strings.xml` = 英語(どの言語にも当てはまらない端末が使う予備)、`res/values-ja/strings.xml` = 日本語。新しい文字を足すときは、**両方**に同じ名前で足す。
+  - **言語を足すとき**: ① `res/values-xx/strings.xml` を作る(`values/` をコピーして訳す。`%1$s` などの記号と、`\n`・`\'` の書き方はそのまま。複数形 `plurals` は、その言語に必要な区分(one・few・many…)を書く) ② `res/xml/locales_config.xml` に `<locale android:name="xx" />` を足し、`app/Languages.kt` の `supported` にも足す(設定の「言語」の選択肢になる。名前はその言語自身の書き方) ③ `StringsParityTest` が、足りない名前・記号の食い違い・フォルダと一覧の食い違いを見つける。
+  - 言語は、設定の「表示」の「言語」(端末に合わせる / 日本語 / English)で、アプリの中で選ぶ。`Languages` が選びを SharedPreferences に残し、`MainActivity.attachBaseContext`(画面)と `Txt.useContext`(通知など)に反映する。選んだら `Activity.recreate()` で、すぐ切り替わる。「端末に合わせる」のときは、端末(Android 13 以上は端末の「アプリの言語」)に従う。
 - ソースは UTF-8・BOM なし・LF。PowerShell 5.1 の `Get-Content -Raw` / `Set-Content` は日本語を壊すので使わない(編集は Edit / Write、まとめて変えるときは `[IO.File]::ReadAllText/WriteAllText` に `UTF8Encoding($false)`)。`proguard-rules.pro` と `build.gradle` も同じ。
 - クラス名は、大文字小文字だけが違うものを作らない(Windows で `.class` が衝突する)。
 - Android に依存しない読み取り処理(形式の解析)は、PC の単体試験で確かめる。`android.jar` だけの JVM 試験では `java.awt` と `org.json` が使えない(`Json.kt` は自前)。
@@ -30,7 +40,7 @@
 
 | フォルダ | 役割 | おもなファイル |
 |---|---|---|
-| `app/` | 入口と全体の状態 | `MainActivity`(起動・他アプリへの受け渡し)、`FmViewModel`(画面の状態と操作。節ごとにまとめてある)、`AppModels`(`Screen` `Place` `Clip` などの型)、`Screens`(画面の組み立て)、`Nav`(戻る・上への判断)、`Theme`(色。テーマカラー `ThemeColor` は藍・ティール・ワイン赤。色を足すときは `palOf` と `ThemeColorTest`)、`Incoming`(共有で受け取るもの)、`CrashLog`(異常終了の記録)、`PerfLog`(動作の記録。開発者向けオプションでオンにしたときだけ取る)、`DevTap`(バージョンを続けて押して開発者向けオプションを出す数え方)、`Report`(不具合・要望の報告の URL を作る。画面は `browser/ReportUi`) |
+| `app/` | 入口と全体の状態 | `FilerApp`(起動時に `Txt` を使えるようにする)、`Txt`(画面に出す文字の窓口。文字は `res/values*/strings.xml`)、`MainActivity`(起動・他アプリへの受け渡し)、`FmViewModel`(画面の状態と操作。節ごとにまとめてある)、`AppModels`(`Screen` `Place` `Clip` などの型)、`Screens`(画面の組み立て)、`Nav`(戻る・上への判断)、`Theme`(色。テーマカラー `ThemeColor` は藍・ティール・ワイン赤。色を足すときは `palOf` と `ThemeColorTest`)、`Incoming`(共有で受け取るもの)、`CrashLog`(異常終了の記録)、`PerfLog`(動作の記録。開発者向けオプションでオンにしたときだけ取る)、`DevTap`(バージョンを続けて押して開発者向けオプションを出す数え方)、`Report`(不具合・要望の報告の URL を作る。画面は `browser/ReportUi`) |
 | `browser/` | 一覧とその周りの画面 | `ListUi` `Home` `HomeLayout` `Drawer` `Dialogs` `FileIcon` `SettingsUi`(開発者向けオプションの画面を含む) `AboutUi`(ライセンス) `AnalyzeUi` `ProgressUi` `PerfLogUi`(動作の記録の窓) |
 | `storage/` | 場所(端末・NAS)の読み書き | `Fs`(抽象と端末内)、`SmbFs`(NAS。smbj)、`Remotes`(接続先の保存。暗号化)、`Trash`、`FileOps`(端末内の操作・拡張子の分類)、`Media`(MediaStore の分類)、`Analyzer`(容量の分析)、`ReadAhead` `WriteBehind` `ResumeStreams`(NAS を速く・切れにくくする)、`ReadProgress`、`BackgroundPool`(サムネイルなどを作る低優先度のスレッド) |
 | `transfer/` | コピー・移動・圧縮の実行 | `Transfer`(Fs 間の操作)、`Progress`、`Ops`(実行中の操作の状態。アプリ全体で 1 つ)、`TransferService`(アプリを閉じても続けるサービス。コピー・移動と、`BgTasks` の通知を出す)、`BgTasks`(画面を消しても続けるダウンロード。アプリの更新とプレビューの取り込み。通知・中止つき)、`Conflict`(同名の扱い) |

@@ -79,7 +79,7 @@ internal class ReadAhead(
         } catch (e: InterruptedException) {
             dropPending()
             Thread.currentThread().interrupt()
-            throw java.io.InterruptedIOException("中断されました")
+            throw java.io.InterruptedIOException(Txt(R.string.read_ahead_001))
         }
         // 短く返った(サーバーの上限や、終わり)。先読みの位置がずれるので、やり直す
         if (piece.n in 1 until chunkLen) {

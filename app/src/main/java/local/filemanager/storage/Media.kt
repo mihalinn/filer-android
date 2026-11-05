@@ -5,8 +5,10 @@ import android.provider.MediaStore
 import java.io.File
 
 /** ホーム画面の分類(画像・動画など)。端末のメディア情報(MediaStore)から引くので、全フォルダを走査せずに済む。 */
-enum class Category(val label: String) {
-    IMAGE("画像"), VIDEO("動画"), AUDIO("オーディオ"), DOCUMENT("ドキュメント"), APK("アプリ"), RECENT("新着ファイル")
+enum class Category(@androidx.annotation.StringRes val labelRes: Int) {
+    IMAGE(R.string.category_image), VIDEO(R.string.category_video), AUDIO(R.string.category_audio), DOCUMENT(R.string.category_document), APK(R.string.category_apk), RECENT(R.string.category_recent);
+
+    val label: String get() = Txt(labelRes)
 }
 
 object Media {

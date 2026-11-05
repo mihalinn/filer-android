@@ -32,7 +32,7 @@ internal class ResumingInput(
     }
 
     override fun read(b: ByteArray, off: Int, len: Int): Int {
-        if (closed) throw IOException("閉じています")
+        if (closed) throw IOException(Txt(R.string.resume_streams_001))
         if (len == 0) return 0
         val want = minOf(len, chunk)
         var attempt = 0
@@ -82,7 +82,7 @@ internal class ResumingOutput(
     }
 
     override fun write(b: ByteArray, off: Int, len: Int) {
-        if (closed) throw IOException("閉じています")
+        if (closed) throw IOException(Txt(R.string.resume_streams_002))
         var done = 0
         while (done < len) {
             val n = minOf(chunk, len - done)
@@ -118,7 +118,7 @@ internal class ResumingOutput(
                 Thread.sleep(minOf(attempt, 5) * 1500L)
             } catch (e: InterruptedException) {
                 Thread.currentThread().interrupt()
-                throw InterruptedIOException("中断されました")
+                throw InterruptedIOException(Txt(R.string.resume_streams_003))
             }
         }
     }

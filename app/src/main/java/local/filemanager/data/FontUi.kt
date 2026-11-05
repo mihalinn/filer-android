@@ -47,37 +47,37 @@ private sealed interface FontLoad {
 }
 
 private fun openFont(ctx: Context, fs: Fs, item: FileItem, task: BgTask): FontLoad = try {
-    if (item.size > FONT_LIMIT) throw OpException("大きすぎて開けません(${FONT_LIMIT / 1024 / 1024} MB まで)")
+    if (item.size > FONT_LIMIT) throw OpException(Txt(R.string.font_ui_001, FONT_LIMIT / 1024 / 1024))
     val dir = File(ctx.cacheDir, "fontview").also { it.mkdirs() }
     val f = File(dir, cacheKey(fs.id, item.path, item.size, item.modified) + "." + FileOps.extensionOf(item.name).ifEmpty { "ttf" })
     if (!(f.exists() && f.length() == item.size)) {
         val part = File(dir, f.name + ".part")
         BgTasks.run(task, item.size) { task.download(fs, item.path, part) }
         f.delete()
-        if (!part.renameTo(f)) throw IOException("一時ファイルを作れません")
+        if (!part.renameTo(f)) throw IOException(Txt(R.string.font_ui_002))
     }
     f.setLastModified(System.currentTimeMillis())
     trimCacheTree(dir, f, 256L * 1024 * 1024, 24L * 3600 * 1000)
     val bytes = f.readBytes()
     val info = FontInfo.parse(bytes)
     if (info == null) {
-        FontLoad.Fail("フォントのファイルとして読めません")
+        FontLoad.Fail(Txt(R.string.font_ui_003))
     } else {
         FontLoad.Ok(FontData(info, Typeface.createFromFile(f), f))
     }
 } catch (e: OpException) {
-    FontLoad.Fail(e.message ?: "開けません")
+    FontLoad.Fail(e.message ?: Txt(R.string.font_ui_004))
 } catch (e: Exception) {
-    FontLoad.Fail("開けません(${e.message ?: e.javaClass.simpleName})")
+    FontLoad.Fail(Txt(R.string.font_ui_005, e.message ?: e.javaClass.simpleName))
 } catch (e: OutOfMemoryError) {
-    FontLoad.Fail("大きすぎて読み込めません")
+    FontLoad.Fail(Txt(R.string.font_ui_006))
 }
 
 /** フォント(.ttf / .otf / .ttc)の見本と情報。好きな文字を入れて、見え方を確かめられる。 */
 @Composable
 internal fun FontPane(fs: Fs, item: FileItem) {
     val ctx = LocalContext.current
-    val task = rememberBgTask(item.path, "「${item.name}」を取り込んでいます", "「${item.name}」の取り込みが終わりました", "「${item.name}」を取り込めませんでした")
+    val task = rememberBgTask(item.path, Txt(R.string.font_ui_007, item.name), Txt(R.string.font_ui_008, item.name), Txt(R.string.font_ui_009, item.name))
     val load = produceState<FontLoad>(FontLoad.Busy, item.path) {
         value = withContext(Dispatchers.IO) { openFont(ctx, fs, item, task) }
     }.value
@@ -100,7 +100,7 @@ private fun FontView(font: FontData, item: FileItem) {
         Text(listOfNotNull(info.familyJa?.takeIf { it != info.family }, info.style).joinToString(" / "), color = Pv.dim, fontSize = 13.sp)
 
         OutlinedTextField(
-            value = sample, onValueChange = { sample = it }, label = { Text("見本の文字(書き換えられます)") },
+            value = sample, onValueChange = { sample = it }, label = { Text(Txt(R.string.font_ui_010)) },
             modifier = Modifier.fillMaxWidth(), textStyle = TextStyle(fontFamily = family, fontSize = 16.sp, color = Pv.text),
         )
         for (size in listOf(14, 20, 32, 48)) {
@@ -109,7 +109,7 @@ private fun FontView(font: FontData, item: FileItem) {
                 Text(sample, color = Pv.text, fontFamily = family, fontSize = size.sp, lineHeight = (size * 1.4f).sp)
             }
         }
-        Text("文字の見本", color = Pv.accent, fontSize = 13.sp)
+        Text(Txt(R.string.font_ui_011), color = Pv.accent, fontSize = 13.sp)
         Column(Modifier.fillMaxWidth().background(Pv.codeBg, RoundedCornerShape(8.dp)).padding(10.dp)) {
             for (line in listOf(
                 "あいうえお かきくけこ さしすせそ たちつてと なにぬねの はひふへほ まみむめも やゆよ らりるれろ わをん",
@@ -122,17 +122,17 @@ private fun FontView(font: FontData, item: FileItem) {
             )) Text(line, color = Pv.text, fontFamily = family, fontSize = 18.sp, lineHeight = 26.sp)
         }
 
-        Text("情報", color = Pv.accent, fontSize = 13.sp)
+        Text(Txt(R.string.font_ui_012), color = Pv.accent, fontSize = 13.sp)
         val rows = listOfNotNull(
-            info.family?.let { "ファミリー" to it }, info.style?.let { "スタイル" to it }, info.fullName?.let { "フルネーム" to it },
-            info.familyJa?.let { "日本語名" to it }, info.version?.let { "バージョン" to it },
-            "グリフ(字の形)の数" to "%,d".format(info.glyphs),
-            "太さ" to (if (info.weight > 0) "${info.weight}" else "不明"),
-            "形式" to (if (info.cff) "OpenType(CFF の輪郭)" else "TrueType(glyf の輪郭)") + (if (info.variable) "・可変フォント(標準の太さで表示)" else ""),
-            "文字の幅" to if (info.monospace) "等幅" else "プロポーショナル",
-            "ファイル" to item.name, "ファイルの大きさ" to FileOps.formatSize(item.size),
-            info.designer?.let { "デザイナー" to it }, info.license?.let { "ライセンス" to it.take(200) }, info.copyright?.let { "著作権" to it.take(200) },
-        ) + (if (info.collectionCount > 1) listOf("フォントの数" to "${info.collectionCount} 個入り(先頭だけ表示しています)") else emptyList())
+            info.family?.let { Txt(R.string.font_ui_013) to it }, info.style?.let { Txt(R.string.font_ui_014) to it }, info.fullName?.let { Txt(R.string.font_ui_015) to it },
+            info.familyJa?.let { Txt(R.string.font_ui_016) to it }, info.version?.let { Txt(R.string.font_ui_017) to it },
+            Txt(R.string.font_ui_018) to "%,d".format(info.glyphs),
+            Txt(R.string.font_ui_019) to (if (info.weight > 0) "${info.weight}" else Txt(R.string.font_ui_020)),
+            Txt(R.string.font_ui_021) to (if (info.cff) Txt(R.string.font_ui_022) else Txt(R.string.font_ui_023)) + (if (info.variable) Txt(R.string.font_ui_024) else ""),
+            Txt(R.string.font_ui_025) to if (info.monospace) Txt(R.string.font_ui_026) else Txt(R.string.font_ui_027),
+            Txt(R.string.font_ui_028) to item.name, Txt(R.string.font_ui_029) to FileOps.formatSize(item.size),
+            info.designer?.let { Txt(R.string.font_ui_030) to it }, info.license?.let { Txt(R.string.font_ui_031) to it.take(200) }, info.copyright?.let { Txt(R.string.font_ui_032) to it.take(200) },
+        ) + (if (info.collectionCount > 1) listOf(Txt(R.string.font_ui_033) to Txt.n(R.plurals.font_collection, info.collectionCount)) else emptyList())
         SelectionContainer {
             Column {
                 for ((l, v) in rows) Row(Modifier.fillMaxWidth().padding(vertical = 2.dp)) {
@@ -141,7 +141,7 @@ private fun FontView(font: FontData, item: FileItem) {
                 }
             }
         }
-        Text("対応している文字", color = Pv.accent, fontSize = 13.sp)
+        Text(Txt(R.string.font_ui_034), color = Pv.accent, fontSize = 13.sp)
         for ((label, ok) in info.coverage()) {
             Row {
                 Text(if (ok) "✓ " else "× ", color = if (ok) Pv.ok else Pv.bad, fontSize = 13.sp)

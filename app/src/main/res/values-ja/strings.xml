@@ -1,0 +1,1868 @@
+<resources>
+    <string name="app_name">ファイラー</string>
+    <string name="playback_channel_name">動画・音声の再生</string>
+    <!-- 項目を区切る記号。言語によって「、」や「 · 」などに変える -->
+    <string name="sep_dot">・</string>
+    <string name="sep_comma">、</string>
+    <string name="pkpass_voided">(無効)</string>
+
+    <!-- app/FmViewModel.kt -->
+    <string name="fm_view_model_001">ホームに追加しました</string>
+    <string name="fm_view_model_002">接続先が見つかりません</string>
+    <string name="fm_view_model_003">場所が不明です</string>
+    <string name="fm_view_model_004">メインストレージ</string>
+    <string name="fm_view_model_005">ダウンロード</string>
+    <string name="fm_view_model_006">システム</string>
+    <string name="fm_view_model_007">ごみ箱</string>
+    <string name="fm_view_model_008">ネットワーク</string>
+    <string name="fm_view_model_009">容量の分析</string>
+    <string name="fm_view_model_010">ライセンス</string>
+    <string name="fm_view_model_011">対応しているファイル形式</string>
+    <string name="fm_view_model_012">開発者向けオプション</string>
+    <string name="fm_view_model_013">設定</string>
+    <string name="fm_view_model_014">システム</string>
+    <string name="fm_view_model_015">調べられませんでした</string>
+    <string name="fm_view_model_016">このフォルダは開けません</string>
+    <string name="list_error_read">読み込めませんでした: %1$s</string>
+    <string name="fm_view_model_017">検索できませんでした</string>
+    <string name="fm_view_model_018">別の処理が終わるまでお待ちください</string>
+    <string name="fm_view_model_019">同じ名前のファイルを確認できませんでした。同じ名前のものは「名前 (1)」の形で貼り付けます</string>
+    <string name="fm_view_model_020">すべてスキップしました</string>
+    <string name="fm_view_model_021">ごみ箱へ移動中…</string>
+    <string name="fm_view_model_022">削除中…</string>
+    <plurals name="op_trashed"><item quantity="other">%1$d件をごみ箱に移動しました</item></plurals>
+    <plurals name="op_deleted"><item quantity="other">%1$d件を削除しました</item></plurals>
+    <string name="fm_view_model_023">元に戻しています…</string>
+    <plurals name="op_restored"><item quantity="other">%1$d件を元に戻しました</item></plurals>
+    <string name="fm_view_model_024">ごみ箱を空にしています…</string>
+    <string name="fm_view_model_025">ごみ箱を空にしました</string>
+    <string name="fm_view_model_026">名前を変更中…</string>
+    <string name="fm_view_model_027">名前を変更しました</string>
+    <string name="fm_view_model_028">作成中…</string>
+    <string name="fm_view_model_029">同じ名前のファイルがすでにあります</string>
+    <string name="fm_view_model_030">フォルダを作成しました</string>
+    <string name="fm_view_model_032">圧縮中…</string>
+    <string name="fm_view_model_033">ZIPを作成しました</string>
+    <string name="fm_view_model_035">インストールの準備中…</string>
+    <string name="fm_view_model_037">展開中…</string>
+    <string name="op_unzipped">「%1$s」に展開しました</string>
+    <string name="fm_view_model_038">保存先のフォルダを開いてください</string>
+    <string name="fm_view_model_039">別の処理が終わるまでお待ちください</string>
+    <string name="fm_view_model_041">保存中…</string>
+    <string name="incoming_open_failed">「%1$s」を開けませんでした</string>
+    <plurals name="op_saved"><item quantity="other">%1$d件を保存しました</item></plurals>
+    <plurals name="op_failed_first"><item quantity="other">%1$d件失敗しました: %2$s</item></plurals>
+    <string name="fm_view_model_043">ダウンロード中…</string>
+    <string name="fm_view_model_044">フォルダは共有できません。ZIPに圧縮してから共有してください</string>
+    <string name="fm_view_model_046">ダウンロード中…</string>
+    <string name="fm_view_model_047">一時フォルダを作成できませんでした</string>
+    <string name="fm_view_model_048">ブックマークに追加しました</string>
+    <string name="fm_view_model_049">別の処理が終わるまでお待ちください</string>
+    <string name="fm_view_model_050">中止しました</string>
+    <string name="fm_view_model_051">失敗しました</string>
+    <string name="op_failed_reason">失敗しました: %1$s</string>
+
+    <!-- app/Screens.kt -->
+    <string name="screens_001">すべてのファイルへのアクセスが必要です</string>
+    <string name="screens_002">ファイルを表示・操作するため、設定で「ファイルへのアクセスを許可」をオンにしてください</string>
+    <string name="screens_003">設定を開く</string>
+    <string name="screens_004">前回、アプリが異常終了しました。原因の記録は、「設定」の「異常終了の記録」で確認できます</string>
+    <string name="screens_005">新しいフォルダ</string>
+    <plurals name="selection_count"><item quantity="other">%1$d件を選択</item></plurals>
+    <plurals name="selection_total"><item quantity="other">全%1$d件</item></plurals>
+    <string name="screens_006">選択を解除</string>
+    <string name="screens_007">すべて選択</string>
+    <string name="screens_008">選択を反転</string>
+    <string name="screens_009">このフォルダ内を検索</string>
+    <string name="screens_010">検索を閉じる</string>
+    <string name="screens_011">消去</string>
+    <string name="screens_012">メニュー</string>
+    <string name="screens_013">検索</string>
+    <string name="screens_014">一覧表示にする</string>
+    <string name="screens_015">グリッド表示にする</string>
+    <string name="screens_016">ごみ箱を空にする</string>
+    <string name="screens_017">NASを追加</string>
+    <string name="screens_018">ホームを編集</string>
+    <string name="screens_019">表示設定</string>
+    <string name="screens_020">調べ直す</string>
+    <string name="screens_021">表示設定</string>
+    <string name="screens_022">元に戻す</string>
+    <string name="screens_023">完全に削除</string>
+    <string name="screens_024">コピー</string>
+    <string name="screens_025">移動</string>
+    <string name="screens_026">共有</string>
+    <string name="screens_027">削除</string>
+    <string name="screens_028">その他</string>
+    <string name="screens_029">キャンセル</string>
+    <string name="screens_030">ここに保存</string>
+    <string name="screens_031">キャンセル</string>
+    <string name="screens_032">貼り付け</string>
+    <string name="screens_033">名前の変更</string>
+    <string name="screens_034">ZIPに圧縮</string>
+    <string name="screens_035">アーカイブ.zip</string>
+    <string name="screens_036">ZIPを展開</string>
+    <string name="screens_037">展開</string>
+    <string name="screens_038">ブックマークに追加</string>
+    <string name="screens_039">ホームに追加</string>
+    <string name="screens_040">容量を分析</string>
+    <string name="screens_041">詳細</string>
+    <string name="screens_042">中止</string>
+
+    <!-- app/Theme.kt -->
+    <string name="theme_color_indigo">藍</string>
+    <string name="theme_color_teal">ティール</string>
+    <string name="theme_color_wine">ワイン赤</string>
+
+    <!-- app/MainActivity.kt -->
+    <string name="main_activity_001">共有テキスト</string>
+    <string name="main_activity_002">共有テキスト</string>
+    <string name="main_activity_003">受け取れる内容がありません</string>
+    <string name="main_activity_004">このファイルを開けるアプリがありません</string>
+    <string name="main_activity_005">ブラウザが見つかりません</string>
+    <string name="main_activity_006">フォルダは共有できません。ZIPに圧縮してから共有してください</string>
+    <string name="main_activity_007">共有</string>
+
+    <!-- 手で名前を付けたもの: コピー・移動・貼り付けの案内 -->
+    <plurals name="clip_selected_move"><item quantity="other">%1$d件を選びました。移動先のフォルダを開いて、「貼り付け」を押してください</item></plurals>
+    <plurals name="clip_selected_copy"><item quantity="other">%1$d件を選びました。コピー先のフォルダを開いて、「貼り付け」を押してください</item></plurals>
+    <string name="op_moving">移動中…</string>
+    <string name="op_copying">コピー中…</string>
+    <plurals name="op_moved"><item quantity="other">%1$d件を移動しました</item></plurals>
+    <plurals name="op_moved_skipped"><item quantity="other">%1$d件を移動しました(%2$d件スキップ)</item></plurals>
+    <plurals name="op_copied"><item quantity="other">%1$d件をコピーしました</item></plurals>
+    <plurals name="op_copied_skipped"><item quantity="other">%1$d件をコピーしました(%2$d件スキップ)</item></plurals>
+    <plurals name="hint_save_more"><item quantity="other">「%2$s ほか%1$d件」の保存先を開いて、「ここに保存」を押してください</item></plurals>
+    <string name="hint_save_one">「%1$s」の保存先を開いて、「ここに保存」を押してください</string>
+    <plurals name="hint_paste_move_more"><item quantity="other">「%2$s ほか%1$d件」を移動する場所を開いて、「貼り付け」を押してください</item></plurals>
+    <string name="hint_paste_move_one">「%1$s」を移動する場所を開いて、「貼り付け」を押してください</string>
+    <plurals name="hint_paste_copy_more"><item quantity="other">「%2$s ほか%1$d件」をコピーする場所を開いて、「貼り付け」を押してください</item></plurals>
+    <string name="hint_paste_copy_one">「%1$s」をコピーする場所を開いて、「貼り付け」を押してください</string>
+
+    <!-- 手で名前を付けたもの: 文字コードと改行の呼び名 -->
+    <string name="enc_utf8_bom">UTF-8(BOM付き)</string>
+    <string name="enc_utf16le">UTF-16 LE(BOM付き)</string>
+    <string name="enc_utf16be">UTF-16 BE(BOM付き)</string>
+    <string name="eol_cr">CR(古いMac)</string>
+
+    <!-- 手で名前を付けたもの: 進み具合(コピー・移動・圧縮など) -->
+    <string name="progress_title_copy">コピーしています</string>
+    <string name="progress_title_move">移動しています</string>
+    <string name="progress_title_zip">圧縮しています</string>
+    <string name="progress_title_unzip">展開しています</string>
+    <string name="progress_title_install">インストールの準備をしています</string>
+    <string name="progress_title_save">保存しています</string>
+    <string name="progress_title_download">ダウンロードしています</string>
+    <string name="progress_short_copy">コピー中</string>
+    <string name="progress_short_move">移動中</string>
+    <string name="progress_short_zip">圧縮中</string>
+    <string name="progress_short_unzip">展開中</string>
+    <string name="progress_short_install">インストールの準備中</string>
+    <string name="progress_short_save">保存中</string>
+    <string name="progress_short_download">ダウンロード中</string>
+    <string name="progress_from_copy">コピー元</string>
+    <string name="progress_to_copy">コピー先</string>
+    <string name="progress_from_move">移動元</string>
+    <string name="progress_to_move">移動先</string>
+    <string name="progress_from">元</string>
+    <string name="progress_to">先</string>
+    <string name="progress_label_value">%1$s:%2$s</string>
+    <string name="progress_items">項目 %1$d / %2$d</string>
+    <string name="progress_elapsed">経過 %1$s</string>
+
+    <!-- browser/Drawer.kt -->
+    <string name="drawer_001">場所</string>
+    <string name="drawer_002">ブックマーク</string>
+    <string name="drawer_003">履歴</string>
+    <string name="drawer_004">ブックマークはまだありません。\nフォルダを長押しして、「その他」から追加できます。</string>
+    <string name="drawer_005">履歴を消去</string>
+    <string name="drawer_006">履歴はありません</string>
+    <string name="drawer_007">ホーム</string>
+    <string name="storage_used_total">使用 %1$s / %2$s</string>
+    <string name="drawer_008">システム</string>
+    <string name="drawer_009">ごみ箱</string>
+    <string name="drawer_010">設定</string>
+    <string name="drawer_011">更新あり</string>
+    <string name="drawer_012">固定した場所</string>
+    <string name="drawer_013">固定を外す</string>
+    <string name="drawer_014">最近開いた場所</string>
+    <string name="drawer_015">メニュー</string>
+    <string name="drawer_016">固定する</string>
+    <string name="drawer_017">履歴から削除</string>
+    <string name="drawer_018">削除</string>
+    <string name="drawer_019">メニュー</string>
+    <string name="drawer_020">固定する</string>
+    <string name="drawer_021">履歴から削除</string>
+
+    <!-- browser/Dialogs.kt -->
+    <string name="dialogs_001">ごみ箱へ移動</string>
+    <string name="dialogs_002">削除</string>
+    <plurals name="confirm_trash_text"><item quantity="other">%1$d件をごみ箱に移動します。ごみ箱から元に戻せます。</item></plurals>
+    <plurals name="confirm_delete_text"><item quantity="other">%1$d件を完全に削除します。この操作は元に戻せません。</item></plurals>
+    <string name="dialogs_003">移動</string>
+    <string name="dialogs_004">削除</string>
+    <string name="dialogs_005">名前の変更</string>
+    <string name="dialogs_006">変更</string>
+    <string name="dialogs_007">新しいフォルダ</string>
+    <string name="dialogs_008">作成</string>
+    <string name="dialogs_009">ZIPに圧縮</string>
+    <string name="dialogs_010">圧縮</string>
+    <string name="dialogs_011">ごみ箱を空にする</string>
+    <string name="dialogs_012">ごみ箱の中身をすべて完全に削除します。この操作は元に戻せません。</string>
+    <string name="dialogs_013">空にする</string>
+    <string name="confirm_remote_text">「%1$s」の接続情報を削除します(NAS内のファイルは消えません)</string>
+    <string name="dialogs_014">接続先を削除</string>
+    <string name="dialogs_015">削除</string>
+    <string name="dialogs_016">フォルダ</string>
+    <string name="dialogs_017">同じ名前のファイルがあります</string>
+    <string name="conflict_exists">「%1$s」は貼り付け先にすでにあります</string>
+    <string name="conflict_src">貼り付けるもの: %1$s</string>
+    <string name="conflict_existing">すでにあるもの: %1$s</string>
+    <string name="dialogs_018">フォルダを上書きすると、中身がひとつにまとまります(同じ名前のファイルだけが置き換わります)</string>
+    <plurals name="conflict_apply_all"><item quantity="other">残りの%1$d件すべてに同じ操作をする</item></plurals>
+    <string name="dialogs_019">上書き</string>
+    <string name="dialogs_020">スキップ</string>
+    <string name="dialogs_021">両方残す</string>
+    <string name="dialogs_022">キャンセル</string>
+    <string name="dialogs_023">キャンセル</string>
+    <string name="dialogs_024">キャンセル</string>
+    <string name="dialogs_025">表示設定</string>
+    <string name="dialogs_026">並べ替え</string>
+    <string name="dialogs_027">昇順</string>
+    <string name="dialogs_028">降順</string>
+    <string name="dialogs_029">隠しファイルを表示</string>
+    <string name="dialogs_030">NASのサムネイルを表示</string>
+    <string name="dialogs_031">テーマ</string>
+    <string name="dialogs_032">ライト</string>
+    <string name="dialogs_033">ダーク</string>
+    <string name="dialogs_034">端末の設定に合わせる</string>
+    <string name="dialogs_035">その他の設定…</string>
+    <string name="dialogs_036">閉じる</string>
+    <string name="dialogs_037">詳細</string>
+    <string name="dialogs_038">名前</string>
+    <string name="dialogs_039">場所</string>
+    <string name="dialogs_040">更新日時</string>
+    <plurals name="detail_count"><item quantity="other">%1$d件</item></plurals>
+    <string name="dialogs_041">選択</string>
+    <string name="dialogs_042">サイズ</string>
+    <string name="dialogs_043">計算中…</string>
+    <string name="dialogs_044">サイズ</string>
+    <string name="detail_contents">フォルダ %1$d、ファイル %2$d</string>
+    <string name="dialogs_045">中身</string>
+    <string name="dialogs_046">閉じる</string>
+    <string name="dialogs_047">NASを追加</string>
+    <string name="dialogs_048">接続先を編集</string>
+    <string name="dialogs_049">表示名</string>
+    <string name="dialogs_050">ホスト(IPアドレスか名前)</string>
+    <string name="dialogs_051">共有名</string>
+    <string name="dialogs_052">最初に開くフォルダ(省略可)</string>
+    <string name="dialogs_053">ユーザー名(空ならゲスト)</string>
+    <string name="dialogs_054">パスワード</string>
+    <string name="dialogs_055">接続中…</string>
+    <plurals name="remote_test_ok"><item quantity="other">接続できました(直下に %1$d 件)</item></plurals>
+    <string name="dialogs_056">接続できませんでした</string>
+    <string name="dialogs_057">接続テスト</string>
+    <string name="dialogs_058">保存</string>
+    <string name="dialogs_059">キャンセル</string>
+
+    <!-- browser/ListUi.kt -->
+    <string name="list_ui_001">ファイル名の一部を入力してください</string>
+    <string name="list_ui_002">検索中…</string>
+    <string name="list_ui_003">見つかりませんでした</string>
+    <string name="list_ui_004">読み込み中…</string>
+    <string name="list_ui_005">ごみ箱は空です</string>
+    <string name="list_ui_006">このフォルダは空です</string>
+    <string name="list_ui_007">ホーム</string>
+    <plurals name="item_count"><item quantity="other">%1$d項目</item></plurals>
+
+    <!-- browser/ProgressUi.kt -->
+    <string name="progress_ui_001">非表示にする</string>
+    <string name="progress_ui_002">キャンセル</string>
+    <string name="progress_ui_003">タップで表示</string>
+
+    <!-- browser/AnalyzeUi.kt -->
+    <string name="analyze_ui_001">容量を調べる場所を選んでください</string>
+    <string name="analyze_volume">使用 %1$s / 全体 %2$s(空き %3$s)</string>
+    <string name="analyze_nas_note">"%1$s /%2$s  ※NASは時間がかかります"</string>
+    <string name="analyze_ui_002">もう一度調べる</string>
+    <string name="analyze_ui_003">調べています…</string>
+    <plurals name="analyze_files_size"><item quantity="other">%1$,d 個のファイル・%2$s</item></plurals>
+    <string name="analyze_ui_004">キャンセル</string>
+    <plurals name="analyze_files"><item quantity="other">%1$,d 個のファイル</item></plurals>
+    <string name="analyze_storage_total">この記憶領域: 使用 %1$s / 全体 %2$s(空き %3$s)</string>
+    <string name="analyze_ui_005">※ Android/data など、制限で見られない場所は含まれません</string>
+    <string name="analyze_ui_006">フォルダ別</string>
+    <string name="analyze_ui_007">大きいファイル</string>
+    <string name="analyze_ui_008">このフォルダは小さいため、中身の一覧は省略しています</string>
+    <string name="analyze_ui_009">フォルダを開く</string>
+    <string name="analyze_ui_010">空のフォルダ</string>
+    <plurals name="analyze_others"><item quantity="other">ほか %1$d 個(合計 %2$s)</item></plurals>
+    <string name="analyze_no_big">大きい上位 %1$d 件に入るファイルはありません</string>
+    <string name="analyze_ui_011">ファイル一覧で開く</string>
+
+    <!-- browser/ReportUi.kt -->
+    <string name="report_ui_001">不具合を報告</string>
+    <string name="report_ui_002">要望を送る</string>
+    <string name="report_ui_003">GitHub の入力ページをブラウザで開きます。内容はそこで確かめてから、自分で投稿してください。この画面からは何も送りません。</string>
+    <string name="report_ui_004">入れる情報</string>
+    <string name="report_info_version">アプリのバージョン: %1$s</string>
+    <string name="report_info_device">端末: %1$s</string>
+    <string name="report_ui_005">異常終了の記録はありません</string>
+    <string name="report_ui_006">異常終了の記録も入れる</string>
+    <string name="report_ui_007">記録にファイルの名前などが入っていることがあります。内容を確かめてください</string>
+    <string name="report_ui_008">記録を隠す</string>
+    <string name="report_ui_009">記録を見る</string>
+    <string name="report_ui_010">パスワード、NAS の名前や IP アドレス、個人のファイル名は、書かないでください(誰でも読めます)</string>
+    <string name="report_ui_011">GitHubで報告する</string>
+    <string name="report_ui_012">"アプリのバージョン: "</string>
+    <string name="report_ui_013">"端末: "</string>
+    <string name="report_ui_014">\n異常終了の記録:\n</string>
+    <string name="report_ui_015">内容をコピー</string>
+    <string name="report_ui_016">キャンセル</string>
+
+    <!-- browser/PerfLogUi.kt -->
+    <string name="perf_log_ui_001">動作の記録</string>
+    <string name="perf_log_ui_002">アプリが重くなったときの原因を調べるための記録です。端末の中にだけ残り、外には送りません。</string>
+    <string name="perf_log_ui_003">重いと感じたら、再起動する前に開いて、コピーしてください。</string>
+    <string name="perf_log_ui_004">まだ記録がありません</string>
+    <string name="perf_log_ui_005">閉じる</string>
+    <string name="perf_log_ui_006">更新</string>
+    <string name="perf_log_ui_007">コピー</string>
+    <string name="perf_log_ui_008">消去</string>
+    <string name="perf_log_ui_009">記録を消去</string>
+    <string name="perf_log_ui_010">動作の記録をすべて消去します。消去した記録は元に戻せません</string>
+    <string name="perf_log_ui_011">消去</string>
+    <string name="perf_log_ui_012">キャンセル</string>
+
+    <!-- browser/Home.kt -->
+    <string name="home_free">空き %1$s</string>
+    <string name="home_free_total">空き %1$s / %2$s</string>
+    <string name="home_001">システム</string>
+    <string name="home_002">ダウンロード</string>
+    <string name="home_009">ごみ箱</string>
+    <string name="home_010">空</string>
+    <string name="home_011">ネットワーク</string>
+    <string name="home_012">容量の分析</string>
+    <string name="home_013">端末</string>
+    <string name="home_014">カテゴリ</string>
+    <string name="home_015">管理</string>
+    <string name="home_016">NASを追加</string>
+    <string name="home_017">NASを追加</string>
+    <string name="home_018">SMB共有を、端末のフォルダと同じように操作できます</string>
+    <string name="home_019">フォルダ</string>
+    <string name="home_020">ツール</string>
+    <string name="update_banner_available">新しいバージョン %1$s があります</string>
+    <string name="update_banner_current_size">いまのバージョン %1$s・約 %2$s。押すと更新できます</string>
+    <string name="update_banner_current">いまのバージョン %1$s。押すと更新できます</string>
+    <string name="update_banner_downloading">新しいバージョン %1$s をダウンロードしています</string>
+    <string name="update_banner_ready">新しいバージョン %1$s をインストールできます</string>
+    <string name="home_021">ダウンロードは終わっています。押すとインストールの画面が開きます</string>
+    <string name="home_022">ホームの編集</string>
+    <string name="home_023">▲▼で並べ替え、スイッチで表示・非表示を切り替えます</string>
+    <string name="home_024">完了</string>
+    <string name="home_025">1行に並べる数</string>
+    <string name="home_026">非表示</string>
+    <string name="home_027">上へ</string>
+    <string name="home_028">下へ</string>
+    <string name="home_029">ホームから外す</string>
+    <string name="home_030">ブックマークからフォルダを追加</string>
+    <string name="home_031">フォルダを選んで「その他」→「ホームに追加」からも追加できます</string>
+    <string name="home_032">並びと表示を初期に戻す</string>
+    <string name="home_033">追加するフォルダ</string>
+    <string name="home_034">追加できるブックマークがありません。フォルダを選んで、「その他」から追加してください。</string>
+    <string name="home_035">(共有の最上位)</string>
+    <string name="home_036">閉じる</string>
+    <string name="home_037">NAS(SMB共有)を追加すると、端末のフォルダと同じようにファイルを操作できます</string>
+    <string name="home_038">NASを追加</string>
+    <string name="home_039">メニュー</string>
+    <string name="home_040">編集</string>
+    <string name="home_041">削除</string>
+
+    <!-- browser/SettingsUi.kt -->
+    <string name="settings_ui_001">オン</string>
+    <string name="settings_ui_002">オフ</string>
+    <string name="settings_ui_003">デバッグ</string>
+    <string name="settings_ui_004">動作の記録</string>
+    <string name="settings_ui_005">重くなったときの原因調べ用です。オンの間だけ、メモリなどを端末の中に記録します</string>
+    <string name="settings_ui_006">動作の記録を見る</string>
+    <plurals name="settings_log_summary_last"><item quantity="other">%1$d 行・最後は %2$s</item></plurals>
+    <plurals name="settings_log_summary"><item quantity="other">%1$d 行</item></plurals>
+    <string name="settings_ui_007">記録はありません</string>
+    <string name="settings_ui_008">テスト機能</string>
+    <string name="settings_ui_009">まだありません</string>
+    <string name="settings_ui_010">表示</string>
+    <string name="settings_ui_011">並べ替え</string>
+    <string name="settings_ui_012">順番</string>
+    <string name="settings_ui_013">昇順</string>
+    <string name="settings_ui_014">降順</string>
+    <string name="settings_ui_015">隠しファイルを表示</string>
+    <string name="settings_ui_016">NASのサムネイルを表示</string>
+    <string name="settings_ui_017">アプリのテーマ</string>
+    <string name="settings_ui_018">ライト</string>
+    <string name="settings_ui_019">ダーク</string>
+    <string name="settings_ui_020">端末に合わせる</string>
+    <string name="settings_ui_021">ビューア(ファイルを開いた画面)</string>
+    <string name="settings_ui_022">配色(画像・動画は黒のまま)</string>
+    <string name="settings_ui_023">ダーク</string>
+    <string name="settings_ui_024">ライト</string>
+    <string name="settings_ui_025">アプリと同じ</string>
+    <string name="settings_ui_026">文字の大きさ</string>
+    <string name="settings_ui_027">文書・電子書籍を開いたときの大きさ</string>
+    <string name="settings_ui_028">マンガ(.cbz など)をめくる向き</string>
+    <string name="settings_ui_029">右から左</string>
+    <string name="settings_ui_030">左から右</string>
+    <string name="settings_ui_031">ホーム画面</string>
+    <string name="settings_ui_032">ホーム画面を編集</string>
+    <string name="settings_ui_033">並び替え・表示/非表示・1行の数・追加</string>
+    <string name="settings_ui_034">場所</string>
+    <plurals name="settings_remotes_count"><item quantity="other">%1$d 件</item></plurals>
+    <string name="settings_ui_035">NAS の接続先</string>
+    <string name="settings_ui_036">まだありません</string>
+    <string name="settings_ui_037">ごみ箱</string>
+    <string name="settings_ui_038">アプリの更新</string>
+    <string name="settings_ui_039">不具合・要望・記録</string>
+    <string name="settings_ui_040">不具合を報告</string>
+    <string name="settings_ui_041">動かない・表示がおかしいなど。GitHub に報告します</string>
+    <string name="settings_ui_042">要望を送る</string>
+    <string name="settings_ui_043">こんな機能がほしい、など</string>
+    <string name="settings_ui_044">報告の一覧を見る</string>
+    <string name="settings_ui_045">GitHub で、これまでの報告と対応を見られます</string>
+    <string name="settings_ui_046">異常終了の記録</string>
+    <plurals name="settings_crash_last"><item quantity="other">%1$d 件・最後は %2$s</item></plurals>
+    <plurals name="settings_crash_last_unseen"><item quantity="other">%1$d 件・最後は %2$s(まだ見ていません)</item></plurals>
+    <string name="settings_ui_047">記録はありません</string>
+    <string name="settings_ui_048">このアプリについて</string>
+    <string name="settings_ui_049">開発者向けオプションは、すでに表示されています</string>
+    <string name="settings_ui_050">開発者向けオプションを表示しました</string>
+    <plurals name="settings_dev_remaining"><item quantity="other">あと %1$d 回押すと、開発者向けオプションが表示されます</item></plurals>
+    <string name="settings_app_version">ファイラー %1$s</string>
+    <string name="settings_ui_051">広告のないファイルマネージャーです</string>
+    <string name="settings_source_code">ソースコード: %1$s</string>
+    <string name="settings_ui_052">対応しているファイル形式</string>
+    <string name="settings_ui_053">アプリの中で開ける形式の一覧</string>
+    <plurals name="settings_licenses_count"><item quantity="other">使っているもの %1$d 件</item></plurals>
+    <string name="settings_ui_054">ライセンス</string>
+    <string name="settings_ui_055">開発者向けオプション</string>
+    <string name="settings_ui_056">デバッグ・テスト用の機能</string>
+    <string name="settings_ui_057">このアプリが使っているものと、そのライセンスです。押すと全文を表示します。</string>
+    <string name="settings_ui_058">テーマカラー</string>
+    <string name="settings_language">言語</string>
+    <string name="settings_language_system">端末に合わせる</string>
+
+    <!-- browser/AboutUi.kt -->
+    <string name="about_ui_001">ファイラー(このアプリ)</string>
+    <string name="credits_app_note">%1$s。NextLib(GPL v3)を使っているため、アプリ全体も GPL v3 で提供しています。無保証です。</string>
+    <string name="about_ui_002">NextLib 1.7.1-0.9.0(動画・音声の拡張)</string>
+    <string name="about_ui_003">libmedia3ext.so は、インターレース解除を加えて作り直したものです。変更内容とソースは native フォルダにあります。元のプロジェクト: github.com/anilbeesetti/nextlib</string>
+    <string name="about_ui_004">FFmpeg 6.0(NextLib に同梱)</string>
+    <string name="about_ui_005">GNU LGPL v3 以降</string>
+    <string name="about_ui_006">動的ライブラリ(.so)として同梱しています。差し替えもできます。ソース: ffmpeg.org</string>
+    <string name="about_ui_007">libvpx 1.13.0(VP8・VP9 の読み取り用。FFmpeg に組み込まれています)</string>
+    <string name="about_ui_008">BSD 3-Clause ライセンス</string>
+    <string name="about_ui_009">著作権: The WebM Project authors。libavcodec.so に組み込まれています。</string>
+    <string name="about_ui_010">AndroidX Media3 1.7.1(ExoPlayer・Session)</string>
+    <string name="about_ui_011">Jetpack Compose・Material 3・AndroidX</string>
+    <string name="about_ui_012">Activity、Core、Lifecycle、ExifInterface を含みます。画面のアイコンは Material Icons(Google)です。</string>
+    <string name="about_ui_013">Kotlin 標準ライブラリ 1.9.22・kotlinx.coroutines 1.7.1</string>
+    <string name="about_ui_014">JetBrains annotations(Apache 2.0)を含みます</string>
+    <string name="about_ui_015">Guava 33.3.1(Android 用)</string>
+    <string name="about_ui_016">Media3 が使っています。failureaccess 1.0.2・listenablefuture 1.0・Error Prone annotations 2.38.0(いずれも Apache 2.0)を含みます。</string>
+    <string name="about_ui_017">smbj 0.13.0(NAS への接続)</string>
+    <string name="about_ui_018">同じ作者の asn-one 0.6.0(Apache 2.0)も使っています</string>
+    <string name="about_ui_019">MIT ライセンス</string>
+    <string name="about_ui_020">smbj が使っています。作者: Benjamin Diedrichsen。</string>
+    <string name="about_ui_021">7z・tar などを読むために使っています。Commons Codec 1.17.1・IO 2.16.1・Lang 3.16.0 も含みます。押すと著作権表示(NOTICE)を表示します。</string>
+    <string name="about_ui_022">PDFium(PDF の表示と文字の選択)・PdfiumAndroidKt 1.0.35</string>
+    <string name="about_ui_023">PDF を絵にして、文字の位置を調べるために使っています。PDFium が使う FreeType・ICU・libjpeg-turbo・libpng・zlib・HarfBuzz などの著作権表示とライセンスも、押すと表示します</string>
+    <string name="about_ui_024">MIT ライセンス</string>
+    <string name="about_ui_025">SLF4J 2.0.17(API)・2.0.9(nop)</string>
+    <string name="about_ui_026">MIT ライセンス</string>
+    <string name="about_ui_027">0BSD(ほぼパブリックドメイン)</string>
+    <string name="about_ui_028">junrar 8.1.2(RAR の読み取り)</string>
+    <string name="about_ui_029">UnRAR ライセンス</string>
+    <string name="about_ui_030">RAR を読むためだけに使っています。RAR と互換の圧縮ソフトを作る目的には使えません。</string>
+    <string name="about_ui_031">ezjww(JW_CAD の形式の参考)</string>
+    <string name="about_ui_032">MIT ライセンス</string>
+    <string name="about_ui_033">.jww の構造は、公開されている解析(github.com/monozukuri-ai/ezjww)を参考にしました。読み込みの処理は自作です。</string>
+    <string name="about_ui_034">異常終了の記録</string>
+    <string name="about_ui_035">異常終了の記録はありません</string>
+    <string name="about_ui_036">アプリが止まったときの原因の記録です。不具合を報告するときに役立ちます。</string>
+    <string name="about_ui_037">閉じる</string>
+    <string name="about_ui_038">コピー</string>
+    <string name="about_ui_039">消去</string>
+    <string name="about_ui_040">記録を消去</string>
+    <string name="about_ui_041">いまある記録をすべて消去します。消去した記録は元に戻せません</string>
+    <string name="about_ui_042">消去</string>
+    <string name="about_ui_043">キャンセル</string>
+    <string name="about_ui_044">読み込み中…</string>
+    <string name="about_ui_045">ライセンスの全文を読み込めませんでした</string>
+
+    <!-- browser/FormatsUi.kt -->
+    <string name="formats_ui_001">画像</string>
+    <string name="formats_ui_002">JPEG・PNG・GIF・WebP・BMP</string>
+    <string name="formats_ui_003">HEIC・HEIF・AVIF</string>
+    <string name="formats_ui_004">端末が対応している場合に表示します</string>
+    <string name="formats_ui_005">外部のファイルや通信は使いません</string>
+    <string name="formats_ui_006">ライブフォト</string>
+    <string name="formats_ui_007">zip として中身を見ます</string>
+    <string name="formats_ui_008">動画・音声</string>
+    <string name="formats_ui_009">動画</string>
+    <string name="formats_ui_010">再生できるかは、端末と中身のコーデックによります。端末で再生できない形式は FFmpeg で再生を試みます</string>
+    <string name="formats_ui_011">音声</string>
+    <string name="formats_ui_012">曲名やジャケット画像などの情報も表示します</string>
+    <string name="formats_ui_013">端末の機能で再生します</string>
+    <string name="formats_ui_014">字幕</string>
+    <string name="formats_ui_015">動画に付けて表示できます</string>
+    <string name="formats_ui_016">文書</string>
+    <string name="formats_ui_017">パスワード付きは開けません</string>
+    <string name="formats_ui_018">古い形式(doc)も読めます</string>
+    <string name="formats_ui_019">古い形式(xls)も読めます</string>
+    <string name="formats_ui_020">スライドを絵にして表示します</string>
+    <string name="formats_ui_021">リッチテキスト</string>
+    <string name="formats_ui_022">電子書籍</string>
+    <string name="formats_ui_023">マンガ</string>
+    <string name="formats_ui_024">ページをめくって読めます</string>
+    <string name="formats_ui_025">表</string>
+    <string name="formats_ui_026">連絡先</string>
+    <string name="formats_ui_027">Web ページ</string>
+    <string name="formats_ui_028">外部への通信は止めて表示します</string>
+    <string name="formats_ui_029">JSON・XML</string>
+    <string name="formats_ui_030">整形して色分けします</string>
+    <string name="formats_ui_031">テキスト・コード</string>
+    <string name="formats_ui_032">文字のファイル</string>
+    <string name="formats_ui_033">文字コードを自動で判定します。編集して保存もできます</string>
+    <string name="formats_ui_034">ソースコード</string>
+    <string name="formats_ui_035">キーワード・文字列・コメントを色分けします</string>
+    <string name="formats_ui_036">図面・3D</string>
+    <string name="formats_ui_037">CAD の図面</string>
+    <string name="formats_ui_038">DWG は形式が公開されていないため表示できません。DXF に書き出すと見られます</string>
+    <string name="formats_ui_039">3D モデル</string>
+    <string name="formats_ui_040">指で回して見られます</string>
+    <string name="formats_ui_041">書庫・アプリ</string>
+    <string name="formats_ui_042">中身の一覧を見て、1 つずつ取り出せます。圧縮もできます</string>
+    <string name="formats_ui_043">7z・RAR</string>
+    <string name="formats_ui_044">パスワード付きは開けないことがあります</string>
+    <string name="formats_ui_045">tar 系</string>
+    <string name="formats_ui_046">単体の圧縮</string>
+    <string name="formats_ui_047">-lh5- など一般的な方式に対応しています。一部の古い方式は取り出せません</string>
+    <string name="formats_ui_048">Android アプリ</string>
+    <string name="formats_ui_049">中身の確認と、インストールができます</string>
+    <string name="formats_ui_050">iPhone アプリ</string>
+    <string name="formats_ui_051">中身を見るだけです</string>
+    <string name="formats_ui_052">iPhone の書類・データ</string>
+    <string name="formats_ui_053">本文とプレビュー画像を見られます</string>
+    <string name="formats_ui_054">Wallet のパス</string>
+    <string name="formats_ui_055">設定ファイル</string>
+    <string name="formats_ui_056">データベース</string>
+    <string name="formats_ui_057">表を見られます。読み取りだけの検索(SELECT)もできます</string>
+    <string name="formats_ui_058">フォント</string>
+    <string name="formats_ui_059">見本の文字で表示できます</string>
+    <string name="formats_ui_060">アプリの中で開ける形式です。拡張子がなくても、中身から文字のファイルなどを判断します。ここにない形式は「他のアプリで開く」で開けます。</string>
+
+    <!-- storage/Fs.kt -->
+    <string name="fs_001">フォルダを作成できません</string>
+
+    <!-- storage/SmbFs.kt -->
+    <string name="smb_fs_001">「%1$s」はファイル共有ではありません</string>
+    <string name="smb_fs_002">ユーザー名かパスワードが違います</string>
+    <string name="smb_fs_003">共有名「%1$s」が見つかりません</string>
+    <string name="smb_fs_004">アクセスが拒否されました</string>
+    <string name="smb_fs_005">見つかりません</string>
+    <string name="smb_fs_006">同じ名前がすでにあります</string>
+    <string name="smb_fs_007">NASの空き容量が足りません</string>
+    <string name="smb_fs_008">他で使用中のため操作できません</string>
+    <string name="smb_fs_009">NASのエラー: %1$s</string>
+    <string name="smb_fs_010">NAS(%1$s)に接続できません: %2$s</string>
+    <string name="smb_fs_011">名前を変更できません</string>
+    <string name="smb_fs_012">同じ名前のファイルがすでにあります</string>
+
+    <!-- storage/Trash.kt -->
+    <string name="trash_001">ごみ箱を作成できません</string>
+    <string name="trash_002">ごみ箱の記録が壊れています</string>
+    <string name="trash_003">元の場所の記録がありません: %1$s</string>
+    <string name="trash_004">元の場所が不明です</string>
+    <string name="trash_005">元のフォルダを作成できません</string>
+
+    <!-- storage/FileOps.kt -->
+    <string name="sort_name">名前</string>
+    <string name="sort_date">更新日時</string>
+    <string name="sort_size">サイズ</string>
+    <string name="sort_type">種類</string>
+    <string name="file_ops_001">フォルダを自分自身の中にはコピーできません: %1$s</string>
+    <string name="file_ops_002">同じ場所には上書きできません: %1$s</string>
+    <string name="file_ops_003">同じ名前のファイルがあります: %1$s</string>
+    <string name="file_ops_004">フォルダを作成できません: %1$s</string>
+    <string name="file_ops_005">同じ名前のフォルダがあります: %1$s</string>
+    <string name="file_ops_006">上書きできません: %1$s</string>
+    <string name="file_ops_007">書き込みを完了できませんでした: %1$s</string>
+    <string name="file_ops_008">同じフォルダには移動できません: %1$s</string>
+    <string name="file_ops_009">フォルダを自分自身の中には移動できません: %1$s</string>
+    <string name="file_ops_010">同じ名前で種類の違うものがあります: %1$s</string>
+    <string name="file_ops_011">削除できません: %1$s</string>
+    <string name="file_ops_012">共有ファイル</string>
+    <string name="file_ops_013">名前を入力してください</string>
+    <string name="file_ops_014">この名前は使えません</string>
+    <string name="file_ops_015">「/」は名前に使えません</string>
+    <string name="file_ops_016">名前が長すぎます</string>
+    <string name="file_ops_017">同じ名前のファイルがすでにあります</string>
+    <string name="file_ops_018">名前を変更できません</string>
+    <string name="file_ops_019">同じ名前のファイルがすでにあります</string>
+    <string name="file_ops_020">フォルダを作成できません</string>
+    <string name="file_ops_021">同じ名前のファイルがすでにあります</string>
+    <string name="file_ops_022">展開先が見つかりません</string>
+    <string name="file_ops_023">フォルダを作成できません</string>
+    <string name="file_ops_024">不正なパスを含む ZIP です: %1$s</string>
+
+    <!-- storage/ReadAhead.kt -->
+    <string name="read_ahead_001">中断されました</string>
+
+    <!-- storage/ReadProgress.kt -->
+    <string name="read_progress_001">%1$s 読み込み済み</string>
+    <string name="read_progress_002">%1$s/秒</string>
+    <string name="eta_seconds">あと約 %1$d 秒</string>
+    <string name="eta_minutes">あと約 %1$d 分 %2$d 秒</string>
+    <string name="eta_hours">あと約 %1$d 時間 %2$d 分</string>
+    <string name="read_progress_003">NAS に接続して、読み込みを始めています…</string>
+    <string name="read_progress_004">NAS からの返事を待っています…</string>
+    <plurals name="read_progress_with_others"><item quantity="other">NAS から読み込み中(ほか %1$d 件)</item></plurals>
+    <string name="read_progress_plain">NAS から読み込み中</string>
+
+    <!-- storage/ResumeStreams.kt -->
+    <string name="resume_streams_001">閉じています</string>
+    <string name="resume_streams_002">閉じています</string>
+    <string name="resume_streams_003">中断されました</string>
+
+    <!-- storage/WriteBehind.kt -->
+    <string name="write_behind_001">閉じています</string>
+    <string name="write_behind_002">書き込みに失敗しています</string>
+    <string name="write_behind_003">中断されました</string>
+
+    <!-- storage/Media.kt -->
+    <string name="category_image">画像</string>
+    <string name="category_video">動画</string>
+    <string name="category_audio">オーディオ</string>
+    <string name="category_document">ドキュメント</string>
+    <string name="category_apk">アプリ</string>
+    <string name="category_recent">新着ファイル</string>
+
+    <!-- transfer/Transfer.kt -->
+    <string name="transfer_001">フォルダを自分自身の中にはコピーできません: %1$s</string>
+    <string name="transfer_002">同じ場所には上書きできません: %1$s</string>
+    <string name="transfer_003">同じ名前のファイルがあります: %1$s</string>
+    <string name="transfer_004">フォルダを読めませんでした: %1$s</string>
+    <string name="transfer_005">同じ名前のフォルダがあります: %1$s</string>
+    <string name="transfer_006">同じフォルダには移動できません: %1$s</string>
+    <string name="transfer_007">フォルダを自分自身の中には移動できません: %1$s</string>
+    <string name="transfer_008">同じ名前で種類の違うものがあります: %1$s</string>
+    <string name="transfer_009">同じ名前のファイルがすでにあります</string>
+    <string name="transfer_010">この場所のZIPは展開できません</string>
+    <string name="transfer_011">展開先が見つかりません</string>
+    <string name="transfer_012">不正なパスを含む書庫です: %1$s</string>
+
+    <!-- transfer/Ops.kt -->
+    <string name="ops_001">処理しています…</string>
+    <string name="ops_002">・%1$s/s</string>
+
+    <!-- transfer/TransferService.kt -->
+    <string name="transfer_service_001">キャンセル</string>
+    <string name="transfer_service_002">コピー・移動・ダウンロードの進み具合</string>
+    <string name="transfer_service_003">実行中のコピー・移動・圧縮・ダウンロードなどの進み具合を表示します</string>
+    <string name="transfer_service_004">完了のお知らせ</string>
+    <string name="transfer_service_005">アプリを閉じている間に終わった処理をお知らせします</string>
+
+    <!-- transfer/BgTasks.kt -->
+    <string name="bg_tasks_001">中止しました</string>
+    <string name="bg_tasks_002">%1$s。%2$s</string>
+    <string name="bg_tasks_003">通知がオフになっています。ダウンロードの進み具合と完了が通知に出ません。端末の設定で、ファイラーの通知をオンにしてください</string>
+    <string name="bg_tasks_004">・%1$s/s</string>
+    <string name="bg_tasks_005">\n経過 %1$s</string>
+
+    <!-- update/UpdateUi.kt -->
+    <string name="update_ui_001">約 %1$s</string>
+    <string name="update_ui_002">アプリの更新があります</string>
+    <string name="update_ui_003">ファイラー %1$s</string>
+    <string name="update_ui_004">いまのバージョン %1$s</string>
+    <string name="update_ui_005">・%1$s</string>
+    <string name="update_ui_006">更新する</string>
+    <string name="update_ui_007">後で更新する</string>
+    <string name="update_ui_008">GitHubから更新</string>
+    <string name="update_ui_009">ダウンロードしています</string>
+    <string name="update_ui_010">キャンセル</string>
+    <string name="update_ui_011">ダウンロードが終わりました</string>
+    <string name="update_ui_012">インストールの画面で「更新」を押してください</string>
+    <string name="update_ui_013">インストール</string>
+    <string name="update_ui_014">閉じる</string>
+    <string name="update_ui_015">更新できませんでした</string>
+    <string name="update_ui_016">もう一度</string>
+    <string name="update_ui_017">GitHubから更新</string>
+    <string name="update_ui_018">閉じる</string>
+    <string name="update_ui_019">いまのバージョン</string>
+    <string name="update_ui_020">不明</string>
+    <string name="update_ui_021">確認しています</string>
+    <string name="update_ui_022">新しいバージョンがあります</string>
+    <string name="update_ui_023">・%1$s</string>
+    <string name="update_ui_024">インストール</string>
+    <string name="update_ui_025">更新する</string>
+    <string name="update_ui_026">GitHubから更新</string>
+    <string name="update_ui_027">"ダウンロードしています  "</string>
+    <string name="update_ui_028">キャンセル</string>
+    <string name="update_ui_029">もう一度</string>
+    <string name="update_ui_030">もう一度確認</string>
+    <string name="update_ui_031">GitHubから更新</string>
+    <string name="update_ui_032">まだ確認していません</string>
+    <string name="update_ui_033">最後の確認 %1$s</string>
+    <string name="update_ui_034">最新のバージョンです</string>
+    <string name="update_ui_035">更新を確認</string>
+    <string name="update_ui_036">GitHubを開く</string>
+    <string name="update_ui_037">起動時に更新を確認する</string>
+    <string name="update_ui_038">確認するときだけ GitHub(github.com)に接続します。端末の情報は送りません</string>
+    <string name="update_ui_039">ホームに更新のお知らせを出す</string>
+    <string name="update_ui_040">新しいバージョンがあるとき、ホームの一番上に出します</string>
+
+    <!-- update/UpdateNet.kt -->
+    <string name="update_net_001">GitHub に接続できませんでした。通信の状態を確認してください</string>
+    <string name="update_net_002">GitHub が応答しませんでした(%1$s)。しばらくしてから、もう一度試してください</string>
+    <string name="update_net_003">中止しました</string>
+    <string name="update_net_004">中止しました</string>
+    <string name="update_net_005">ダウンロードが途中で止まりました。もう一度試してください</string>
+    <string name="update_net_006">ダウンロードしたファイルが、公開されている SHA-256 と違います。インストールを中止しました</string>
+    <string name="update_net_007">ダウンロードしたファイルを保存できませんでした</string>
+    <string name="update_net_008">ダウンロードできませんでした。通信の状態を確認してください</string>
+    <string name="update_net_009">ダウンロードを取り直します</string>
+    <string name="update_net_010">ダウンロードできませんでした(%1$s)</string>
+    <string name="update_net_011">中止しました</string>
+    <string name="update_net_012">ダウンロードが途中で止まりました</string>
+
+    <!-- update/UpdateManager.kt -->
+    <string name="update_manager_001">更新を確認できませんでした</string>
+    <string name="update_manager_002">アプリの更新をダウンロードしています</string>
+    <string name="update_manager_003">更新をダウンロードしました。タップして、インストールしてください</string>
+    <string name="update_manager_004">更新をダウンロードできませんでした</string>
+    <string name="update_manager_005">更新できませんでした</string>
+    <string name="update_manager_006">ダウンロードしたファイルを読めませんでした</string>
+    <string name="update_manager_007">このアプリのファイルではありませんでした。インストールを中止しました</string>
+    <string name="update_manager_008">いまより新しいバージョンではありませんでした</string>
+    <string name="update_manager_009">署名がいまのアプリと違うため、上書きで更新できません。GitHub から更新する場合は、先にアンインストールが必要です</string>
+
+    <!-- viewer/ContactUi.kt -->
+    <string name="contact_ui_001">大きすぎて表示できません(%1$s MB まで)</string>
+    <string name="contact_ui_002">連絡先として読めません。メニューで「テキスト」に切り替えられます</string>
+    <string name="contact_ui_003">読み込めません</string>
+    <string name="contact_ui_004">大きすぎて読み込めません</string>
+
+    <!-- viewer/CsvEditorUi.kt -->
+    <string name="csv_editor_ui_001">行が多すぎて、表では編集できません(5万行まで)。「テキストとして編集」を使ってください</string>
+    <string name="csv_editor_ui_002">カンマ区切り</string>
+    <string name="csv_editor_ui_003">タブ区切り</string>
+    <string name="csv_editor_ui_004">セミコロン区切り</string>
+    <string name="csv_editor_ui_005">縦線区切り</string>
+    <string name="csv_editor_ui_006">区切り「%1$s」</string>
+    <string name="csv_editor_ui_007">戻る</string>
+    <string name="csv_editor_ui_008">保存できませんでした\n</string>
+    <string name="csv_editor_ui_009">戻る</string>
+    <string name="csv_editor_ui_010">未保存の変更あり</string>
+    <string name="csv_editor_ui_011">表で編集中</string>
+    <string name="csv_editor_ui_012">元に戻す</string>
+    <string name="csv_editor_ui_013">やり直す</string>
+    <string name="csv_editor_ui_014">保存</string>
+    <string name="csv_editor_ui_015">セルを選んでください</string>
+    <string name="csv_editor_ui_016">確定</string>
+    <string name="csv_editor_ui_017">上に行を足す</string>
+    <string name="csv_editor_ui_018">下に行を足す</string>
+    <string name="csv_editor_ui_019">左に列を足す</string>
+    <string name="csv_editor_ui_020">右に列を足す</string>
+    <string name="csv_editor_ui_021">行を消す</string>
+    <string name="csv_editor_ui_022">列を消す</string>
+    <string name="csv_editor_status">%1$d 行 × %2$d 列・%3$s・%4$s・%5$s</string>
+    <string name="csv_editor_ui_023">・改行がまざっていました(そろえて保存します)</string>
+    <string name="csv_editor_ui_024">保存していない変更があります</string>
+    <string name="csv_editor_ui_025">保存して閉じる</string>
+    <string name="csv_editor_ui_026">保存しません</string>
+    <string name="csv_editor_ui_027">続ける</string>
+    <string name="csv_editor_ui_028">ファイルが変わっています</string>
+    <string name="csv_editor_ui_029">読み込んだあとに、ほかでこのファイルが書き換えられました。上書きすると、その変更は消えます</string>
+    <string name="csv_editor_ui_030">上書きする</string>
+    <string name="csv_editor_ui_031">やめる</string>
+    <string name="csv_editor_ui_032">閉じる</string>
+
+    <!-- viewer/EditorUi.kt -->
+    <string name="editor_ui_001">大きすぎて編集できません(%1$s MB まで)</string>
+    <string name="editor_ui_002">文字のファイルではないので編集できません</string>
+    <string name="editor_ui_003">読み込めません</string>
+    <string name="editor_ui_004">戻る</string>
+    <string name="editor_ui_005">見つかりません</string>
+    <string name="editor_ui_006">保存できなかった\n</string>
+    <string name="editor_ui_007">戻る</string>
+    <string name="editor_ui_008">未保存の変更あり</string>
+    <string name="editor_ui_009">編集中</string>
+    <string name="editor_ui_010">元に戻す</string>
+    <string name="editor_ui_011">やり直す</string>
+    <string name="editor_ui_012">保存</string>
+    <string name="editor_ui_013">メニュー</string>
+    <string name="editor_ui_014">編集</string>
+    <string name="editor_ui_015">検索・置換</string>
+    <string name="editor_ui_016">文字コード: %1$s</string>
+    <string name="editor_ui_017">改行コード</string>
+    <string name="editor_ui_018">表示</string>
+    <string name="editor_ui_019">検索する言葉</string>
+    <string name="editor_ui_020">前へ</string>
+    <string name="editor_ui_021">次へ</string>
+    <string name="editor_ui_022">閉じる</string>
+    <string name="editor_ui_023">置き換える言葉</string>
+    <string name="editor_ui_024">置換</string>
+    <string name="editor_ui_025">見つかりません</string>
+    <plurals name="editor_replaced"><item quantity="other">%1$d件置換しました</item></plurals>
+    <string name="editor_ui_026">すべて</string>
+    <string name="editor_ui_027">・改行がまざっていました(そろえて保存します)</string>
+    <string name="editor_ui_028">行 %1$s / %2$s・桁 %3$s・%4$s・%5$s%6$s</string>
+    <string name="editor_ui_029">保存していない変更があります</string>
+    <string name="editor_ui_030">保存して閉じる</string>
+    <string name="editor_ui_031">保存しません</string>
+    <string name="editor_ui_032">続ける</string>
+    <string name="editor_ui_033">保存するときの文字コード</string>
+    <string name="editor_ui_034">閉じる</string>
+    <string name="editor_ui_035">読み込んだときは %1$s。変えて保存すると、そのコードでファイルが書き換わります</string>
+    <string name="editor_ui_036">ファイルが変わっています</string>
+    <string name="editor_ui_037">読み込んだあとに、ほかでこのファイルが書き換えられました。上書きすると、その変更は消えます</string>
+    <string name="editor_ui_038">上書きする</string>
+    <string name="editor_ui_039">やめる</string>
+    <string name="editor_ui_040">閉じる</string>
+
+    <!-- viewer/ExifFormat.kt -->
+    <string name="exif_shutter_fraction">1/%1$d 秒</string>
+    <string name="exif_shutter_seconds">%1$s 秒</string>
+    <string name="exif_format_001">(35mm換算 %1$s mm)</string>
+    <string name="exif_format_002">左右反転</string>
+    <string name="exif_format_003">180度回転</string>
+    <string name="exif_format_004">上下反転</string>
+    <string name="exif_format_005">転置</string>
+    <string name="exif_format_006">右に90度回転(縦向きで撮影)</string>
+    <string name="exif_format_007">逆転置</string>
+    <string name="exif_format_008">左に90度回転(縦向きで撮影)</string>
+    <string name="exif_format_009">発光した</string>
+    <string name="exif_format_010">発光しなかった</string>
+    <string name="exif_format_011" formatted="false">%.1f メガピクセル</string>
+    <string name="exif_format_012">"北緯 "</string>
+    <string name="exif_format_013">"南緯 "</string>
+    <string name="exif_format_014">"東経 "</string>
+    <string name="exif_format_015">"西経 "</string>
+
+    <!-- viewer/ImageUi.kt -->
+    <string name="image_ui_001">画像を表示できません</string>
+    <string name="image_ui_002">大きすぎて表示できません。メニューの「他のアプリで開く」を使ってください</string>
+    <string name="image_ui_003">読み込めません</string>
+    <string name="image_ui_004">画像を表示できません</string>
+    <string name="image_ui_005">大きすぎて表示できません(%1$s MB まで)。メニューの「他のアプリで開く」を使ってください</string>
+    <string name="image_ui_006">読み込めません</string>
+    <string name="image_ui_007">SVGを表示できません。メニューで「ソース(XML)」に切り替えると中身を見られます</string>
+
+    <!-- viewer/Json.kt -->
+    <string name="json_001">末尾に余分な文字があります</string>
+    <string name="json_002">JSONとして読めません(%1$s)</string>
+    <string name="json_003">JSONの入れ子が深すぎます</string>
+    <string name="json_004">入れ子が深すぎます</string>
+    <string name="json_005">途中で終わっています</string>
+    <string name="json_bad_char">想定外の文字「%1$s」(%2$d文字目)</string>
+    <string name="json_bad_word">想定外の語(%1$d文字目)</string>
+    <string name="json_no_key">キーの文字列がない(%1$d文字目)</string>
+    <string name="json_no_colon">「:」がありません(%1$d文字目)</string>
+    <string name="json_006">途中で終わっています</string>
+    <string name="json_no_comma_or_brace">「,」か「}」がありません(%1$d文字目)</string>
+    <string name="json_007">途中で終わっています</string>
+    <string name="json_no_comma_or_bracket">「,」か「]」がありません(%1$d文字目)</string>
+    <string name="json_008">途中で終わっています</string>
+    <string name="json_009">\\u の後ろが足りません</string>
+    <string name="json_010">\\u の数が読めません</string>
+    <string name="json_011">想定外のエスケープ「\\%1$s」</string>
+    <string name="json_012">文字列が閉じていません</string>
+    <string name="json_013">数が読めない「%1$s」</string>
+
+    <!-- viewer/LoadingPanel.kt -->
+    <string name="loading_panel_001">ファイルを開いています…</string>
+    <string name="loading_panel_002">NAS に接続して、読み込みを始めています…</string>
+    <string name="loading_panel_003">NAS からの返事を待っています…</string>
+    <string name="loading_panel_004">NAS から読み込み中</string>
+    <string name="loading_panel_005">画面を消しても、読み込みは続きます</string>
+    <string name="loading_panel_006">キャンセル</string>
+
+    <!-- viewer/Markdown.kt -->
+    <string name="markdown_001">[画像: %1$s]</string>
+
+    <!-- viewer/PdfUi.kt -->
+    <string name="pdf_ui_001">大きすぎて表示できません(%1$s MB まで)。メニューの「他のアプリで開く」を使ってください</string>
+    <string name="pdf_ui_002">一時ファイルを作れません</string>
+    <string name="pdf_ui_003">パスワード付きのPDFは表示できません。メニューの「他のアプリで開く」を使ってください</string>
+    <string name="pdf_ui_004">PDFを開けません(%1$s)</string>
+    <string name="pdf_ui_005">「%1$s」を取り込んでいます</string>
+    <string name="pdf_ui_006">「%1$s」の取り込みが終わりました</string>
+    <string name="pdf_ui_007">「%1$s」を取り込めませんでした</string>
+    <string name="pdf_ui_008">全ページの文字をコピー</string>
+    <string name="pdf_ui_009">コピー</string>
+    <string name="pdf_ui_010">解除</string>
+    <string name="pdf_ui_011">ページ移動</string>
+    <string name="pdf_ui_012">1 〜 %1$s</string>
+    <string name="pdf_ui_013">移動</string>
+    <string name="pdf_ui_014">キャンセル</string>
+    <string name="pdf_ui_015">このページの文字をコピー</string>
+    <string name="pdf_ui_016">全ページの文字をコピー</string>
+    <string name="pdf_ui_017">このページを表示できません</string>
+    <string name="pdf_ui_018">文字を取り出しています</string>
+    <string name="pdf_ui_019">文字がありません(スキャンした画像の PDF など)</string>
+    <string name="pdf_ui_020">文字を取り出せませんでした</string>
+
+    <!-- viewer/PhotoInfo.kt -->
+    <string name="photo_info_001">ファイル</string>
+    <string name="photo_info_002">ファイルの大きさ</string>
+    <string name="photo_info_003">画像の大きさ</string>
+    <string name="photo_info_004">カメラ</string>
+    <string name="photo_info_005">レンズ</string>
+    <string name="photo_info_006">撮影日時</string>
+    <string name="photo_info_007">シャッター速度</string>
+    <string name="photo_info_008">絞り</string>
+    <string name="photo_info_009">ISO感度</string>
+    <string name="photo_info_010">焦点距離</string>
+    <string name="photo_info_011">露出補正</string>
+    <string name="photo_info_012">フラッシュ</string>
+    <string name="photo_info_013">向き</string>
+    <string name="photo_info_014">ソフトウェア</string>
+    <string name="photo_info_015">撮影した場所</string>
+    <string name="photo_info_016">高度</string>
+    <string name="photo_info_017">写真の情報</string>
+    <string name="photo_info_018">この画像には、カメラの情報(EXIF)が入っていません</string>
+    <string name="photo_info_019">写真の情報</string>
+    <string name="photo_info_020">読み込めません</string>
+    <string name="photo_info_021">閉じる</string>
+    <string name="photo_info_022">地図で開く</string>
+
+    <!-- viewer/PreviewCopy.kt -->
+    <string name="preview_copy_001">全文をコピー</string>
+    <string name="preview_copy_cut">大きいため、先頭の %1$s 万文字だけコピーしました</string>
+    <string name="preview_copy_002">コピーしました</string>
+    <string name="preview_copy_003">コピーできませんでした</string>
+    <string name="preview_copy_004">セルをコピー</string>
+    <string name="preview_copy_005">行をコピー</string>
+    <string name="preview_copy_006">列をコピー</string>
+    <string name="preview_copy_007">表全体をコピー</string>
+
+    <!-- viewer/PreviewUi.kt -->
+    <string name="preview_ui_001">読み込めません</string>
+    <string name="preview_ui_002">整形済み</string>
+    <string name="preview_ui_003">JSONとして読めないため、そのまま表示しています</string>
+    <string name="preview_ui_004">整形済み</string>
+    <string name="preview_ui_005">XMLとして読めないため、そのまま表示しています</string>
+    <string name="preview_ui_006">先頭の %1$s MB だけ表示しています</string>
+    <string name="preview_ui_007">全文をコピー</string>
+    <string name="preview_ui_008">全文をコピー</string>
+    <string name="preview_ui_009">表全体をコピー</string>
+    <plurals name="preview_lines"><item quantity="other">%1$d行</item></plurals>
+    <string name="preview_ui_010">Markdown・%1$s</string>
+    <string name="preview_grid_info">%1$d行×%2$d列・区切り「%3$s」・%4$s</string>
+    <string name="preview_ui_011">カンマ</string>
+    <string name="preview_ui_012">タブ</string>
+    <string name="preview_ui_013">セミコロン</string>
+    <string name="preview_ui_014">縦線</string>
+    <string name="preview_ui_015">閉じる</string>
+
+    <!-- viewer/TextEdit.kt -->
+    <string name="text_edit_001">大きすぎて編集できません(%1$s MB まで)</string>
+    <string name="text_edit_002">文字のファイルではないので編集できません</string>
+    <string name="text_edit_003">文字コードを判別できないので編集できません</string>
+    <string name="text_edit_004">「%1$s」は %2$s で表せません。文字コードを UTF-8 にして保存してください</string>
+
+    <!-- viewer/UnknownUi.kt -->
+    <string name="unknown_ui_001">ファイルの種類(推測): %1$s</string>
+    <string name="unknown_ui_002">大きさ %1$s</string>
+    <string name="unknown_ui_003">・拡張子の候補: .%1$s</string>
+    <string name="unknown_ui_004">他のアプリで開く</string>
+
+    <!-- viewer/Vcard.kt -->
+    <string name="vcard_001">携帯</string>
+    <string name="vcard_002">自宅</string>
+    <string name="vcard_003">勤務先</string>
+    <string name="vcard_004">ポケベル</string>
+    <string name="vcard_005">ビデオ</string>
+    <string name="vcard_006">電話</string>
+    <string name="vcard_007">メール</string>
+    <string name="vcard_008">"〒%1$s "</string>
+    <string name="vcard_009">住所</string>
+    <string name="vcard_010">誕生日</string>
+    <string name="vcard_011">メモ</string>
+    <string name="vcard_012">ニックネーム</string>
+    <string name="vcard_013">肩書</string>
+    <string name="vcard_014">(名前なし)</string>
+
+    <!-- viewer/Viewer.kt -->
+    <string name="viewer_001">閉じる</string>
+    <string name="viewer_002">編集</string>
+    <string name="viewer_003">メニュー</string>
+    <string name="viewer_004">表示のしかた</string>
+    <string name="viewer_005">絵</string>
+    <string name="viewer_006">ソース(XML)</string>
+    <string name="viewer_007">表示のしかた</string>
+    <string name="viewer_008">図面</string>
+    <string name="viewer_009">テキスト</string>
+    <string name="viewer_010">表示のしかた</string>
+    <string name="viewer_011">マンガ</string>
+    <string name="viewer_012">ファイル一覧</string>
+    <string name="viewer_013">めくる向き</string>
+    <string name="viewer_014">右から左(マンガ)</string>
+    <string name="viewer_015">左から右</string>
+    <string name="viewer_016">表示のしかた</string>
+    <string name="viewer_017">情報</string>
+    <string name="viewer_018">ファイル一覧</string>
+    <string name="viewer_019">表示のしかた</string>
+    <string name="viewer_020">本</string>
+    <string name="viewer_021">ファイル一覧</string>
+    <string name="viewer_022">表示のしかた</string>
+    <string name="viewer_023">ページ</string>
+    <string name="viewer_024">構造</string>
+    <string name="viewer_025">ソース</string>
+    <string name="viewer_026">JavaScript を許可</string>
+    <string name="viewer_027">外部の読み込みを許可</string>
+    <string name="viewer_028">パソコン向けの幅で表示</string>
+    <string name="viewer_029">表示のしかた</string>
+    <string name="viewer_030">連絡先</string>
+    <string name="viewer_031">テキスト</string>
+    <string name="viewer_032">表示のしかた</string>
+    <string name="viewer_033">整形</string>
+    <string name="viewer_034">テキスト</string>
+    <string name="viewer_035">表示のしかた</string>
+    <string name="viewer_036">表</string>
+    <string name="viewer_037">テキスト</string>
+    <string name="viewer_038">表示のしかた</string>
+    <string name="viewer_039">絵</string>
+    <string name="viewer_040">ソース(XML)</string>
+    <string name="viewer_041">表示のしかた</string>
+    <string name="viewer_042">整形</string>
+    <string name="viewer_043">テキスト</string>
+    <string name="viewer_044">1行目を見出しにする</string>
+    <string name="viewer_045">配色</string>
+    <string name="viewer_046">ライト</string>
+    <string name="viewer_047">ダーク</string>
+    <string name="viewer_048">元の色で表示</string>
+    <string name="viewer_049">表で編集</string>
+    <string name="viewer_050">テキストとして編集</string>
+    <string name="viewer_051">編集</string>
+    <string name="viewer_052">検索</string>
+    <string name="viewer_053">ページ移動…</string>
+    <string name="viewer_054">レイヤー…</string>
+    <string name="viewer_055">写真の情報</string>
+    <string name="viewer_056">ここに展開</string>
+    <string name="viewer_057">表示</string>
+    <string name="viewer_058">ファイル</string>
+    <string name="viewer_059">検索する言葉</string>
+    <string name="viewer_060">0件</string>
+    <string name="viewer_061">前へ</string>
+    <string name="viewer_062">次へ</string>
+    <string name="viewer_063">閉じる</string>
+
+    <!-- viewer/ViewerMenu.kt -->
+    <string name="viewer_menu_001">他のアプリで開く</string>
+    <string name="viewer_menu_002">共有</string>
+    <string name="viewer_menu_003">文字の大きさ</string>
+    <string name="viewer_menu_004">小さく</string>
+    <string name="viewer_menu_005">大きく</string>
+
+    <!-- viewer/Sniff.kt -->
+    <string name="sniff_001">空のファイル</string>
+    <string name="sniff_002">PNG画像</string>
+    <string name="sniff_003">JPEG画像</string>
+    <string name="sniff_004">GIF画像</string>
+    <string name="sniff_005">WebP画像</string>
+    <string name="sniff_006">WAV音声</string>
+    <string name="sniff_007">AVI動画</string>
+    <string name="sniff_008">ZIP形式(zip・apk・docx・xlsx・jar など)</string>
+    <string name="sniff_009">7z圧縮</string>
+    <string name="sniff_010">RAR圧縮</string>
+    <string name="sniff_011">LZH圧縮</string>
+    <string name="sniff_012">gzip圧縮</string>
+    <string name="sniff_013">bzip2圧縮</string>
+    <string name="sniff_014">xz圧縮</string>
+    <string name="sniff_015">実行ファイル(ELF)</string>
+    <string name="sniff_016">Windowsの実行ファイル</string>
+    <string name="sniff_017">Javaのクラスファイル</string>
+    <string name="sniff_018">SQLiteデータベース</string>
+    <string name="sniff_019">MP3音声</string>
+    <string name="sniff_020">FLAC音声</string>
+    <string name="sniff_021">Ogg(音声・動画)</string>
+    <string name="sniff_022">Matroska / WebM 動画</string>
+    <string name="sniff_023">HEIC画像</string>
+    <string name="sniff_024">AVIF画像</string>
+    <string name="sniff_025">M4A音声</string>
+    <string name="sniff_026">QuickTime動画</string>
+    <string name="sniff_027">MP4動画</string>
+    <string name="sniff_028">MPEG-TS(録画など)</string>
+    <string name="sniff_029">RTF文書</string>
+    <string name="sniff_030">スクリプト</string>
+    <string name="sniff_031">鍵・証明書(PEM)</string>
+    <string name="sniff_032">テキスト</string>
+    <string name="sniff_033">不明なデータ</string>
+
+    <!-- media/AudioUi.kt -->
+    <string name="audio_ui_001">曲名</string>
+    <string name="audio_ui_002">アーティスト</string>
+    <string name="audio_ui_003">アルバム</string>
+    <string name="audio_ui_004">アルバムのアーティスト</string>
+    <string name="audio_ui_005">作曲</string>
+    <string name="audio_ui_006">ジャンル</string>
+    <string name="audio_ui_007">年</string>
+    <string name="audio_ui_008">トラック</string>
+    <string name="audio_ui_009">ディスク</string>
+    <string name="audio_ui_010">説明</string>
+    <string name="audio_ui_011">形式</string>
+    <string name="audio_ui_012">ビットレート</string>
+    <string name="audio_ui_013">サンプリング周波数</string>
+    <string name="audio_ui_014">チャンネル</string>
+    <string name="audio_ui_015">長さ</string>
+    <string name="audio_ui_016">ファイル</string>
+    <string name="audio_ui_017">ファイルの大きさ</string>
+    <string name="audio_ui_018">タグ</string>
+    <string name="audio_ui_019">この曲には、曲名などのタグが入っていません</string>
+    <string name="audio_ui_020">曲の情報</string>
+    <string name="audio_ui_021">閉じる</string>
+
+    <!-- media/Caf.kt -->
+    <string name="caf_001">ファイルが途中までしか読めませんでした</string>
+    <string name="caf_002">パケット表が途中で切れています</string>
+
+    <!-- media/MediaSupport.kt -->
+    <string name="media_support_001">ファイルが途中までしか読めませんでした</string>
+    <string name="media_support_002">場所が分かりません</string>
+    <string name="media_support_003">ファイルを開けません</string>
+    <string name="media_support_004">モノラル</string>
+    <string name="media_support_005">ステレオ</string>
+    <string name="media_support_006">画像字幕</string>
+    <string name="media_support_007">音声%1$s</string>
+    <string name="media_support_008">字幕%1$s</string>
+
+    <!-- media/MidiPlay.kt -->
+    <string name="midi_play_001">大きすぎて開けません</string>
+    <string name="midi_play_002">「%1$s」を取り込んでいます</string>
+    <string name="midi_play_003">「%1$s」の取り込みが終わりました</string>
+    <string name="midi_play_004">「%1$s」を取り込めませんでした</string>
+    <string name="midi_play_005">再生できません(MIDI)</string>
+    <string name="midi_play_006">再生できません(MIDI)</string>
+    <string name="midi_play_007">この端末で再生できない形式かもしれません</string>
+    <string name="midi_play_008">他のアプリで開く</string>
+
+    <!-- media/MusicInfo.kt -->
+    <string name="music_info_001">%1$s 年</string>
+    <string name="music_info_002">トラック %1$s</string>
+    <string name="music_info_003">ディスク %1$s</string>
+
+    <!-- media/Player.kt -->
+    <string name="player_001">再生できません(%1$s)</string>
+    <string name="player_002">音声だけ再生しています</string>
+    <string name="player_003">他のアプリで開く</string>
+    <string name="player_004">この端末で再生できない形式かもしれません</string>
+    <string name="player_005">他のアプリで開く</string>
+    <string name="player_006">再生速度(倍)</string>
+    <string name="player_007">音声の切り替え</string>
+    <string name="player_008">字幕の切り替え</string>
+    <string name="player_009">字幕なし</string>
+    <string name="player_010">横向きで表示</string>
+    <string name="player_011">曲の情報</string>
+    <string name="player_012">再生</string>
+    <string name="player_013">表示</string>
+    <string name="player_014">ファイル</string>
+
+    <!-- media/PlayerChrome.kt -->
+    <string name="player_chrome_001">閉じる</string>
+    <string name="player_chrome_002">メニュー</string>
+    <string name="player_chrome_003">前へ</string>
+    <string name="player_chrome_004">10秒戻す</string>
+    <string name="player_chrome_005">一時停止</string>
+    <string name="player_chrome_006">再生</string>
+    <string name="player_chrome_007">10秒送る</string>
+    <string name="player_chrome_008">次へ</string>
+
+    <!-- media/PlayerSetup.kt -->
+    <string name="player_setup_001">%1$s(最大 %2$sx%3$s)</string>
+    <string name="player_setup_002">不明</string>
+    <string name="player_setup_003">この形式を再生できるデコーダーがありません</string>
+    <string name="player_setup_004">デコーダーの上限(大きさなど)を超えています</string>
+    <string name="player_setup_005">この形式の細かい種類に対応していません</string>
+    <string name="player_setup_006">再生できる状態になっていません</string>
+    <string name="player_setup_007">"映像(%1$s%2$s)を再生できない\n%3$s\nこの端末のデコーダー: "</string>
+    <string name="player_setup_008">なし</string>
+
+    <!-- media/Shims.kt -->
+    <string name="shims_001">ファイルが途中までしか読めませんでした</string>
+    <string name="shims_002">ファイルが途中までしか読めませんでした</string>
+
+    <!-- media/Thumbs.kt -->
+    <string name="thumbs_001">サムネイルのために読む量の上限を超えました</string>
+
+    <!-- office/Doc.kt -->
+    <string name="doc_001">Wordの文書(WordDocument)が見つかりません</string>
+    <string name="doc_002">Word 97〜2003 の文書として読めません</string>
+    <string name="doc_003">パスワードで保護された文書は開けません</string>
+    <string name="doc_004">文書の表(Table)が見つかりません</string>
+    <string name="doc_005">文書の文字の並び(CLX)が読めません</string>
+    <string name="doc_006">文書の文字の並び(Pcdt)が読めません</string>
+    <string name="doc_007">文書の文字の並びが空</string>
+
+    <!-- office/Docx.kt -->
+    <string name="docx_001">Wordのファイルとして読めません</string>
+
+    <!-- office/Odp.kt -->
+    <string name="odp_001">OpenDocumentのファイルとして読めません</string>
+    <string name="odp_002">プレゼンテーション(.odp)として読めません</string>
+    <string name="odp_003">埋め込みオブジェクト(この表示では描けません)</string>
+
+    <!-- office/Ods.kt -->
+    <string name="ods_001">OpenDocumentのファイルとして読めません</string>
+    <string name="ods_002">表計算(.ods)として読めません</string>
+    <string name="ods_003">シート%1$s</string>
+
+    <!-- office/Odt.kt -->
+    <string name="odt_001">OpenDocumentのファイルとして読めません</string>
+    <string name="odt_002">文書(.odt)として読めません</string>
+
+    <!-- office/Office.kt -->
+    <string name="office_001">PowerPointのファイルとして読めません</string>
+
+    <!-- office/OfficeUi.kt -->
+    <string name="office_ui_001">中身は XML のようです(拡張子を .xml に変えると開けます)</string>
+    <string name="office_ui_002">中身は HTML のようです(拡張子を .html に変えると開けます)</string>
+    <string name="office_ui_003">中身は文字のファイルのようです(拡張子を .txt や .csv に変えると開けます)</string>
+    <string name="office_ui_004">拡張子と中身が違うかもしれません</string>
+    <string name="office_ui_005">%1$s の古い形式のファイルではありません。%2$s</string>
+    <string name="office_ui_006">大きすぎて開けません(%1$sMB まで)</string>
+    <string name="office_ui_007">このファイルを開けません</string>
+    <string name="office_ui_008">読み込めません</string>
+    <string name="office_ui_009">Officeの文書として読めません(%1$s)</string>
+    <string name="office_ui_010">大きすぎて読み込めません</string>
+    <string name="office_ui_011">読み込めません</string>
+    <string name="office_ui_012">このシートは空</string>
+    <string name="office_ui_013">このシートをコピー</string>
+    <string name="office_ui_014">大きいため、先頭の一部だけ表示しています</string>
+    <string name="office_sheet_info">%1$s・%2$d行×%3$d列</string>
+    <string name="office_ui_015">文章がありません(図や表だけの文書かもしれません)</string>
+    <string name="office_ui_016">全文をコピー</string>
+    <string name="office_ui_017">スライドがありません</string>
+    <string name="office_ui_018">全スライドの文字をコピー</string>
+    <string name="office_ui_019">スライド %1$s\n</string>
+    <string name="office_ui_020">(文字がありません)</string>
+
+    <!-- office/Ole2.kt -->
+    <string name="ole2_001">古い形式のOfficeファイル(OLE2)ではありません</string>
+    <string name="ole2_002">OLE2の形式が読めません</string>
+    <string name="ole2_003">OLE2の目録が読めません</string>
+
+    <!-- office/Ppt.kt -->
+    <string name="ppt_001">PowerPointの文書(PowerPoint Document)が見つかりません</string>
+    <string name="ppt_002">スライドが見つかりません</string>
+
+    <!-- office/PptDeck.kt -->
+    <string name="ppt_deck_001">PowerPointの文書(PowerPoint Document)が見つかりません</string>
+    <string name="ppt_deck_002">PowerPointの文書の構造が読めません</string>
+    <string name="ppt_deck_003">スライドが見つかりません</string>
+
+    <!-- office/Rtf.kt -->
+    <string name="rtf_001">RTFのファイルとして読めません</string>
+
+    <!-- office/SheetGridFast.kt -->
+    <string name="sheet_grid_fast_001">閉じる</string>
+
+    <!-- office/SlideDeck.kt -->
+    <string name="slide_deck_001">スライド %1$s\n</string>
+    <string name="slide_deck_002">PowerPointのファイルとして読めません</string>
+    <string name="slide_deck_003">グラフ(この表示では描けません)</string>
+    <string name="slide_deck_004">図表(SmartArt。この表示では描けません)</string>
+    <string name="slide_deck_005">埋め込みの内容(この表示では描けません)</string>
+
+    <!-- office/SlideStyle.kt -->
+    <string name="slide_style_001">XMLが空</string>
+
+    <!-- office/SlideUi.kt -->
+    <string name="slide_ui_001">スライドがありません</string>
+    <string name="slide_ui_002">全スライドの文字をコピー</string>
+    <string name="slide_ui_003">(非表示のスライド)</string>
+    <string name="slide_ui_004">この文字をコピー</string>
+    <string name="slide_ui_005">このスライドの文字をコピー</string>
+    <string name="slide_ui_006">全スライドの文字をコピー</string>
+
+    <!-- office/Xls.kt -->
+    <string name="xls_001">Excelのブック(Workbook)が見つかりません</string>
+    <string name="xls_002">Excelのブックとして読めません</string>
+    <string name="xls_003">Excel 5.0/95 以前の形式には未対応です(Excel 97 以降の .xls は読めます)</string>
+    <string name="xls_004">ワークシートが見つかりません</string>
+
+    <!-- office/Xlsx.kt -->
+    <string name="xlsx_001">Excelのファイルとして読めません</string>
+    <string name="xlsx_002">シートが見つかりません</string>
+    <string name="xlsx_003">シート「%1$s」を読めません</string>
+
+    <!-- archive/ApkUi.kt -->
+    <string name="apk_ui_001">大きすぎて調べられません(%1$s MB まで)</string>
+    <string name="apk_ui_002">一時ファイルを作れませんでした</string>
+    <string name="apk_ui_003">APKとして読めませんでした(壊れているか、途中までのファイルかもしれません)</string>
+    <string name="apk_ui_004">APKとして読めませんでした</string>
+    <string name="apk_ui_005">APKを調べられません(%1$s)</string>
+    <string name="apk_ui_006">「%1$s」を取り込んでいます</string>
+    <string name="apk_ui_007">「%1$s」の取り込みが終わりました</string>
+    <string name="apk_ui_008">「%1$s」を取り込めませんでした</string>
+    <string name="apk_ui_009">新しくインストールします</string>
+    <string name="apk_ui_010">更新できます</string>
+    <string name="apk_ui_011">いまのバージョン %1$s(%2$s) → このバージョン %3$s(%4$s)</string>
+    <string name="apk_ui_012">同じバージョンが入っています</string>
+    <string name="apk_ui_013">バージョン %1$s(%2$s)</string>
+    <string name="apk_ui_014">新しいバージョンが入っています</string>
+    <string name="apk_ui_015">いまのバージョン %1$s(%2$s)。古いバージョンにするには、先にアンインストールが必要です</string>
+    <string name="apk_ui_016">署名がいま入っているものと違うため、上書きできません。先にアンインストールが必要です</string>
+    <string name="apk_ui_017">バージョン %1$s</string>
+    <string name="apk_ui_018">情報</string>
+    <string name="apk_ui_019">バージョン</string>
+    <string name="apk_ui_020">対応する Android</string>
+    <string name="apk_ui_021">%1$s 以上</string>
+    <string name="apk_ui_022">対象の Android</string>
+    <string name="apk_ui_023">・コンパイル API %1$s</string>
+    <string name="apk_ui_024">ファイル</string>
+    <string name="apk_ui_025">%1$s・%2$s</string>
+    <string name="apk_ui_026">署名</string>
+    <string name="apk_ui_027">いま入っているものと同じ</string>
+    <string name="apk_ui_028">いま入っているものと違う</string>
+    <string name="apk_ui_029">必要な権限(%1$s)</string>
+    <string name="apk_ui_030">なし</string>
+    <string name="apk_ui_031">特に注意する権限</string>
+    <string name="apk_ui_032">"そのほかの権限(%1$s)  "</string>
+    <string name="apk_ui_033">署名(SHA-256)</string>
+    <string name="apk_ui_034">署名を読めませんでした(署名されていないAPKかもしれません)</string>
+    <string name="apk_ui_035">更新する</string>
+    <string name="apk_ui_036">再インストール</string>
+    <string name="apk_ui_037">インストール</string>
+
+    <!-- archive/Archives.kt -->
+    <string name="archives_001">途中で読めなくなりました</string>
+    <string name="archives_002">負の位置</string>
+    <string name="archives_003">パスワード付きの7zは未対応</string>
+    <string name="archives_004">7zとして読めません(%1$s)</string>
+    <string name="archives_005">パスワード付きの7zは未対応</string>
+    <string name="archives_006">書庫として読めません(%1$s)</string>
+    <string name="archives_007">書庫の中に見つかりません</string>
+    <string name="archives_008">RARとして読めませんでした。パスワード付きか、未対応の形式かもしれません(%1$s)</string>
+    <string name="archives_009">パスワード付きのRARは未対応</string>
+    <string name="archives_010">対応していない書庫</string>
+    <string name="archives_011">このファイルを開けません</string>
+    <string name="archives_012">大きすぎて開けません(RARは %1$s MB まで)</string>
+    <string name="archives_013">「%1$s」を取り込んでいます</string>
+    <string name="archives_014">「%1$s」の取り込みが終わりました</string>
+    <string name="archives_015">「%1$s」を取り込めませんでした</string>
+    <string name="archives_016">途中で読めなくなりました</string>
+    <string name="archives_017">一時ファイルを作れませんでした</string>
+
+    <!-- archive/ArchiveUi.kt -->
+    <string name="archive_ui_001">書庫として読めません</string>
+    <string name="archive_ui_002">書庫として読めません</string>
+    <string name="archive_ui_003">大きすぎて読み込めません</string>
+    <string name="archive_ui_004">パスワード付きの書庫は未対応</string>
+    <string name="archive_ui_005">大きすぎて開けません(%1$s MB まで)。メニューの「ここに展開」を使ってください</string>
+    <string name="archive_ui_006">一時ファイルを作れませんでした</string>
+    <string name="archive_ui_007">取り出せませんでした</string>
+    <plurals name="archive_total"><item quantity="other">%1$d 個のファイル・展開すると %2$s</item></plurals>
+    <string name="archive_ui_008">上のフォルダへ</string>
+    <plurals name="archive_dir_info"><item quantity="other">%1$d 個・%2$s</item></plurals>
+    <string name="archive_ui_009">パスワード付き</string>
+    <string name="archive_ui_010">取り出し中… %1$s</string>
+    <string name="archive_ui_011">閉じる</string>
+
+    <!-- archive/BundleInstall.kt -->
+    <string name="bundle_install_001">インストールしました</string>
+    <string name="bundle_install_002">中止されました</string>
+    <string name="bundle_install_003">ブロックされました(端末の設定や、ほかのアプリが止めています)</string>
+    <string name="bundle_install_004">入っているアプリと合いません(署名が違うなど。先にアンインストールすると入る場合があります)</string>
+    <string name="bundle_install_005">この端末に対応していません(CPUの種類や Android のバージョン)</string>
+    <string name="bundle_install_006">APK が正しくありません(部品が足りないか、壊れています)</string>
+    <string name="bundle_install_007">空き容量が足りません</string>
+    <string name="bundle_install_008">失敗しました</string>
+    <string name="bundle_install_009">インストールできなかった: %1$s</string>
+    <string name="bundle_install_010">このアプリからのインストールを許可してから、もう一度試して</string>
+    <string name="bundle_install_011">このファイルを開けません</string>
+    <string name="bundle_install_012">本体のAPKが見つかりません</string>
+    <string name="bundle_install_013">この端末に合う部品がないため、インストールしても動きません</string>
+    <plurals name="bundle_prepared"><item quantity="other">部品 %1$d 本を用意しました。確認画面で「インストール」を押してください</item></plurals>
+    <string name="bundle_install_014">確認の画面を開けませんでした</string>
+    <string name="bundle_install_015">確認の画面を開けなかった(%1$s)</string>
+
+    <!-- archive/BundleUi.kt -->
+    <string name="bundle_ui_001">このファイルを開けません</string>
+    <string name="bundle_ui_002">ZIPとして読めません</string>
+    <string name="bundle_ui_003">いま入っているかは分かりません</string>
+    <string name="bundle_ui_004">新しくインストールします</string>
+    <string name="bundle_ui_005">更新できます</string>
+    <string name="bundle_ui_006">いまのバージョン %1$s</string>
+    <string name="bundle_ui_007">" → このバージョン %1$s"</string>
+    <string name="bundle_ui_008">同じバージョンが入っています</string>
+    <string name="bundle_ui_009">バージョン %1$s</string>
+    <string name="bundle_ui_010">新しいバージョンが入っています</string>
+    <string name="bundle_ui_011">いまのバージョン %1$s。古いバージョンにするには、先にアンインストールが必要です</string>
+    <string name="bundle_ui_012">すでに入っています</string>
+    <string name="bundle_ui_013">バージョン %1$s</string>
+    <string name="bundle_ui_014">バージョン %1$s</string>
+    <string name="bundle_ui_015">情報</string>
+    <string name="bundle_ui_016">形式</string>
+    <string name="bundle_ui_017">%1$s(本体と部品をまとめたAPK)</string>
+    <string name="bundle_ui_018">バージョン</string>
+    <string name="bundle_ui_019">対応する Android</string>
+    <string name="bundle_ui_020">%1$s 以上</string>
+    <string name="bundle_ui_021">ファイル</string>
+    <string name="bundle_ui_022">%1$s・%2$s</string>
+    <string name="bundle_ui_023">入れるもの</string>
+    <string name="bundle_ui_024">本体のAPKが見つかりません。このファイルはインストールできません</string>
+    <string name="bundle_ui_025">本体</string>
+    <string name="bundle_ui_026">1 本(%1$s)</string>
+    <plurals name="bundle_part_dpi"><item quantity="other">画面用 %1$d 本</item></plurals>
+    <plurals name="bundle_part_lang"><item quantity="other">言語用 %1$d 本</item></plurals>
+    <plurals name="bundle_part_other"><item quantity="other">そのほか %1$d 本</item></plurals>
+    <string name="bundle_ui_027">部品</string>
+    <string name="bundle_ui_028">CPU用</string>
+    <string name="bundle_ui_029">%1$s(この端末に合うもの)</string>
+    <string name="bundle_ui_030">この端末に合う部品がありません</string>
+    <string name="bundle_ui_031">なし(CPU共通)</string>
+    <plurals name="bundle_total"><item quantity="other">%1$d 本・%2$s</item></plurals>
+    <string name="bundle_ui_032">合計</string>
+    <string name="bundle_ui_033">、</string>
+    <plurals name="bundle_skipped"><item quantity="other">%2$s(この端末には要らない・%1$d 本・%3$s)</item></plurals>
+    <string name="bundle_ui_034">入れないもの</string>
+    <string name="bundle_ui_035">インストールしても動きません</string>
+    <string name="bundle_ui_036">この端末(%1$s)に合う部品がありません</string>
+    <string name="bundle_ui_037">追加データ(OBB)は入りません</string>
+    <string name="bundle_ui_038">必要なら、「中身の一覧を見る」から取り出してください</string>
+    <string name="bundle_ui_039">更新する</string>
+    <string name="bundle_ui_040">インストール</string>
+    <string name="bundle_ui_041">中身の一覧を見る</string>
+
+    <!-- archive/Lzh.kt -->
+    <string name="lzh_001">LZHが途中で切れているか、壊れています</string>
+    <string name="lzh_002">LZHが途中で切れているか、壊れています</string>
+    <string name="lzh_003">LZHとして読めません</string>
+    <string name="lzh_004">LZHの見出しが壊れています</string>
+    <string name="lzh_005">LZHの見出しが壊れています</string>
+    <string name="lzh_006">LZHとして読めません</string>
+    <string name="lzh_007">圧縮方式 %1$s は未対応</string>
+    <string name="lzh_008">LZHが途中で切れています</string>
+    <string name="lzh_009">LZHが途中で切れています</string>
+    <string name="lzh_010">LZHの中身が壊れています(CRCが合いません)</string>
+    <string name="lzh_011">LZHの中身が壊れています(CRCが合いません)</string>
+    <string name="lzh_012">LZHの符号が壊れています</string>
+    <string name="lzh_013">LZHの符号が壊れています</string>
+    <string name="lzh_014">LZHの符号が壊れています</string>
+    <string name="lzh_015">LZHの符号が壊れています</string>
+    <string name="lzh_016">LZHの符号が壊れています</string>
+    <string name="lzh_017">LZHの符号が壊れています</string>
+    <string name="lzh_018">LZHの符号が壊れています</string>
+    <string name="lzh_019">LZHの符号が壊れています</string>
+    <string name="lzh_020">LZHの符号が壊れています</string>
+
+    <!-- archive/ZipReader.kt -->
+    <string name="zip_reader_001">ZIPが途中で切れているか、壊れています</string>
+    <string name="zip_reader_002">ZIPファイルではありません</string>
+    <string name="zip_reader_003">ZIPファイルではありません</string>
+    <string name="zip_reader_004">4GBを超えるZIP(ZIP64)は未対応</string>
+    <string name="zip_reader_005">ZIPが壊れています</string>
+    <string name="zip_reader_006">ZIPの目次が壊れています</string>
+    <string name="zip_reader_007">4GBを超えるZIP(ZIP64)は未対応</string>
+    <string name="zip_reader_008">ZIPの目次が壊れています</string>
+    <string name="zip_reader_009">パスワード付きのZIPは未対応</string>
+    <string name="zip_reader_010">ZIPが壊れています: %1$s</string>
+    <string name="zip_reader_011">未対応の圧縮方式のZIP(%1$s): %2$s</string>
+    <string name="zip_reader_012">ZIPが途中で切れています</string>
+
+    <!-- cad/Cad.kt -->
+    <string name="cad_001">図形が多すぎて表示できません</string>
+    <string name="cad_002">図形がありません</string>
+
+    <!-- cad/CadUi.kt -->
+    <string name="cad_ui_001">DWG(AutoCAD の図面)は形式が公開されていないため、表示できません。</string>
+    <string name="cad_ui_002">\nバージョン: %1$s</string>
+    <string name="cad_ui_003">\nDXF で書き出すと見られます。</string>
+    <string name="cad_ui_004">大きすぎて表示できません(%1$s MB まで)</string>
+    <string name="cad_ui_005">図面として読めません</string>
+    <string name="cad_ui_006">読み込めません</string>
+    <string name="cad_ui_007">読み込めません</string>
+    <string name="cad_ui_008">大きすぎて読み込めません</string>
+    <string name="cad_ui_009">R11・R12</string>
+    <string name="cad_ui_010">図形 %1$s・レイヤー %2$s</string>
+    <string name="cad_ui_011">(表示 %1$s)</string>
+    <string name="cad_ui_012">・%1$s</string>
+    <string name="cad_ui_013">レイヤー(%1$s)</string>
+    <string name="cad_ui_014">閉じる</string>
+    <string name="cad_ui_015">すべて表示</string>
+    <string name="cad_ui_016">すべて隠す</string>
+
+    <!-- cad/DiagramUi.kt -->
+    <string name="diagram_ui_001">大きすぎて表示できません(%1$s MB まで)</string>
+    <string name="diagram_ui_002">draw.io の図面として読めません</string>
+    <string name="diagram_ui_003">読み込めません</string>
+    <string name="diagram_ui_004">大きすぎて読み込めません</string>
+
+    <!-- cad/Drawio.kt -->
+    <string name="drawio_001">ページ-%1$s</string>
+    <string name="drawio_002">ページ-1</string>
+    <string name="drawio_003">画像</string>
+
+    <!-- cad/Dxf.kt -->
+    <string name="dxf_001">バイナリ形式の DXF には対応していません</string>
+    <plurals name="dxf_unsupported_all"><item quantity="other">このファイルの図形には対応していません(%1$d 個)</item></plurals>
+    <plurals name="dxf_unsupported_some"><item quantity="other">対応していない図形が %1$d 個あります</item></plurals>
+
+    <!-- cad/Jwc.kt -->
+    <string name="jwc_001">JW_CAD(旧形式)のヘッダーが短すぎます</string>
+    <string name="jwc_002">JW_CAD(旧形式 .jwc)として読めません</string>
+    <string name="jwc_003">JW_CAD(旧形式)のヘッダーが短すぎます</string>
+    <string name="jwc_004">JW_CAD(旧形式)のヘッダーが読めません</string>
+    <string name="jwc_005">JW_CAD(旧形式)の図形の数が読めません</string>
+    <string name="jwc_006">JW_CAD(旧形式)の図形が多すぎます</string>
+    <string name="jwc_007">JW_CAD(旧形式)の文字の領域が読めません</string>
+    <string name="jwc_008">JW_CAD(旧形式)の文字の領域が読めません</string>
+    <string name="jwc_009">JW_CAD(旧形式)の文字の領域が読めません</string>
+    <string name="jwc_010">JW_CAD(旧形式)のデータが途中で終わっています</string>
+
+    <!-- cad/Jww.kt -->
+    <string name="jww_001">JW_CAD のデータが途中で終わっています</string>
+    <string name="jww_002">JW_CAD の文字列が読めません</string>
+    <string name="jww_003">JW_CAD の図形の種類が読めません</string>
+    <string name="jww_004">JW_CAD の図形の種類が読めません</string>
+    <string name="jww_005">JW_CAD の図形の参照が読めません</string>
+    <string name="jww_006">JW_CAD の図形(%1$s)に対応していません</string>
+    <string name="jww_007">JW_CAD(.jww)として読めません</string>
+    <string name="jww_008">JW_CAD のヘッダーが読めません</string>
+    <string name="jww_009">JW_CAD の図形が見つかりません</string>
+    <string name="jww_010">図形がありません</string>
+    <string name="jww_011">ファイルの途中までしか読めませんでした</string>
+
+    <!-- cad/MeshFormats.kt -->
+    <string name="mesh_formats_001">大きすぎて表示できません(頂点が多すぎます)</string>
+    <string name="mesh_formats_002">点がありません</string>
+    <string name="mesh_formats_003">三角形がありません</string>
+    <string name="mesh_formats_004">3D モデルとして読めません</string>
+    <string name="mesh_formats_005">大きすぎて表示できません(%1$s MB まで)</string>
+    <string name="mesh_formats_006">OBJ に面がありません</string>
+    <string name="mesh_formats_007">OFF として読めません</string>
+    <string name="mesh_formats_008">OFF として読めません</string>
+    <string name="mesh_formats_009">OFF として読めません</string>
+    <string name="mesh_formats_010">OFF として読めません</string>
+    <string name="mesh_formats_011">OFF として読めません</string>
+    <string name="mesh_formats_012">OFF として読めません</string>
+    <string name="mesh_formats_013">OFF として読めません</string>
+    <string name="mesh_formats_014">OFF の頂点が足りません</string>
+    <string name="mesh_formats_015">OFF の頂点が読めません</string>
+    <string name="mesh_formats_016">OFF に面がありません</string>
+    <string name="mesh_formats_017">PLY のデータが途中で終わっています</string>
+    <string name="mesh_formats_018">PLY のデータが途中で終わっています</string>
+    <string name="mesh_formats_019">PLY として読めません</string>
+    <string name="mesh_formats_020">PLY として読めません</string>
+    <string name="mesh_formats_021">PLY のヘッダーが途中で終わっています</string>
+    <string name="mesh_formats_022">PLY の型が読めません</string>
+    <string name="mesh_formats_023">PLY の型が読めません</string>
+    <string name="mesh_formats_024">PLY の型が読めません</string>
+    <string name="mesh_formats_025">PLY の形式(%1$s)に対応していません</string>
+    <string name="mesh_formats_026">大きすぎて表示できません</string>
+    <string name="mesh_formats_027">PLY のデータが読めません</string>
+    <string name="mesh_formats_028">PLY に座標がありません</string>
+    <string name="mesh_formats_029">PLY に頂点がありません</string>
+    <string name="mesh_formats_030">3MF にモデルがありません</string>
+    <string name="mesh_formats_031">3MF として読めません</string>
+    <string name="mesh_formats_032">3MF に三角形がありません</string>
+
+    <!-- cad/ModelUi.kt -->
+    <string name="model_ui_001">読み込めません</string>
+    <string name="model_ui_002">読み込めません</string>
+    <string name="model_ui_003">大きすぎて読み込めません</string>
+    <plurals name="model_points"><item quantity="other">点 %1$d 個</item></plurals>
+    <plurals name="model_triangles"><item quantity="other">三角形 %1$d 枚</item></plurals>
+    <string name="model_ui_004">・幅 %1$s × 奥行 %2$s × 高さ %3$s</string>
+
+    <!-- cad/Stl.kt -->
+    <string name="stl_001">STLとして読めません</string>
+    <string name="stl_002">大きすぎて表示できません(%1$s MB まで)</string>
+    <string name="stl_003">大きすぎて表示できません(%1$s MB まで)</string>
+    <string name="stl_004">三角形がありません</string>
+    <string name="stl_005">三角形がありません</string>
+    <string name="stl_006">STLとして読めません</string>
+    <string name="stl_007">三角形がありません</string>
+
+    <!-- web/ComicUi.kt -->
+    <string name="comic_ui_001">画像のページが見つかりません。メニューで「ファイル一覧」に切り替えると中身を見られます</string>
+    <string name="comic_ui_002">読み込めません</string>
+    <string name="comic_ui_003">読み込めません</string>
+    <string name="comic_ui_004">大きすぎて読み込めません</string>
+    <string name="comic_ui_005">このページは大きすぎて表示できません</string>
+    <string name="comic_ui_006">読み込めません</string>
+    <string name="comic_ui_007">このページを表示できません</string>
+    <string name="comic_ui_008">(右から左へ)</string>
+    <string name="comic_ui_009">(左から右へ)</string>
+
+    <!-- web/Epub.kt -->
+    <string name="epub_001">EPUBとして読めません(META-INF/container.xml がありません)</string>
+    <string name="epub_002">EPUBとして読めません(本の目録が見つかりません)</string>
+    <string name="epub_003">EPUBとして読めません(目録 %1$s がありません)</string>
+
+    <!-- web/EpubUi.kt -->
+    <string name="epub_ui_001">読み込めません</string>
+    <string name="epub_ui_002">本文が見つかりません。メニューで「ファイル一覧」に切り替えると中身を見られます</string>
+    <string name="epub_ui_003">EPUBとして読めません</string>
+    <string name="epub_ui_004">EPUBとして読めません(%1$s)</string>
+    <string name="epub_ui_005">大きすぎて読み込めません</string>
+    <string name="epub_ui_006">前の章</string>
+    <string name="epub_ui_007">目次</string>
+    <string name="epub_ui_008">本の情報</string>
+    <string name="epub_ui_009">次の章</string>
+    <string name="epub_ui_010">目次</string>
+    <string name="epub_ui_011">閉じる</string>
+    <string name="epub_ui_012">題名</string>
+    <string name="epub_ui_013">著者</string>
+    <string name="epub_ui_014">、</string>
+    <string name="epub_ui_015">出版社</string>
+    <string name="epub_ui_016">言語</string>
+    <string name="epub_ui_017">日付</string>
+    <string name="epub_ui_018">識別子</string>
+    <string name="epub_ui_019">章の数</string>
+    <string name="epub_ui_020">読む向き</string>
+    <string name="epub_ui_021">右から左(縦書きの本など)</string>
+    <string name="epub_ui_022">左から右</string>
+    <string name="epub_ui_023">ファイル</string>
+    <string name="epub_ui_024">ファイルの大きさ</string>
+    <string name="epub_ui_025">本の情報</string>
+    <string name="epub_ui_026">閉じる</string>
+    <string name="epub_ui_027">リンクを開く?</string>
+    <string name="epub_ui_028">開く</string>
+    <string name="epub_ui_029">キャンセル</string>
+
+    <!-- web/HtmlUi.kt -->
+    <string name="html_ui_001">読み込めません</string>
+    <string name="html_ui_002">大きすぎて読み込めません</string>
+    <string name="html_ui_003">リンクを開く?</string>
+    <string name="html_ui_004">開く</string>
+    <string name="html_ui_005">キャンセル</string>
+
+    <!-- web/MhtmlUi.kt -->
+    <string name="mhtml_ui_001">大きすぎて開けません(%1$s MB まで)。メニューで「ソース」に切り替えてください</string>
+    <string name="mhtml_ui_002">ウェブアーカイブ(Safari の保存形式)として読めません</string>
+    <string name="mhtml_ui_003">MHTML(ウェブページの保存形式)として読めません</string>
+    <string name="mhtml_ui_004">本文の HTML が見つかりません。メニューで「ソース」に切り替えると中身を見られます</string>
+    <string name="mhtml_ui_005">読み込めません</string>
+    <string name="mhtml_ui_006">大きすぎて読み込めません</string>
+    <string name="mhtml_ui_007">リンクを開く?</string>
+    <string name="mhtml_ui_008">開く</string>
+    <string name="mhtml_ui_009">キャンセル</string>
+
+    <!-- apple/AppleUi.kt -->
+    <string name="apple_ui_001">このファイルを開けません</string>
+    <string name="apple_ui_002">読み込めません</string>
+    <string name="apple_ui_003">iWorkの書類(zip)として読めません。中身が別の形式かもしれません</string>
+    <string name="apple_ui_004">読み込めません</string>
+    <string name="apple_ui_005">iWorkの書類として読めません(%1$s)</string>
+    <string name="apple_ui_006">大きすぎて読み込めません</string>
+    <string name="apple_ui_007">%1$s の書類</string>
+    <string name="apple_ui_008">古い形式(iWork \'09 以前)</string>
+    <string name="apple_ui_009">iWork \'13 以降の形式</string>
+    <string name="apple_ui_010">プレビュー</string>
+    <string name="apple_ui_011">書類に保存されているプレビュー画像(1 ページ目)</string>
+    <string name="apple_ui_012">プレビュー画像は入っていません</string>
+    <string name="apple_ui_013">全文のPDFを開く(書類に入っているプレビュー)</string>
+    <string name="apple_ui_014">中のファイルの一覧を見る</string>
+    <string name="apple_ui_015">情報</string>
+    <string name="apple_ui_016">ファイル</string>
+    <string name="apple_ui_017">%1$s・%2$s</string>
+    <plurals name="apple_media_info"><item quantity="other">%1$d 個・%2$s</item></plurals>
+    <string name="apple_ui_018">画像などの素材</string>
+    <string name="apple_ui_019">バージョンの記録</string>
+    <plurals name="apple_texts_heading"><item quantity="other">書類の中の文字(%1$d 行)</item></plurals>
+    <string name="apple_ui_020">なし</string>
+    <string name="apple_ui_021">順番は書類の見た目と違うことがあります</string>
+    <plurals name="apple_texts_more"><item quantity="other">…ほか %1$d 行</item></plurals>
+    <string name="apple_ui_022">PDFを取り出せません</string>
+    <string name="apple_ui_023">読み込めません</string>
+    <string name="apple_ui_024">ipa(zip)として読めません</string>
+    <string name="apple_ui_025">読み込めません</string>
+    <string name="apple_ui_026">iPhoneアプリとして読めません(%1$s)</string>
+    <string name="apple_ui_027">iPhone / iPad のアプリです。Android にはインストールできません(中身を見るだけです)。</string>
+    <string name="apple_ui_028">バージョン</string>
+    <string name="apple_ui_029">必要な iOS</string>
+    <string name="apple_ui_030">%1$s 以上</string>
+    <string name="apple_ui_031">不明</string>
+    <string name="apple_ui_032">対象の機種</string>
+    <string name="apple_ui_033">不明</string>
+    <string name="apple_ui_034">実行ファイル</string>
+    <string name="apple_ui_035">不明</string>
+    <string name="apple_ui_036">署名</string>
+    <string name="apple_ui_037">署名の記録(_CodeSignature)があります</string>
+    <string name="apple_ui_038">署名の記録がありません</string>
+    <string name="apple_ui_039">プロファイル</string>
+    <plurals name="apple_ipa_file"><item quantity="other">%2$s・%1$d 個</item></plurals>
+    <string name="apple_ui_040">ファイル</string>
+    <string name="apple_ui_041">裏での動作</string>
+    <string name="apple_ui_042">URLスキーム</string>
+    <string name="apple_ui_043">中のファイルの一覧を見る</string>
+    <string name="apple_ui_044">使う許可(%1$s)</string>
+    <string name="apple_ui_045">なし</string>
+
+    <!-- apple/Iwork.kt -->
+    <string name="iwork_001">Snappyの先頭が読めません</string>
+    <string name="iwork_002">展開後が大きすぎます</string>
+    <string name="iwork_003">Snappyの長さが足りません</string>
+    <string name="iwork_004">Snappyの文字が足りません</string>
+    <string name="iwork_005">Snappyが途中で切れています</string>
+    <string name="iwork_006">Snappyが途中で切れています</string>
+    <string name="iwork_007">Snappyが途中で切れています</string>
+    <string name="iwork_008">Snappyの参照が壊れています</string>
+    <string name="iwork_009">Snappyの展開後の大きさが合いません</string>
+    <string name="iwork_010">iWorkの書類として読めません(Index/*.iwa も index.xml もプレビューもありません)</string>
+    <string name="iwork_011">ファイル形式のバージョン: %1$s</string>
+    <string name="iwork_012">本文のXMLが大きすぎて、文字は取り出していません</string>
+    <string name="iwork_013">文字を取り出せなかった(%1$s)</string>
+    <string name="iwork_014">文字は見つかりませんでした</string>
+    <string name="iwork_015">カメラ</string>
+    <string name="iwork_016">マイク</string>
+    <string name="iwork_017">写真</string>
+    <string name="iwork_018">写真の追加</string>
+    <string name="iwork_019">位置情報(使用中)</string>
+    <string name="iwork_020">位置情報(常に)</string>
+    <string name="iwork_021">位置情報(常に・使用中)</string>
+    <string name="iwork_022">連絡先</string>
+    <string name="iwork_023">カレンダー</string>
+    <string name="iwork_024">リマインダー</string>
+    <string name="iwork_025">Bluetooth(周辺機器)</string>
+    <string name="iwork_026">モーション</string>
+    <string name="iwork_027">ヘルスケア(読み取り)</string>
+    <string name="iwork_028">ヘルスケア(書き込み)</string>
+    <string name="iwork_029">音声認識</string>
+    <string name="iwork_030">ローカルネットワーク</string>
+    <string name="iwork_031">トラッキング</string>
+    <string name="iwork_032">ミュージック</string>
+    <string name="iwork_033">iPhoneアプリ(Payload/〜.app/Info.plist)が見つかりません</string>
+    <string name="iwork_034">Info.plist を読めません</string>
+    <string name="iwork_035">種類%1$s</string>
+    <string name="iwork_036">チーム: %1$s</string>
+    <string name="iwork_037">期限: %1$s</string>
+
+    <!-- apple/Pkpass.kt -->
+    <string name="pkpass_001">QRコード</string>
+    <string name="pkpass_002">Aztecコード</string>
+    <string name="pkpass_003">チケット</string>
+    <string name="pkpass_004">搭乗券・乗車券</string>
+    <string name="pkpass_005">クーポン</string>
+    <string name="pkpass_006">ストアカード</string>
+    <string name="pkpass_007">パス</string>
+    <string name="pkpass_008">パス(pass.json)が見つかりません</string>
+    <string name="pkpass_009">pass.json の形が違う</string>
+
+    <!-- apple/PkpassUi.kt -->
+    <string name="pkpass_ui_001">このファイルを開けません</string>
+    <string name="pkpass_ui_002">読み込めません</string>
+    <string name="pkpass_ui_003">パスとして読めません(%1$s)</string>
+    <string name="pkpass_ui_004">%1$s(絵は出さず、読み取り用の文字を表示)</string>
+    <string name="pkpass_ui_005">%1$s%2$s</string>
+    <string name="pkpass_ui_006">説明</string>
+    <string name="pkpass_ui_007">発行元</string>
+    <string name="pkpass_ui_008">乗り物</string>
+    <string name="pkpass_ui_009">シリアル番号</string>
+    <string name="pkpass_ui_010">表示する日時</string>
+    <string name="pkpass_ui_011">有効期限</string>
+    <string name="pkpass_ui_012">場所</string>
+    <string name="pkpass_ui_013">裏面の項目</string>
+
+    <!-- apple/Plist.kt -->
+    <string name="plist_001">バイナリplistとして読めません</string>
+    <string name="plist_002">バイナリplistの末尾の情報が読めません</string>
+    <string name="plist_003">バイナリplistの入れ子が深すぎるか、壊れています</string>
+    <string name="plist_004">バイナリplistの位置が壊れています</string>
+    <string name="plist_005">バイナリplistのデータが壊れています</string>
+    <string name="plist_006">バイナリplistの文字が壊れています</string>
+    <string name="plist_007">バイナリplistの文字が壊れています</string>
+    <string name="plist_008">バイナリplistの配列が壊れています</string>
+    <string name="plist_009">バイナリplistの辞書が壊れています</string>
+    <string name="plist_010">バイナリplistの未知の型(0x%1$s)があります</string>
+    <string name="plist_011">plist(XML)として読めません</string>
+    <string name="plist_012">plistの中身が空</string>
+    <string name="plist_013">plistの入れ子が深すぎます</string>
+    <string name="plist_014">"…(全体 "</string>
+    <string name="plist_015">" バイト)"</string>
+    <string name="plist_016">バイナリplist→XML</string>
+    <string name="plist_017">署名つきplistの中身</string>
+    <string name="plist_018">署名つきplistの中身</string>
+
+    <!-- data/FontInfo.kt -->
+    <string name="font_info_001">英数字(ABC abc 123)</string>
+    <string name="font_info_002">ひらがな</string>
+    <string name="font_info_003">カタカナ</string>
+    <string name="font_cover_kanji">漢字(常用)</string>
+    <string name="font_cover_symbols">全角記号(。、「」)</string>
+    <string name="font_info_004">ハングル</string>
+    <string name="font_info_005">キリル文字</string>
+    <string name="font_info_006">ギリシャ文字</string>
+    <string name="font_info_007">アクセントつきラテン文字(é ü ñ)</string>
+
+    <!-- data/FontUi.kt -->
+    <string name="font_ui_001">大きすぎて開けません(%1$s MB まで)</string>
+    <string name="font_ui_002">一時ファイルを作れません</string>
+    <string name="font_ui_003">フォントのファイルとして読めません</string>
+    <string name="font_ui_004">開けません</string>
+    <string name="font_ui_005">開けません(%1$s)</string>
+    <string name="font_ui_006">大きすぎて読み込めません</string>
+    <string name="font_ui_007">「%1$s」を取り込んでいます</string>
+    <string name="font_ui_008">「%1$s」の取り込みが終わりました</string>
+    <string name="font_ui_009">「%1$s」を取り込めませんでした</string>
+    <string name="font_ui_010">見本の文字(書き換えられます)</string>
+    <string name="font_ui_011">文字の見本</string>
+    <string name="font_ui_012">情報</string>
+    <string name="font_ui_013">ファミリー</string>
+    <string name="font_ui_014">スタイル</string>
+    <string name="font_ui_015">フルネーム</string>
+    <string name="font_ui_016">日本語名</string>
+    <string name="font_ui_017">バージョン</string>
+    <string name="font_ui_018">グリフ(字の形)の数</string>
+    <string name="font_ui_019">太さ</string>
+    <string name="font_ui_020">不明</string>
+    <string name="font_ui_021">形式</string>
+    <string name="font_ui_022">OpenType(CFF の輪郭)</string>
+    <string name="font_ui_023">TrueType(glyf の輪郭)</string>
+    <string name="font_ui_024">・可変フォント(標準の太さで表示)</string>
+    <string name="font_ui_025">文字の幅</string>
+    <string name="font_ui_026">等幅</string>
+    <string name="font_ui_027">プロポーショナル</string>
+    <string name="font_ui_028">ファイル</string>
+    <string name="font_ui_029">ファイルの大きさ</string>
+    <string name="font_ui_030">デザイナー</string>
+    <string name="font_ui_031">ライセンス</string>
+    <string name="font_ui_032">著作権</string>
+    <plurals name="font_collection"><item quantity="other">%1$d 個入り(先頭だけ表示しています)</item></plurals>
+    <string name="font_ui_033">フォントの数</string>
+    <string name="font_ui_034">対応している文字</string>
+
+    <!-- data/SqlFormat.kt -->
+    <plurals name="blob_size"><item quantity="other">BLOB %1$,d バイト</item></plurals>
+
+    <!-- data/SqliteUi.kt -->
+    <string name="sqlite_ui_001">大きすぎて開けません(%1$s MB まで)</string>
+    <string name="sqlite_ui_002">一時ファイルを作れません</string>
+    <string name="sqlite_ui_003">SQLiteのデータベースではありません(別の形式か、暗号化されているかもしれません)</string>
+    <string name="sqlite_ui_004">開けません</string>
+    <string name="sqlite_ui_005">開けません(%1$s)</string>
+    <string name="sqlite_ui_006">大きすぎて読み込めません</string>
+    <string name="sqlite_ui_007">「%1$s」を取り込んでいます</string>
+    <string name="sqlite_ui_008">「%1$s」の取り込みが終わりました</string>
+    <string name="sqlite_ui_009">「%1$s」を取り込めませんでした</string>
+    <plurals name="sqlite_schema_title"><item quantity="other">スキーマ(作り方)・%1$d 個</item></plurals>
+    <plurals name="sqlite_rows_limited"><item quantity="other">・%1$d 行(先頭の %2$d 行まで)</item></plurals>
+    <plurals name="sqlite_rows_plain"><item quantity="other">・%1$d 行</item></plurals>
+    <string name="sqlite_ui_010">検索の結果</string>
+    <string name="sqlite_table_title">表 %1$s</string>
+    <string name="sqlite_view_title">ビュー %1$s</string>
+    <plurals name="sqlite_rows_suffix"><item quantity="other">・%1$,d 行</item></plurals>
+    <plurals name="sqlite_cols_suffix"><item quantity="other">・%1$d 列</item></plurals>
+    <string name="sqlite_ui_011">結果がありません</string>
+    <string name="sqlite_ui_012">行がありません(列: %1$s)</string>
+    <plurals name="sqlite_prev_rows"><item quantity="other">前の %1$d 行</item></plurals>
+    <plurals name="sqlite_page_range"><item quantity="other">%2$d〜%3$d / %1$,d 行</item></plurals>
+    <plurals name="sqlite_next_rows"><item quantity="other">次の %1$d 行</item></plurals>
+    <string name="sqlite_ui_013">スキーマ</string>
+    <string name="sqlite_ui_014">SQL検索…</string>
+    <string name="sqlite_ui_015">SQLで検索</string>
+    <string name="sqlite_ui_016">読み取りだけの検索(SELECT など)を 1 つ実行できます。データは変わりません。</string>
+    <string name="sqlite_ui_017">読み取りだけの検索(SELECT など)を 1 つ書いて</string>
+    <string name="sqlite_ui_018">実行</string>
+    <string name="sqlite_ui_019">閉じる</string>
+    <string name="sqlite_ui_020">(自動で作られたもの)</string>
+</resources>

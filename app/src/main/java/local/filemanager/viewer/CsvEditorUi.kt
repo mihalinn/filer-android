@@ -66,7 +66,7 @@ private fun loadCsv(fs: Fs, item: FileItem): CsvLoad = when (val l = loadForEdit
     is EditLoad.Ok -> {
         val ext = FileOps.extensionOf(item.name)
         val table = Csv.parse(l.doc.text, Csv.detectDelimiter(l.doc.text, ext))
-        if (table.truncated) CsvLoad.Fail("行が多すぎて、表では編集できません(5万行まで)。「テキストとして編集」を使ってください")
+        if (table.truncated) CsvLoad.Fail(Txt(R.string.csv_editor_ui_001))
         else CsvLoad.Ok(l.doc, table, l.stamp)
     }
     is EditLoad.Fail -> CsvLoad.Fail(l.message)
@@ -74,11 +74,11 @@ private fun loadCsv(fs: Fs, item: FileItem): CsvLoad = when (val l = loadForEdit
 }
 
 private fun delimiterLabel(d: Char) = when (d) {
-    ',' -> "カンマ区切り"
-    '\t' -> "タブ区切り"
-    ';' -> "セミコロン区切り"
-    '|' -> "縦線区切り"
-    else -> "区切り「$d」"
+    ',' -> Txt(R.string.csv_editor_ui_002)
+    '\t' -> Txt(R.string.csv_editor_ui_003)
+    ';' -> Txt(R.string.csv_editor_ui_004)
+    '|' -> Txt(R.string.csv_editor_ui_005)
+    else -> Txt(R.string.csv_editor_ui_006, d)
 }
 
 // ---------------------------------------------------------------- 画面
@@ -96,7 +96,7 @@ internal fun CsvEditorScreen(fs: Fs, item: FileItem, headerOn: Boolean, fontSp: 
             CsvLoad.Busy -> CircularProgressIndicator(Modifier.align(Alignment.Center), color = Pv.text)
             is CsvLoad.Fail -> Column(Modifier.align(Alignment.Center).padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(l.message, color = Pv.text)
-                TextButton(onClick = onClose) { Text("戻る") }
+                TextButton(onClick = onClose) { Text(Txt(R.string.csv_editor_ui_007)) }
             }
             is CsvLoad.Ok -> CsvEditorBody(fs, item, l.doc, l.table, l.stamp, headerOn, fontSp, onSaved, onClose)
         }
@@ -170,7 +170,7 @@ private fun CsvEditorBody(
                     }
                     SaveResult.Changed -> overwriteClose = thenClose
                 }
-            }.onFailure { message = "保存できませんでした\n" + (it.message ?: it.javaClass.simpleName) }
+            }.onFailure { message = Txt(R.string.csv_editor_ui_008) + (it.message ?: it.javaClass.simpleName) }
         }
     }
 
@@ -186,10 +186,10 @@ private fun CsvEditorBody(
     Column(Modifier.fillMaxSize().then(kb.container).statusBarsPadding().padding(bottom = kb.bottom)) {
         // 上のバー
         Row(Modifier.fillMaxWidth().background(Pv.bar).height(56.dp), verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = { requestClose() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "戻る", tint = Pv.barText) }
+            IconButton(onClick = { requestClose() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, Txt(R.string.csv_editor_ui_009), tint = Pv.barText) }
             Column(Modifier.weight(1f)) {
                 Text(item.name, color = Pv.barText, fontSize = 16.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                Text(if (modified) "未保存の変更あり" else "表で編集中", color = if (modified) Pv.warn else Pv.barSub, fontSize = 12.sp)
+                Text(if (modified) Txt(R.string.csv_editor_ui_010) else Txt(R.string.csv_editor_ui_011), color = if (modified) Pv.warn else Pv.barSub, fontSize = 12.sp)
             }
             val canUndo = rev >= 0 && (sheet.canUndo || pending)
             val canRedo = rev >= 0 && sheet.canRedo
@@ -199,16 +199,16 @@ private fun CsvEditorBody(
                     if (sheet.undo()) refreshSel(sel?.first ?: 0, sel?.second ?: 0)
                 },
                 enabled = canUndo,
-            ) { Icon(Icons.AutoMirrored.Filled.Undo, "元に戻す", tint = if (canUndo) Pv.barText else Pv.barSub.copy(alpha = 0.4f)) }
+            ) { Icon(Icons.AutoMirrored.Filled.Undo, Txt(R.string.csv_editor_ui_012), tint = if (canUndo) Pv.barText else Pv.barSub.copy(alpha = 0.4f)) }
             IconButton(
                 onClick = {
                     commit()
                     if (sheet.redo()) refreshSel(sel?.first ?: 0, sel?.second ?: 0)
                 },
                 enabled = canRedo,
-            ) { Icon(Icons.AutoMirrored.Filled.Redo, "やり直す", tint = if (canRedo) Pv.barText else Pv.barSub.copy(alpha = 0.4f)) }
+            ) { Icon(Icons.AutoMirrored.Filled.Redo, Txt(R.string.csv_editor_ui_013), tint = if (canRedo) Pv.barText else Pv.barSub.copy(alpha = 0.4f)) }
             IconButton(onClick = { save(false) }, enabled = modified && !saving) {
-                Icon(Icons.Default.Save, "保存", tint = if (modified && !saving) Pv.accent else Pv.barSub.copy(alpha = 0.4f))
+                Icon(Icons.Default.Save, Txt(R.string.csv_editor_ui_014), tint = if (modified && !saving) Pv.accent else Pv.barSub.copy(alpha = 0.4f))
             }
         }
 
@@ -233,14 +233,14 @@ private fun CsvEditorBody(
                     modifier = Modifier.fillMaxWidth().background(Pv.searchField, RoundedCornerShape(6.dp)).padding(10.dp),
                     decorationBox = { inner ->
                         Box {
-                            if (s == null) Text("セルを選んでください", color = Color.Gray, fontSize = 16.sp)
+                            if (s == null) Text(Txt(R.string.csv_editor_ui_015), color = Color.Gray, fontSize = 16.sp)
                             inner()
                         }
                     },
                 )
             }
             IconButton(onClick = { commit() }, enabled = s != null && pending) {
-                Icon(Icons.Default.Check, "確定", tint = if (s != null && pending) Pv.accent else Pv.barSub.copy(alpha = 0.4f))
+                Icon(Icons.Default.Check, Txt(R.string.csv_editor_ui_016), tint = if (s != null && pending) Pv.accent else Pv.barSub.copy(alpha = 0.4f))
             }
         }
 
@@ -265,16 +265,16 @@ private fun CsvEditorBody(
                     },
                 ) { Text(label, color = if (enabled) Pv.barText else Pv.barSub.copy(alpha = 0.4f), fontSize = 13.sp) }
             }
-            Op("上に行を足す") { r, c -> sheet.insertRow(r); refreshSel(r, c) }
-            Op("下に行を足す") { r, c -> sheet.insertRow(r + 1); refreshSel(r + 1, c) }
-            Op("左に列を足す") { r, c -> sheet.insertColumn(c); refreshSel(r, c) }
-            Op("右に列を足す") { r, c -> sheet.insertColumn(c + 1); refreshSel(r, c + 1) }
-            Op("行を消す", on && sheet.rowCount > 1) { r, c -> if (sheet.deleteRow(r)) refreshSel(r, c) }
-            Op("列を消す", on && sheet.columnCount > 1) { r, c -> if (sheet.deleteColumn(c)) refreshSel(r, c) }
+            Op(Txt(R.string.csv_editor_ui_017)) { r, c -> sheet.insertRow(r); refreshSel(r, c) }
+            Op(Txt(R.string.csv_editor_ui_018)) { r, c -> sheet.insertRow(r + 1); refreshSel(r + 1, c) }
+            Op(Txt(R.string.csv_editor_ui_019)) { r, c -> sheet.insertColumn(c); refreshSel(r, c) }
+            Op(Txt(R.string.csv_editor_ui_020)) { r, c -> sheet.insertColumn(c + 1); refreshSel(r, c + 1) }
+            Op(Txt(R.string.csv_editor_ui_021), on && sheet.rowCount > 1) { r, c -> if (sheet.deleteRow(r)) refreshSel(r, c) }
+            Op(Txt(R.string.csv_editor_ui_022), on && sheet.columnCount > 1) { r, c -> if (sheet.deleteColumn(c)) refreshSel(r, c) }
         }
         Text(
-            "${sheet.rowCount} 行 × ${sheet.columnCount} 列・${delimiterLabel(delimiter)}・${doc.enc.label}・${doc.eol.name}" +
-                if (doc.mixedEol) "・改行がまざっていました(そろえて保存します)" else "",
+            Txt(R.string.csv_editor_status, sheet.rowCount, sheet.columnCount, delimiterLabel(delimiter), doc.enc.label, doc.eol.name) +
+                if (doc.mixedEol) Txt(R.string.csv_editor_ui_023) else "",
             color = Pv.barSub, fontSize = 12.sp, maxLines = 1,
             modifier = Modifier.fillMaxWidth().background(Pv.bar).navigationBarsPadding().padding(horizontal = 12.dp, vertical = 4.dp),
         )
@@ -283,12 +283,12 @@ private fun CsvEditorBody(
     if (askExit) {
         AlertDialog(
             onDismissRequest = { askExit = false },
-            title = { Text("保存していない変更があります") },
-            confirmButton = { TextButton(onClick = { askExit = false; save(true) }) { Text("保存して閉じる") } },
+            title = { Text(Txt(R.string.csv_editor_ui_024)) },
+            confirmButton = { TextButton(onClick = { askExit = false; save(true) }) { Text(Txt(R.string.csv_editor_ui_025)) } },
             dismissButton = {
                 Row {
-                    TextButton(onClick = { askExit = false; onClose() }) { Text("保存しません") }
-                    TextButton(onClick = { askExit = false }) { Text("続ける") }
+                    TextButton(onClick = { askExit = false; onClose() }) { Text(Txt(R.string.csv_editor_ui_026)) }
+                    TextButton(onClick = { askExit = false }) { Text(Txt(R.string.csv_editor_ui_027)) }
                 }
             },
         )
@@ -296,17 +296,17 @@ private fun CsvEditorBody(
     overwriteClose?.let { thenClose ->
         AlertDialog(
             onDismissRequest = { overwriteClose = null },
-            title = { Text("ファイルが変わっています") },
-            text = { Text("読み込んだあとに、ほかでこのファイルが書き換えられました。上書きすると、その変更は消えます") },
-            confirmButton = { TextButton(onClick = { overwriteClose = null; save(thenClose, force = true) }) { Text("上書きする") } },
-            dismissButton = { TextButton(onClick = { overwriteClose = null }) { Text("やめる") } },
+            title = { Text(Txt(R.string.csv_editor_ui_028)) },
+            text = { Text(Txt(R.string.csv_editor_ui_029)) },
+            confirmButton = { TextButton(onClick = { overwriteClose = null; save(thenClose, force = true) }) { Text(Txt(R.string.csv_editor_ui_030)) } },
+            dismissButton = { TextButton(onClick = { overwriteClose = null }) { Text(Txt(R.string.csv_editor_ui_031)) } },
         )
     }
     message?.let { m ->
         AlertDialog(
             onDismissRequest = { message = null },
             text = { Text(m) },
-            confirmButton = { TextButton(onClick = { message = null }) { Text("閉じる") } },
+            confirmButton = { TextButton(onClick = { message = null }) { Text(Txt(R.string.csv_editor_ui_032)) } },
         )
     }
 }

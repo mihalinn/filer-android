@@ -123,18 +123,18 @@ object ReadFormat {
     /** 「42.3 MB / 120 MB(35%)」。大きさが分からないか、超えたときは「42.3 MB 読み込み済み」。 */
     fun amount(read: Long, total: Long): String =
         if (total > 0 && read <= total) "${FileOps.formatSize(read)} / ${FileOps.formatSize(total)}(${(read * 100 / total).coerceIn(0, 100)}%)"
-        else "${FileOps.formatSize(read)} 読み込み済み"
+        else Txt(R.string.read_progress_001, FileOps.formatSize(read))
 
-    fun speed(bytesPerSec: Double): String = "${FileOps.formatSize(bytesPerSec.toLong())}/秒"
+    fun speed(bytesPerSec: Double): String = Txt(R.string.read_progress_002, FileOps.formatSize(bytesPerSec.toLong()))
 
     /** 「あと約 23 秒」。速さが分からない(ほぼ 0)ときは null。 */
     fun eta(read: Long, total: Long, bytesPerSec: Double): String? {
         if (total <= 0 || read >= total || bytesPerSec < 1024) return null
         val sec = Math.ceil((total - read) / bytesPerSec).toLong()
         return when {
-            sec < 60 -> "あと約 ${sec} 秒"
-            sec < 3600 -> "あと約 ${sec / 60} 分 ${sec % 60} 秒"
-            else -> "あと約 ${sec / 3600} 時間 ${sec % 3600 / 60} 分"
+            sec < 60 -> Txt(R.string.eta_seconds, sec)
+            sec < 3600 -> Txt(R.string.eta_minutes, sec / 60, sec % 60)
+            else -> Txt(R.string.eta_hours, sec / 3600, sec % 3600 / 60)
         }
     }
 }
@@ -176,9 +176,9 @@ internal fun ReadProgressCard(tracker: ReadTracker, modifier: Modifier = Modifie
     ) {
         Column(Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
             val title = when {
-                i.read == 0L -> "NAS に接続して、読み込みを始めています…"
-                i.waitingMs > 4000 -> "NAS からの返事を待っています…"
-                else -> "NAS から読み込み中" + if (i.others > 0) "(ほか ${i.others} 件)" else ""
+                i.read == 0L -> Txt(R.string.read_progress_003)
+                i.waitingMs > 4000 -> Txt(R.string.read_progress_004)
+                else -> if (i.others > 0) Txt.n(R.plurals.read_progress_with_others, i.others) else Txt(R.string.read_progress_plain)
             }
             Text(title, color = Pv.barText, fontSize = 14.sp)
             Text(i.name, color = Pv.barSub, fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -192,7 +192,7 @@ internal fun ReadProgressCard(tracker: ReadTracker, modifier: Modifier = Modifie
             if (i.read > 0) Text(ReadFormat.amount(i.read, i.total), color = Pv.barText, fontSize = 13.sp)
             val speedText = if (i.bytesPerSec >= 1024) ReadFormat.speed(i.bytesPerSec) else null
             val etaText = ReadFormat.eta(i.read, i.total, i.bytesPerSec)
-            val tail = listOfNotNull(speedText, etaText).joinToString("・")
+            val tail = listOfNotNull(speedText, etaText).joinToString(Txt(R.string.sep_dot))
             if (tail.isNotEmpty()) Text(tail, color = Pv.barSub, fontSize = 12.sp)
         }
     }

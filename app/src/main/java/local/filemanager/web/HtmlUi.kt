@@ -47,9 +47,9 @@ private fun readHtml(fs: Fs, item: FileItem): HtmlLoad = try {
     val (bytes, truncated) = fs.open(item.path).use { TextDecode.readUpTo(it, HTML_MAX_BYTES) }
     HtmlLoad.Ok(TextDecode.decode(bytes, truncated).text)
 } catch (e: Exception) {
-    HtmlLoad.Fail(e.message ?: "読み込めません")
+    HtmlLoad.Fail(e.message ?: Txt(R.string.html_ui_001))
 } catch (e: OutOfMemoryError) {
-    HtmlLoad.Fail("大きすぎて読み込めません")
+    HtmlLoad.Fail(Txt(R.string.html_ui_002))
 }
 
 private fun empty(status: Int, reason: String) =
@@ -166,10 +166,10 @@ private fun HtmlWeb(fs: Fs, item: FileItem, source: String, js: Boolean, net: Bo
     pending?.let { url ->
         AlertDialog(
             onDismissRequest = { pending = null },
-            title = { Text("リンクを開く?") },
+            title = { Text(Txt(R.string.html_ui_003)) },
             text = { Text(url, fontSize = 13.sp) },
-            confirmButton = { TextButton(onClick = { runCatching { uri.openUri(url) }; pending = null }) { Text("開く") } },
-            dismissButton = { TextButton(onClick = { pending = null }) { Text("キャンセル") } },
+            confirmButton = { TextButton(onClick = { runCatching { uri.openUri(url) }; pending = null }) { Text(Txt(R.string.html_ui_004)) } },
+            dismissButton = { TextButton(onClick = { pending = null }) { Text(Txt(R.string.html_ui_005)) } },
         )
     }
 }

@@ -93,7 +93,7 @@ object Thumbs {
         private var used = 0L
 
         override fun readAt(position: Long, buffer: ByteArray, offset: Int, size: Int): Int {
-            if (used > budget) throw IOException("サムネイルのために読む量の上限を超えました")
+            if (used > budget) throw IOException(Txt(R.string.thumbs_001))
             val n = src.readAt(position, buffer, offset, size)
             if (n > 0) used += n
             return n

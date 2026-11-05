@@ -43,12 +43,12 @@ internal fun UnknownPane(
     }
     Column(Modifier.fillMaxSize().belowBars()) {
         Column(Modifier.fillMaxWidth().padding(12.dp).background(Pv.panel, RoundedCornerShape(10.dp)).padding(14.dp)) {
-            Text("ファイルの種類(推測): ${guess.label}", color = Pv.text, fontSize = 15.sp)
+            Text(Txt(R.string.unknown_ui_001, guess.label), color = Pv.text, fontSize = 15.sp)
             Text(
-                "大きさ ${FileOps.formatSize(item.size)}" + (guess.ext?.let { "・拡張子の候補: .$it" } ?: ""),
+                Txt(R.string.unknown_ui_002, FileOps.formatSize(item.size)) + (guess.ext?.let { Txt(R.string.unknown_ui_003, it) } ?: ""),
                 color = Pv.dim, fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp),
             )
-            TextButton(onClick = onExternal) { Text("他のアプリで開く") }
+            TextButton(onClick = onExternal) { Text(Txt(R.string.unknown_ui_004)) }
         }
     }
 }

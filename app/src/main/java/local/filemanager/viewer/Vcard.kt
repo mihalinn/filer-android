@@ -191,13 +191,15 @@ object Vcard {
         return sb.toString()
     }
 
-    private val typeLabels = mapOf(
-        "CELL" to "携帯", "HOME" to "自宅", "WORK" to "勤務先", "FAX" to "FAX", "VOICE" to "", "PREF" to "", "INTERNET" to "",
-        "MSG" to "", "PAGER" to "ポケベル", "VIDEO" to "ビデオ", "TEXT" to "",
+    private fun typeLabels() = mapOf(
+        "CELL" to Txt(R.string.vcard_001), "HOME" to Txt(R.string.vcard_002), "WORK" to Txt(R.string.vcard_003), "FAX" to "FAX", "VOICE" to "", "PREF" to "", "INTERNET" to "",
+        "MSG" to "", "PAGER" to Txt(R.string.vcard_004), "VIDEO" to Txt(R.string.vcard_005), "TEXT" to "",
     )
 
-    private fun typeText(p: Prop): String =
-        (p.params["TYPE"] ?: emptyList()).map { typeLabels[it.uppercase()] ?: it }.filter { it.isNotEmpty() }.distinct().joinToString("・")
+    private fun typeText(p: Prop): String {
+        val labels = typeLabels()
+        return (p.params["TYPE"] ?: emptyList()).map { labels[it.uppercase()] ?: it }.filter { it.isNotEmpty() }.distinct().joinToString(Txt(R.string.sep_dot))
+    }
 
     private fun build(props: List<Prop>): Contact {
         var fn = ""
@@ -215,29 +217,29 @@ object Vcard {
                 "N" -> nameParts = parts(v)
                 "ORG" -> org = parts(v).filter { it.isNotBlank() }.joinToString(" ")
                 "TITLE" -> title = unescape(v).trim()
-                "TEL" -> unescape(v).trim().takeIf { it.isNotEmpty() }?.let { fields.add(VField(label("電話", p), it.removePrefix("tel:"), VField.Kind.PHONE)) }
-                "EMAIL" -> unescape(v).trim().takeIf { it.isNotEmpty() }?.let { fields.add(VField(label("メール", p), it.removePrefix("mailto:"), VField.Kind.EMAIL)) }
+                "TEL" -> unescape(v).trim().takeIf { it.isNotEmpty() }?.let { fields.add(VField(label(Txt(R.string.vcard_006), p), it.removePrefix("tel:"), VField.Kind.PHONE)) }
+                "EMAIL" -> unescape(v).trim().takeIf { it.isNotEmpty() }?.let { fields.add(VField(label(Txt(R.string.vcard_007), p), it.removePrefix("mailto:"), VField.Kind.EMAIL)) }
                 "URL" -> unescape(v).trim().takeIf { it.isNotEmpty() }?.let { fields.add(VField(label("Web", p), it, VField.Kind.URL)) }
                 "ADR" -> {
                     // 私書箱;拡張;番地;市区町村;都道府県;郵便番号;国 → 日本の並び(〒、国、都道府県、市区町村、番地)
                     val a = parts(v).let { l -> List(7) { l.getOrElse(it) { "" }.trim() } }
-                    val zip = if (a[5].isNotEmpty()) "〒${a[5]} " else ""
+                    val zip = if (a[5].isNotEmpty()) Txt(R.string.vcard_008, a[5]) else ""
                     val body = listOf(a[6], a[4], a[3], a[2], a[1], a[0]).filter { it.isNotEmpty() }.joinToString(" ")
-                    if (zip.isNotEmpty() || body.isNotEmpty()) fields.add(VField(label("住所", p), (zip + body).trim()))
+                    if (zip.isNotEmpty() || body.isNotEmpty()) fields.add(VField(label(Txt(R.string.vcard_009), p), (zip + body).trim()))
                 }
-                "BDAY" -> unescape(v).trim().takeIf { it.isNotEmpty() }?.let { fields.add(VField("誕生日", it)) }
-                "NOTE" -> unescape(v).trim().takeIf { it.isNotEmpty() }?.let { fields.add(VField("メモ", it)) }
-                "NICKNAME" -> unescape(v).trim().takeIf { it.isNotEmpty() }?.let { fields.add(VField("ニックネーム", it)) }
+                "BDAY" -> unescape(v).trim().takeIf { it.isNotEmpty() }?.let { fields.add(VField(Txt(R.string.vcard_010), it)) }
+                "NOTE" -> unescape(v).trim().takeIf { it.isNotEmpty() }?.let { fields.add(VField(Txt(R.string.vcard_011), it)) }
+                "NICKNAME" -> unescape(v).trim().takeIf { it.isNotEmpty() }?.let { fields.add(VField(Txt(R.string.vcard_012), it)) }
                 "PHOTO", "LOGO" -> if (p.name == "PHOTO" && photo == null) photo = photoBytes(p)
                 else -> {}
             }
         }
-        if (title.isNotEmpty()) fields.add(0, VField("肩書", title))
+        if (title.isNotEmpty()) fields.add(0, VField(Txt(R.string.vcard_013), title))
         val name = fn.ifEmpty {
             // 姓 名 の順(日本語の並び)。「N」は 姓;名;ミドル;敬称(前);敬称(後)
             val l = List(5) { nameParts.getOrElse(it) { "" }.trim() }
             listOf(l[3], l[0], l[1], l[2], l[4]).filter { it.isNotEmpty() }.joinToString(" ")
-        }.ifEmpty { org }.ifEmpty { "(名前なし)" }
+        }.ifEmpty { org }.ifEmpty { Txt(R.string.vcard_014) }
         return Contact(name, org, fields, photo)
     }
 

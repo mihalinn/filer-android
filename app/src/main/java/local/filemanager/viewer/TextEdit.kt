@@ -6,20 +6,30 @@ import java.nio.charset.Charset
 import java.nio.charset.CodingErrorAction
 
 /** 保存するときの文字コード。 */
-enum class TextEnc(val label: String, val charset: Charset, val bom: ByteArray) {
+enum class TextEnc(private val plain: String, val charset: Charset, val bom: ByteArray) {
     UTF8("UTF-8", Charsets.UTF_8, byteArrayOf()),
-    UTF8_BOM("UTF-8(BOM付き)", Charsets.UTF_8, byteArrayOf(0xEF.toByte(), 0xBB.toByte(), 0xBF.toByte())),
+    UTF8_BOM("UTF-8", Charsets.UTF_8, byteArrayOf(0xEF.toByte(), 0xBB.toByte(), 0xBF.toByte())),
     SJIS("Shift_JIS", Charset.forName("windows-31j"), byteArrayOf()),
     EUC("EUC-JP", Charset.forName("EUC-JP"), byteArrayOf()),
-    UTF16LE("UTF-16 LE(BOM付き)", Charsets.UTF_16LE, byteArrayOf(0xFF.toByte(), 0xFE.toByte())),
-    UTF16BE("UTF-16 BE(BOM付き)", Charsets.UTF_16BE, byteArrayOf(0xFE.toByte(), 0xFF.toByte())),
+    UTF16LE("UTF-16 LE", Charsets.UTF_16LE, byteArrayOf(0xFF.toByte(), 0xFE.toByte())),
+    UTF16BE("UTF-16 BE", Charsets.UTF_16BE, byteArrayOf(0xFE.toByte(), 0xFF.toByte()));
+
+    /** 画面に出す名前。説明(BOM付きなど)は言語に合わせる。 */
+    val label: String get() = when (this) {
+        UTF8_BOM -> Txt(R.string.enc_utf8_bom)
+        UTF16LE -> Txt(R.string.enc_utf16le)
+        UTF16BE -> Txt(R.string.enc_utf16be)
+        else -> plain
+    }
 }
 
 /** 改行の形。 */
-enum class Eol(val label: String, val seq: String) {
+enum class Eol(private val plain: String, val seq: String) {
     CRLF("CRLF(Windows)", "\r\n"),
     LF("LF(Unix)", "\n"),
-    CR("CR(古いMac)", "\r"),
+    CR("CR", "\r");
+
+    val label: String get() = if (this == CR) Txt(R.string.eol_cr) else plain
 }
 
 /** 編集用に読み込んだ文字。text の改行は LF にそろえてある。 */
@@ -31,9 +41,9 @@ object TextFile {
     const val MAX_BYTES = 1024 * 1024
 
     fun parse(bytes: ByteArray): EditableText {
-        if (bytes.size > MAX_BYTES) throw OpException("大きすぎて編集できません(${MAX_BYTES / 1024 / 1024} MB まで)")
+        if (bytes.size > MAX_BYTES) throw OpException(Txt(R.string.text_edit_001, MAX_BYTES / 1024 / 1024))
         val utf16 = bytes.size >= 2 && ((bytes[0] == 0xFF.toByte() && bytes[1] == 0xFE.toByte()) || (bytes[0] == 0xFE.toByte() && bytes[1] == 0xFF.toByte()))
-        if (!utf16 && bytes.any { it == 0.toByte() }) throw OpException("文字のファイルではないので編集できません")
+        if (!utf16 && bytes.any { it == 0.toByte() }) throw OpException(Txt(R.string.text_edit_002))
         val r = TextDecode.decode(bytes)
         val enc = when {
             bytes.size >= 3 && bytes[0] == 0xEF.toByte() && bytes[1] == 0xBB.toByte() && bytes[2] == 0xBF.toByte() -> TextEnc.UTF8_BOM
@@ -46,7 +56,7 @@ object TextFile {
         // どの文字コードでも読めなかったときは「�」が混ざる。そのまま保存すると元のバイトが失われるので、断る
         if (r.text.indexOf('�') >= 0) {
             val back = runCatching { raw(r.text, enc) }.getOrNull()
-            if (back == null || !back.contentEquals(bytes)) throw OpException("文字コードを判別できないので編集できません")
+            if (back == null || !back.contentEquals(bytes)) throw OpException(Txt(R.string.text_edit_003))
         }
         var crlf = 0
         var lf = 0
@@ -91,7 +101,7 @@ object TextFile {
                 if (!probe.canEncode(s)) bad = s
                 i += n
             }
-            throw OpException("「${bad ?: "?"}」は ${enc.label} で表せません。文字コードを UTF-8 にして保存してください")
+            throw OpException(Txt(R.string.text_edit_004, bad ?: "?", enc.label))
         }
         val out = ByteArray(enc.bom.size + bb.remaining())
         System.arraycopy(enc.bom, 0, out, 0, enc.bom.size)

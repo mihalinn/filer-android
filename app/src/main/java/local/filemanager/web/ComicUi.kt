@@ -46,28 +46,28 @@ private fun openComic(ctx: android.content.Context, fs: Fs, item: FileItem): Com
     val pages = ComicPages.select(handle.source.entries)
     if (pages.isEmpty()) {
         handle.close()
-        ComicLoad.Fail("画像のページが見つかりません。メニューで「ファイル一覧」に切り替えると中身を見られます")
+        ComicLoad.Fail(Txt(R.string.comic_ui_001))
     } else {
         ComicLoad.Ok(ComicBook(handle, pages))
     }
 } catch (e: OpException) {
-    ComicLoad.Fail(e.message ?: "読み込めません")
+    ComicLoad.Fail(e.message ?: Txt(R.string.comic_ui_002))
 } catch (e: Exception) {
-    ComicLoad.Fail(e.message ?: "読み込めません")
+    ComicLoad.Fail(e.message ?: Txt(R.string.comic_ui_003))
 } catch (e: OutOfMemoryError) {
-    ComicLoad.Fail("大きすぎて読み込めません")
+    ComicLoad.Fail(Txt(R.string.comic_ui_004))
 }
 
 /** 1 ページ分を読む。書庫(7z・RAR・tar)は同時に 2 か所を読めないので、順番に読む。 */
 private fun loadPage(book: ComicBook, index: Int): ImageLoad {
     val e = book.pages[index]
-    if (e.size > COMIC_PAGE_MAX_BYTES) return ImageLoad.Fail("このページは大きすぎて表示できません")
+    if (e.size > COMIC_PAGE_MAX_BYTES) return ImageLoad.Fail(Txt(R.string.comic_ui_005))
     val bytes = try {
         synchronized(book.handle) { book.handle.source.open(e).use { it.readBytes() } }
     } catch (ex: Exception) {
-        return ImageLoad.Fail(ex.message ?: "読み込めません")
+        return ImageLoad.Fail(ex.message ?: Txt(R.string.comic_ui_006))
     }
-    return ImageDecode.decodeBytes(bytes, 3072)?.let { ImageLoad.Ok(it.asImageBitmap()) } ?: ImageLoad.Fail("このページを表示できません")
+    return ImageDecode.decodeBytes(bytes, 3072)?.let { ImageLoad.Ok(it.asImageBitmap()) } ?: ImageLoad.Fail(Txt(R.string.comic_ui_007))
 }
 
 /**
@@ -105,7 +105,7 @@ private fun ComicReader(book: ComicBook, rtl: Boolean, bars: Boolean, onTap: () 
         if (bars) {
             Column(Modifier.align(Alignment.BottomCenter).fillMaxWidth().background(Color(0xCC000000)).navigationBarsPadding().padding(horizontal = 12.dp, vertical = 6.dp)) {
                 Text(
-                    "${state.currentPage + 1} / $n  " + (if (rtl) "(右から左へ)" else "(左から右へ)"),
+                    "${state.currentPage + 1} / $n  " + (if (rtl) Txt(R.string.comic_ui_008) else Txt(R.string.comic_ui_009)),
                     color = Color.White, fontSize = 13.sp, modifier = Modifier.align(Alignment.CenterHorizontally),
                 )
                 if (n > 1) {

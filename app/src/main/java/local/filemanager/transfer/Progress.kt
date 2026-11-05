@@ -1,12 +1,29 @@
 package local.filemanager
 
+import androidx.annotation.StringRes
 import java.util.concurrent.atomic.AtomicLong
+
+/** 進行中の操作の種類。画面に出す言い方は、言語によって語順が変わるので、種類ごとに文字リソースで持つ。 */
+enum class OpKind(
+    @StringRes val title: Int,
+    @StringRes val short: Int,
+    @StringRes val fromLabel: Int,
+    @StringRes val toLabel: Int,
+) {
+    COPY(R.string.progress_title_copy, R.string.progress_short_copy, R.string.progress_from_copy, R.string.progress_to_copy),
+    MOVE(R.string.progress_title_move, R.string.progress_short_move, R.string.progress_from_move, R.string.progress_to_move),
+    ZIP(R.string.progress_title_zip, R.string.progress_short_zip, R.string.progress_from, R.string.progress_to),
+    UNZIP(R.string.progress_title_unzip, R.string.progress_short_unzip, R.string.progress_from, R.string.progress_to),
+    INSTALL(R.string.progress_title_install, R.string.progress_short_install, R.string.progress_from, R.string.progress_to),
+    SAVE(R.string.progress_title_save, R.string.progress_short_save, R.string.progress_from, R.string.progress_to),
+    DOWNLOAD(R.string.progress_title_download, R.string.progress_short_download, R.string.progress_from, R.string.progress_to),
+}
 
 /**
  * 進行中の操作(コピー・移動・ダウンロードなど)の進み具合。
  * 操作する側(裏のスレッド)が更新し、画面側が一定間隔で読むだけなので、各項目は別スレッドから触っても安全にしてある。
  */
-class Progress(val verb: String) {
+class Progress(val kind: OpKind) {
     /** 全体の大きさ(バイト)。0 のときは不明(名前の付け替えだけで終わる移動など)。 */
     @Volatile
     var totalBytes = 0L
@@ -40,7 +57,7 @@ class Progress(val verb: String) {
 
 /** 画面に見せる、ある時点の進み具合。 */
 data class ProgressView(
-    val verb: String,
+    val kind: OpKind,
     val from: String,
     val to: String,
     val doneBytes: Long,

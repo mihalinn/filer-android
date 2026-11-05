@@ -5,7 +5,7 @@ package local.filemanager
  * Excel(.xlsx)と同じ表示で出すため SheetBook を実装する。Android に依存しない。
  */
 class XlsBook(private val ole: Ole2) : SheetBook {
-    private val wb: ByteArray = ole.stream("Workbook") ?: ole.stream("Book") ?: throw OpException("Excelのブック(Workbook)が見つかりません")
+    private val wb: ByteArray = ole.stream("Workbook") ?: ole.stream("Book") ?: throw OpException(Txt(R.string.xls_001))
 
     private class Sheet(val name: String, val pos: Int)
 
@@ -28,11 +28,11 @@ class XlsBook(private val ole: Ole2) : SheetBook {
     override val styles: List<XlsxStyle> get() = styleList
 
     init {
-        if (wb.size < 8 || u16(wb, 0) != 0x0809) throw OpException("Excelのブックとして読めません")
+        if (wb.size < 8 || u16(wb, 0) != 0x0809) throw OpException(Txt(R.string.xls_002))
         val ver = u16(wb, 4)
-        if (ver != 0x0600) throw OpException("Excel 5.0/95 以前の形式には未対応です(Excel 97 以降の .xls は読めます)")
+        if (ver != 0x0600) throw OpException(Txt(R.string.xls_003))
         readGlobals()
-        if (sheets.isEmpty()) throw OpException("ワークシートが見つかりません")
+        if (sheets.isEmpty()) throw OpException(Txt(R.string.xls_004))
     }
 
     // ---------------------------------------------------------------- レコード

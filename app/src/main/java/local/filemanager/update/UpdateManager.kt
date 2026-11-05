@@ -101,7 +101,7 @@ class UpdateManager(
                     status = UpdateStatus.UpToDate(currentVersion)
                 }
             }.onFailure { e ->
-                status = if (manual) UpdateStatus.Failed(e.message ?: "更新を確認できませんでした", null) else UpdateStatus.Idle
+                status = if (manual) UpdateStatus.Failed(e.message ?: Txt(R.string.update_manager_001), null) else UpdateStatus.Idle
             }
         }
     }
@@ -145,9 +145,9 @@ class UpdateManager(
         status = UpdateStatus.Downloading(info, 0, info.apkSize)
         // 画面を消したりアプリを閉じたりしても続くよう、通知つきのダウンロード(BgTasks)として実行する
         val task = BgTask(
-            "アプリの更新をダウンロードしています",
-            doneText = "更新をダウンロードしました。タップして、インストールしてください",
-            failText = "更新をダウンロードできませんでした",
+            Txt(R.string.update_manager_002),
+            doneText = Txt(R.string.update_manager_003),
+            failText = Txt(R.string.update_manager_004),
             installUpdate = true,
         )
         this.task = task
@@ -179,7 +179,7 @@ class UpdateManager(
                 if (Ops.appVisible) openFile(dest)
             }.onFailure { e ->
                 dest.delete()
-                status = if (task.cancelled) UpdateStatus.Available(info) else UpdateStatus.Failed(e.message ?: "更新できませんでした", info)
+                status = if (task.cancelled) UpdateStatus.Available(info) else UpdateStatus.Failed(e.message ?: Txt(R.string.update_manager_005), info)
                 if (task.cancelled) promptVisible = false
             }
         }
@@ -225,11 +225,11 @@ class UpdateManager(
     private fun verify(file: File) {
         val pm = app.packageManager
         val flags = PackageManager.GET_SIGNING_CERTIFICATES
-        val archive = pm.getPackageArchiveInfo(file.path, flags) ?: throw IOException("ダウンロードしたファイルを読めませんでした")
-        if (archive.packageName != app.packageName) throw IOException("このアプリのファイルではありませんでした。インストールを中止しました")
+        val archive = pm.getPackageArchiveInfo(file.path, flags) ?: throw IOException(Txt(R.string.update_manager_006))
+        if (archive.packageName != app.packageName) throw IOException(Txt(R.string.update_manager_007))
         val installed = pm.getPackageInfo(app.packageName, flags)
-        if (archive.longVersionCode <= installed.longVersionCode) throw IOException("いまより新しいバージョンではありませんでした")
-        if (signers(archive) != signers(installed)) throw IOException("署名がいまのアプリと違うため、上書きで更新できません。GitHub から更新する場合は、先にアンインストールが必要です")
+        if (archive.longVersionCode <= installed.longVersionCode) throw IOException(Txt(R.string.update_manager_008))
+        if (signers(archive) != signers(installed)) throw IOException(Txt(R.string.update_manager_009))
     }
 
     private fun signers(pi: PackageInfo): Set<String> {

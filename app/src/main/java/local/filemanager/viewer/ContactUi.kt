@@ -52,16 +52,16 @@ private const val VCARD_MAX_BYTES = 16 * 1024 * 1024
 
 private fun loadVcard(fs: Fs, item: FileItem): VcardLoad = try {
     if (item.size > VCARD_MAX_BYTES) {
-        VcardLoad.Fail("大きすぎて表示できません(${VCARD_MAX_BYTES / 1024 / 1024} MB まで)")
+        VcardLoad.Fail(Txt(R.string.contact_ui_001, VCARD_MAX_BYTES / 1024 / 1024))
     } else {
         val bytes = fs.open(item.path).use { it.readBytes() }
         val cards = Vcard.parse(TextDecode.decode(bytes).text)
-        if (cards.isEmpty()) VcardLoad.Fail("連絡先として読めません。メニューで「テキスト」に切り替えられます") else VcardLoad.Ok(cards)
+        if (cards.isEmpty()) VcardLoad.Fail(Txt(R.string.contact_ui_002)) else VcardLoad.Ok(cards)
     }
 } catch (e: Exception) {
-    VcardLoad.Fail(e.message ?: "読み込めません")
+    VcardLoad.Fail(e.message ?: Txt(R.string.contact_ui_003))
 } catch (e: OutOfMemoryError) {
-    VcardLoad.Fail("大きすぎて読み込めません")
+    VcardLoad.Fail(Txt(R.string.contact_ui_004))
 }
 
 /** 連絡先(.vcf)の表示。電話・メール・Web は、タップで電話・メール・ブラウザを開く。 */
@@ -84,7 +84,7 @@ internal fun VcardPane(fs: Fs, item: FileItem, bars: Boolean, onTap: () -> Unit)
                 }
                 if (bars) {
                     Text(
-                        "${load.cards.size}件",
+                        Txt.n(R.plurals.detail_count, load.cards.size),
                         color = Color(0xFFCCCCCC), fontSize = 12.sp,
                         modifier = Modifier.align(Alignment.BottomEnd).navigationBarsPadding().background(Color(0x99000000)).padding(horizontal = 8.dp, vertical = 2.dp),
                     )

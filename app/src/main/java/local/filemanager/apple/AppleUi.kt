@@ -40,7 +40,7 @@ import java.io.File
 private class ZipBox(val names: Set<String>, val read: (String) -> ByteArray?, val close: () -> Unit)
 
 private fun openZipBox(fs: Fs, item: FileItem, limit: Long = 64L * 1024 * 1024): ZipBox {
-    val src = openSource(fs, item.path) ?: throw OpException("このファイルを開けません")
+    val src = openSource(fs, item.path) ?: throw OpException(Txt(R.string.apple_ui_001))
     try {
         val reader = ZipReader(src)
         val byName = reader.entries.filter { !it.isDir }.associateBy { ZipTree.clean(it.name) }
@@ -78,20 +78,20 @@ private fun loadIwork(fs: Fs, item: FileItem): IworkLoad {
     val box = try {
         openZipBox(fs, item, 256L * 1024 * 1024)
     } catch (e: OpException) {
-        return IworkLoad.Fail(e.message ?: "読み込めません")
+        return IworkLoad.Fail(e.message ?: Txt(R.string.apple_ui_002))
     } catch (e: Exception) {
-        return IworkLoad.Fail("iWorkの書類(zip)として読めません。中身が別の形式かもしれません")
+        return IworkLoad.Fail(Txt(R.string.apple_ui_003))
     }
     return try {
         val info = Iwork.parse(item.name, box.names, box.read)
         val bmp = info.preview?.let { n -> box.read(n)?.let { BitmapFactory.decodeByteArray(it, 0, it.size) } }
         IworkLoad.Ok(info, bmp)
     } catch (e: OpException) {
-        IworkLoad.Fail(e.message ?: "読み込めません")
+        IworkLoad.Fail(e.message ?: Txt(R.string.apple_ui_004))
     } catch (e: Exception) {
-        IworkLoad.Fail("iWorkの書類として読めません(${e.message ?: e.javaClass.simpleName})")
+        IworkLoad.Fail(Txt(R.string.apple_ui_005, e.message ?: e.javaClass.simpleName))
     } catch (e: OutOfMemoryError) {
-        IworkLoad.Fail("大きすぎて読み込めません")
+        IworkLoad.Fail(Txt(R.string.apple_ui_006))
     } finally {
         box.close()
     }
@@ -112,21 +112,21 @@ internal fun IworkPane(fs: Fs, item: FileItem, onOpenInner: (FmViewModel.ViewerR
             val info = load.info
             LazyColumn(Modifier.fillMaxSize().belowBars(), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 40.dp)) {
                 item {
-                    Text("${info.app} の書類", color = Pv.text, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                    Text(if (info.legacy) "古い形式(iWork '09 以前)" else "iWork '13 以降の形式", color = Pv.label, fontSize = 12.sp, modifier = Modifier.padding(bottom = 10.dp))
+                    Text(Txt(R.string.apple_ui_007, info.app), color = Pv.text, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    Text(if (info.legacy) Txt(R.string.apple_ui_008) else Txt(R.string.apple_ui_009), color = Pv.label, fontSize = 12.sp, modifier = Modifier.padding(bottom = 10.dp))
                     if (load.preview != null) {
                         Image(
-                            load.preview.asImageBitmap(), "プレビュー",
+                            load.preview.asImageBitmap(), Txt(R.string.apple_ui_010),
                             Modifier.fillMaxWidth().border(1.dp, Pv.label.copy(alpha = 0.4f)),
                             contentScale = ContentScale.FillWidth,
                         )
-                        Text("書類に保存されているプレビュー画像(1 ページ目)", color = Pv.label, fontSize = 11.sp, modifier = Modifier.padding(top = 4.dp))
+                        Text(Txt(R.string.apple_ui_011), color = Pv.label, fontSize = 11.sp, modifier = Modifier.padding(top = 4.dp))
                     } else {
-                        Text("プレビュー画像は入っていません", color = Pv.label, fontSize = 13.sp)
+                        Text(Txt(R.string.apple_ui_012), color = Pv.label, fontSize = 13.sp)
                     }
                     if (info.pdf != null) {
                         Text(
-                            "全文のPDFを開く(書類に入っているプレビュー)", color = Pv.link, fontSize = 15.sp, fontWeight = FontWeight.Bold,
+                            Txt(R.string.apple_ui_013), color = Pv.link, fontSize = 15.sp, fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(top = 14.dp).clickable {
                                 scope.launch {
                                     val f = runCatching { withContext(Dispatchers.IO) { extractPdf(ctx.cacheDir, fs, item, info.pdf) } }.getOrNull()
@@ -135,22 +135,22 @@ internal fun IworkPane(fs: Fs, item: FileItem, onOpenInner: (FmViewModel.ViewerR
                             },
                         )
                     }
-                    Text("中のファイルの一覧を見る", color = Pv.link, fontSize = 14.sp, modifier = Modifier.padding(top = 12.dp).clickable { onList() })
-                    Heading("情報")
-                    InfoLine("ファイル", "${FileOps.formatSize(item.size)}・${FileOps.formatDate(item.modified)}")
-                    if (info.media.isNotEmpty()) InfoLine("画像などの素材", "${info.media.size} 個・${FileOps.formatSize(info.media.sumOf { it.second })}")
-                    for (v in info.versions.take(12)) InfoLine("バージョンの記録", v)
+                    Text(Txt(R.string.apple_ui_014), color = Pv.link, fontSize = 14.sp, modifier = Modifier.padding(top = 12.dp).clickable { onList() })
+                    Heading(Txt(R.string.apple_ui_015))
+                    InfoLine(Txt(R.string.apple_ui_016), Txt(R.string.apple_ui_017, FileOps.formatSize(item.size), FileOps.formatDate(item.modified)))
+                    if (info.media.isNotEmpty()) InfoLine(Txt(R.string.apple_ui_018), Txt.n(R.plurals.apple_media_info, info.media.size, FileOps.formatSize(info.media.sumOf { it.second })))
+                    for (v in info.versions.take(12)) InfoLine(Txt(R.string.apple_ui_019), v)
                 }
-                item { Heading("書類の中の文字(${info.texts.size} 行)") }
+                item { Heading(Txt.n(R.plurals.apple_texts_heading, info.texts.size)) }
                 if (info.texts.isEmpty()) {
-                    item { Text(info.textNote ?: "なし", color = Pv.label, fontSize = 13.sp) }
+                    item { Text(info.textNote ?: Txt(R.string.apple_ui_020), color = Pv.label, fontSize = 13.sp) }
                 } else {
-                    item { Text("順番は書類の見た目と違うことがあります", color = Pv.label, fontSize = 11.sp, modifier = Modifier.padding(bottom = 6.dp)) }
+                    item { Text(Txt(R.string.apple_ui_021), color = Pv.label, fontSize = 11.sp, modifier = Modifier.padding(bottom = 6.dp)) }
                     val shown = info.texts.take(2000)
                     items(shown.size) { i ->
                         SelectionContainer { Text(shown[i], color = Pv.text, fontSize = 14.sp, modifier = Modifier.padding(vertical = 2.dp)) }
                     }
-                    if (info.texts.size > shown.size) item { Text("…ほか ${info.texts.size - shown.size} 行", color = Pv.label, fontSize = 12.sp) }
+                    if (info.texts.size > shown.size) item { Text(Txt.n(R.plurals.apple_texts_more, info.texts.size - shown.size), color = Pv.label, fontSize = 12.sp) }
                     if (info.textNote != null) item { Text(info.textNote, color = Pv.label, fontSize = 12.sp) }
                 }
             }
@@ -161,7 +161,7 @@ internal fun IworkPane(fs: Fs, item: FileItem, onOpenInner: (FmViewModel.ViewerR
 private fun extractPdf(cache: File, fs: Fs, item: FileItem, entry: String): File {
     val box = openZipBox(fs, item, 256L * 1024 * 1024)
     try {
-        val bytes = box.read(entry) ?: throw OpException("PDFを取り出せません")
+        val bytes = box.read(entry) ?: throw OpException(Txt(R.string.apple_ui_022))
         val dir = File(File(cache, "zipview"), cacheKey(item.path, item.size, item.modified, entry)).also { it.mkdirs() }
         val out = File(dir, FileOps.safeFileName(item.name.substringBeforeLast('.') + ".pdf"))
         out.writeBytes(bytes)
@@ -183,16 +183,16 @@ private fun loadIpa(fs: Fs, item: FileItem): IpaLoad {
     val box = try {
         openZipBox(fs, item)
     } catch (e: OpException) {
-        return IpaLoad.Fail(e.message ?: "読み込めません")
+        return IpaLoad.Fail(e.message ?: Txt(R.string.apple_ui_023))
     } catch (e: Exception) {
-        return IpaLoad.Fail("ipa(zip)として読めません")
+        return IpaLoad.Fail(Txt(R.string.apple_ui_024))
     }
     return try {
         IpaLoad.Ok(Ipa.parse(box.names, box.read), box.names.size)
     } catch (e: OpException) {
-        IpaLoad.Fail(e.message ?: "読み込めません")
+        IpaLoad.Fail(e.message ?: Txt(R.string.apple_ui_025))
     } catch (e: Exception) {
-        IpaLoad.Fail("iPhoneアプリとして読めません(${e.message ?: e.javaClass.simpleName})")
+        IpaLoad.Fail(Txt(R.string.apple_ui_026, e.message ?: e.javaClass.simpleName))
     } finally {
         box.close()
     }
@@ -213,19 +213,19 @@ internal fun IpaPane(fs: Fs, item: FileItem, onList: () -> Unit) {
                 item {
                     Text(d.name ?: item.name, color = Pv.text, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                     Text(d.bundleId ?: "", color = Pv.label, fontSize = 12.sp, fontFamily = FontFamily.Monospace, modifier = Modifier.padding(bottom = 10.dp))
-                    Text("iPhone / iPad のアプリです。Android にはインストールできません(中身を見るだけです)。", color = Pv.label, fontSize = 12.sp)
-                    InfoLine("バージョン", listOfNotNull(d.version, d.build?.let { "($it)" }).joinToString(" "))
-                    InfoLine("必要な iOS", d.minOs?.let { "$it 以上" } ?: "不明")
-                    InfoLine("対象の機種", d.devices.joinToString("・").ifEmpty { "不明" })
-                    InfoLine("実行ファイル", d.executable ?: "不明")
-                    InfoLine("署名", if (d.signed) "署名の記録(_CodeSignature)があります" else "署名の記録がありません")
-                    if (d.provision != null) InfoLine("プロファイル", d.provision)
-                    InfoLine("ファイル", "${FileOps.formatSize(item.size)}・${load.fileCount} 個")
-                    if (d.backgroundModes.isNotEmpty()) InfoLine("裏での動作", d.backgroundModes.joinToString("・"))
-                    if (d.urlSchemes.isNotEmpty()) InfoLine("URLスキーム", d.urlSchemes.joinToString("\n"))
-                    Text("中のファイルの一覧を見る", color = Pv.link, fontSize = 14.sp, modifier = Modifier.padding(top = 12.dp).clickable { onList() })
-                    Heading("使う許可(${d.permissions.size})")
-                    if (d.permissions.isEmpty()) Text("なし", color = Pv.label, fontSize = 13.sp)
+                    Text(Txt(R.string.apple_ui_027), color = Pv.label, fontSize = 12.sp)
+                    InfoLine(Txt(R.string.apple_ui_028), listOfNotNull(d.version, d.build?.let { "($it)" }).joinToString(" "))
+                    InfoLine(Txt(R.string.apple_ui_029), d.minOs?.let { Txt(R.string.apple_ui_030, it) } ?: Txt(R.string.apple_ui_031))
+                    InfoLine(Txt(R.string.apple_ui_032), d.devices.joinToString(Txt(R.string.sep_dot)).ifEmpty { Txt(R.string.apple_ui_033) })
+                    InfoLine(Txt(R.string.apple_ui_034), d.executable ?: Txt(R.string.apple_ui_035))
+                    InfoLine(Txt(R.string.apple_ui_036), if (d.signed) Txt(R.string.apple_ui_037) else Txt(R.string.apple_ui_038))
+                    if (d.provision != null) InfoLine(Txt(R.string.apple_ui_039), d.provision)
+                    InfoLine(Txt(R.string.apple_ui_040), Txt.n(R.plurals.apple_ipa_file, load.fileCount, FileOps.formatSize(item.size)))
+                    if (d.backgroundModes.isNotEmpty()) InfoLine(Txt(R.string.apple_ui_041), d.backgroundModes.joinToString(Txt(R.string.sep_dot)))
+                    if (d.urlSchemes.isNotEmpty()) InfoLine(Txt(R.string.apple_ui_042), d.urlSchemes.joinToString("\n"))
+                    Text(Txt(R.string.apple_ui_043), color = Pv.link, fontSize = 14.sp, modifier = Modifier.padding(top = 12.dp).clickable { onList() })
+                    Heading(Txt(R.string.apple_ui_044, d.permissions.size))
+                    if (d.permissions.isEmpty()) Text(Txt(R.string.apple_ui_045), color = Pv.label, fontSize = 13.sp)
                 }
                 items(d.permissions.size) { i ->
                     val (n, why) = d.permissions[i]

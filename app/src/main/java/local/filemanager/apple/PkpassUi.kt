@@ -47,7 +47,7 @@ private fun loadPass(fs: Fs, item: FileItem): PassLoad {
         openSource(fs, item.path)
     } catch (e: Exception) {
         null
-    } ?: return PassLoad.Fail("このファイルを開けません")
+    } ?: return PassLoad.Fail(Txt(R.string.pkpass_ui_001))
     return try {
         val reader = ZipReader(src)
         val byName = reader.entries.associateBy { ZipTree.clean(it.name) }
@@ -64,9 +64,9 @@ private fun loadPass(fs: Fs, item: FileItem): PassLoad {
         }
         PassLoad.Ok(pass, images)
     } catch (e: OpException) {
-        PassLoad.Fail(e.message ?: "読み込めません")
+        PassLoad.Fail(e.message ?: Txt(R.string.pkpass_ui_002))
     } catch (e: Exception) {
-        PassLoad.Fail("パスとして読めません(${e.message ?: e.javaClass.simpleName})")
+        PassLoad.Fail(Txt(R.string.pkpass_ui_003, e.message ?: e.javaClass.simpleName))
     } finally {
         src.close()
     }
@@ -117,7 +117,7 @@ private fun PassView(p: Pass, images: Map<String, Bitmap>) {
                         Modifier.fillMaxWidth().padding(top = 14.dp).clip(RoundedCornerShape(10.dp)).background(Color.White).padding(12.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        Text("${b.formatName}(絵は出さず、読み取り用の文字を表示)", color = Color(0xFF666666), fontSize = 11.sp)
+                        Text(Txt(R.string.pkpass_ui_004, b.formatName), color = Color(0xFF666666), fontSize = 11.sp)
                         SelectionContainer {
                             Text(b.message, color = Color.Black, fontSize = 13.sp, fontFamily = FontFamily.Monospace, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 6.dp))
                         }
@@ -128,18 +128,18 @@ private fun PassView(p: Pass, images: Map<String, Bitmap>) {
         }
         item {
             Column(Modifier.padding(top = 14.dp)) {
-                Text("${p.styleName}${if (p.voided) "(無効)" else ""}", color = if (p.voided) Pv.danger else Pv.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                if (!p.description.isNullOrEmpty()) Info("説明", p.description)
-                if (!p.organization.isNullOrEmpty()) Info("発行元", p.organization)
-                if (p.transit != null) Info("乗り物", p.transit.removePrefix("PKTransitType"))
-                if (!p.serial.isNullOrEmpty()) Info("シリアル番号", p.serial)
-                if (p.relevantDate != null) Info("表示する日時", p.relevantDate)
-                if (p.expiration != null) Info("有効期限", p.expiration)
-                if (p.locations.isNotEmpty()) Info("場所", p.locations.joinToString("\n"))
+                Text(Txt(R.string.pkpass_ui_005, p.styleName, if (p.voided) Txt(R.string.pkpass_voided) else ""), color = if (p.voided) Pv.danger else Pv.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                if (!p.description.isNullOrEmpty()) Info(Txt(R.string.pkpass_ui_006), p.description)
+                if (!p.organization.isNullOrEmpty()) Info(Txt(R.string.pkpass_ui_007), p.organization)
+                if (p.transit != null) Info(Txt(R.string.pkpass_ui_008), p.transit.removePrefix("PKTransitType"))
+                if (!p.serial.isNullOrEmpty()) Info(Txt(R.string.pkpass_ui_009), p.serial)
+                if (p.relevantDate != null) Info(Txt(R.string.pkpass_ui_010), p.relevantDate)
+                if (p.expiration != null) Info(Txt(R.string.pkpass_ui_011), p.expiration)
+                if (p.locations.isNotEmpty()) Info(Txt(R.string.pkpass_ui_012), p.locations.joinToString("\n"))
             }
         }
         if (p.back.isNotEmpty()) {
-            item { Text("裏面の項目", color = Pv.text, fontSize = 15.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 18.dp, bottom = 4.dp)) }
+            item { Text(Txt(R.string.pkpass_ui_013), color = Pv.text, fontSize = 15.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 18.dp, bottom = 4.dp)) }
             items(p.back.size) { i ->
                 val f = p.back[i]
                 Column(Modifier.fillMaxWidth().padding(vertical = 5.dp)) {

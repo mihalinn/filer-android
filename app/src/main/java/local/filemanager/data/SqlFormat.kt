@@ -66,7 +66,7 @@ object SqlFormat {
     /** バイナリ(BLOB)の見せ方: 「BLOB 1,234 バイト(89 50 4E 47 …)」 */
     fun blob(bytes: ByteArray): String {
         val head = bytes.take(8).joinToString(" ") { "%02X".format(it) }
-        return "BLOB ${"%,d".format(bytes.size)} バイト" + if (bytes.isNotEmpty()) "($head${if (bytes.size > 8) " …" else ""})" else ""
+        return Txt.n(R.plurals.blob_size, bytes.size) + if (bytes.isNotEmpty()) "($head${if (bytes.size > 8) " …" else ""})" else ""
     }
 
     /** 実数の見せ方(1.0 → 1、1.5 → 1.5)。 */

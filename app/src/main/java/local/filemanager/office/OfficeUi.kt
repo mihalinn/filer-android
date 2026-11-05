@@ -71,16 +71,16 @@ private fun requireOle(bytes: ByteArray, what: String): ByteArray {
     if (Ole2.isOle2(bytes)) return bytes
     val head = String(bytes, 0, minOf(bytes.size, 512), Charsets.ISO_8859_1).trimStart('\uFEFF', 'ï', '»', '¿', ' ', '\t', '\r', '\n').lowercase()
     val hint = when {
-        head.startsWith("<?xml") -> "中身は XML のようです(拡張子を .xml に変えると開けます)"
-        head.startsWith("<") -> "中身は HTML のようです(拡張子を .html に変えると開けます)"
-        bytes.isNotEmpty() && bytes.take(512).none { (it.toInt() and 0xFF).let { v -> v < 9 || v in 14..31 } } -> "中身は文字のファイルのようです(拡張子を .txt や .csv に変えると開けます)"
-        else -> "拡張子と中身が違うかもしれません"
+        head.startsWith("<?xml") -> Txt(R.string.office_ui_001)
+        head.startsWith("<") -> Txt(R.string.office_ui_002)
+        bytes.isNotEmpty() && bytes.take(512).none { (it.toInt() and 0xFF).let { v -> v < 9 || v in 14..31 } } -> Txt(R.string.office_ui_003)
+        else -> Txt(R.string.office_ui_004)
     }
-    throw OpException("$what の古い形式のファイルではありません。$hint")
+    throw OpException(Txt(R.string.office_ui_005, what, hint))
 }
 /** ファイル全体を読む(RTF・古い Office 用)。大きすぎるときは OpException。 */
 private fun readWhole(src: RandomSource, limit: Long = 64L * 1024 * 1024): ByteArray {
-    if (src.size > limit) throw OpException("大きすぎて開けません(${limit / 1024 / 1024}MB まで)")
+    if (src.size > limit) throw OpException(Txt(R.string.office_ui_006, limit / 1024 / 1024))
     val out = ByteArray(src.size.toInt())
     var pos = 0
     while (pos < out.size) {
@@ -96,7 +96,7 @@ private fun loadOffice(fs: Fs, item: FileItem, kind: PreviewKind): OfficeLoad {
         openSource(fs, item.path)
     } catch (e: Exception) {
         null
-    } ?: return OfficeLoad.Fail("このファイルを開けません")
+    } ?: return OfficeLoad.Fail(Txt(R.string.office_ui_007))
     var keepOpen = false
     return try {
         if (kind == PreviewKind.RTF || kind == PreviewKind.DOC || kind == PreviewKind.XLS || kind == PreviewKind.PPT) {
@@ -164,13 +164,13 @@ private fun loadOffice(fs: Fs, item: FileItem, kind: PreviewKind): OfficeLoad {
         }
     } catch (e: OpException) {
         keepOpen = false
-        OfficeLoad.Fail(e.message ?: "読み込めません")
+        OfficeLoad.Fail(e.message ?: Txt(R.string.office_ui_008))
     } catch (e: Exception) {
         keepOpen = false
-        OfficeLoad.Fail("Officeの文書として読めません(${e.message ?: e.javaClass.simpleName})")
+        OfficeLoad.Fail(Txt(R.string.office_ui_009, e.message ?: e.javaClass.simpleName))
     } catch (e: OutOfMemoryError) {
         keepOpen = false
-        OfficeLoad.Fail("大きすぎて読み込めません")
+        OfficeLoad.Fail(Txt(R.string.office_ui_010))
     } finally {
         if (!keepOpen) src.close()
     }
@@ -221,19 +221,19 @@ private fun ExcelView(file: SheetBook, fontSp: Int, dark: Boolean, copy: CopyHol
                 val r = sheet
                 when {
                     r == null -> CircularProgressIndicator(Modifier.align(Alignment.Center), color = oc.accent)
-                    r.isFailure -> Text(r.exceptionOrNull()?.message ?: "読み込めません", color = oc.note, modifier = Modifier.align(Alignment.Center).padding(32.dp))
+                    r.isFailure -> Text(r.exceptionOrNull()?.message ?: Txt(R.string.office_ui_011), color = oc.note, modifier = Modifier.align(Alignment.Center).padding(32.dp))
                     else -> {
                         val s = r.getOrThrow()
                         if (s.rows.isEmpty()) {
-                            Text("このシートは空", color = oc.headerText, modifier = Modifier.align(Alignment.Center))
+                            Text(Txt(R.string.office_ui_012), color = oc.headerText, modifier = Modifier.align(Alignment.Center))
                         } else {
                             val model = remember(s, file) { XlsxGridModel(s, file) }
                             DisposableEffect(model, copy) {
-                                copy?.set("このシートをコピー") { CopyText.tsv(model.rowCount, model.colCount) { r, c -> model.cell(r, c)?.text.orEmpty() } }
+                                copy?.set(Txt(R.string.office_ui_013)) { CopyText.tsv(model.rowCount, model.colCount) { r, c -> model.cell(r, c)?.text.orEmpty() } }
                                 onDispose { copy?.provider = null }
                             }
                             Column(Modifier.fillMaxSize()) {
-                                if (s.truncated) Text("大きいため、先頭の一部だけ表示しています", color = Color(0xFFB26A00), fontSize = 12.sp, modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp))
+                                if (s.truncated) Text(Txt(R.string.office_ui_014), color = Color(0xFFB26A00), fontSize = 12.sp, modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp))
                                 SheetGrid(model, fontSp, Modifier.weight(1f).fillMaxWidth(), dark)
                             }
                         }
@@ -258,7 +258,7 @@ private fun ExcelView(file: SheetBook, fontSp: Int, dark: Boolean, copy: CopyHol
         }
         sheet?.getOrNull()?.let { s ->
             Text(
-                "${file.sheetNames[sheetIndex]}・${s.rows.size}行×${s.columns}列",
+                Txt(R.string.office_sheet_info, file.sheetNames[sheetIndex], s.rows.size, s.columns),
                 color = Color(0xFFCCCCCC), fontSize = 12.sp,
                 modifier = Modifier.align(Alignment.BottomEnd).navigationBarsPadding().padding(bottom = if (file.sheetNames.size > 1) 44.dp else 0.dp)
                     .background(Color(0x99000000)).padding(horizontal = 8.dp, vertical = 2.dp),
@@ -322,11 +322,11 @@ private fun WordView(doc: DocxDoc, read: (String) -> ByteArray?, fontSp: Int, da
         out
     }
     if (items.isEmpty()) {
-        Box(Modifier.fillMaxSize().background(oc.backdrop)) { Text("文章がありません(図や表だけの文書かもしれません)", color = oc.note, modifier = Modifier.align(Alignment.Center).padding(32.dp)) }
+        Box(Modifier.fillMaxSize().background(oc.backdrop)) { Text(Txt(R.string.office_ui_015), color = oc.note, modifier = Modifier.align(Alignment.Center).padding(32.dp)) }
         return
     }
     DisposableEffect(items, copy) {
-        copy?.set("全文をコピー") { items.joinToString("\n") { wordBlockText(it.block) } }
+        copy?.set(Txt(R.string.office_ui_016)) { items.joinToString("\n") { wordBlockText(it.block) } }
         onDispose { copy?.provider = null }
     }
     CopyableArea {
@@ -449,13 +449,13 @@ private fun WordImage(img: DocBlock.Image, k: Float, read: (String) -> ByteArray
 private fun TextSlidesView(slides: List<Slide>, fontSp: Int, dark: Boolean, copy: CopyHolder? = null) {
     val oc = remember(dark) { OfficeColors(dark) }
     if (slides.isEmpty()) {
-        Box(Modifier.fillMaxSize().background(oc.backdrop)) { Text("スライドがありません", color = oc.note, modifier = Modifier.align(Alignment.Center)) }
+        Box(Modifier.fillMaxSize().background(oc.backdrop)) { Text(Txt(R.string.office_ui_017), color = oc.note, modifier = Modifier.align(Alignment.Center)) }
         return
     }
     val k = fontSp / 14f
     DisposableEffect(slides, copy) {
-        copy?.set("全スライドの文字をコピー") {
-            slides.joinToString("\n\n") { s -> "スライド ${s.number}\n" + (listOfNotNull(s.title) + s.lines).joinToString("\n") }
+        copy?.set(Txt(R.string.office_ui_018)) {
+            slides.joinToString("\n\n") { s -> Txt(R.string.office_ui_019, s.number) + (listOfNotNull(s.title) + s.lines).joinToString("\n") }
         }
         onDispose { copy?.provider = null }
     }
@@ -475,7 +475,7 @@ private fun TextSlidesView(slides: List<Slide>, fontSp: Int, dark: Boolean, copy
                     Text("${s.number}", color = oc.slideNumber, fontSize = (11 * k).sp)
                     if (s.title != null) Text(s.title, color = oc.slideTitle, fontSize = (20 * k).sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 2.dp, bottom = 8.dp))
                     for (l in s.lines) Text(l, color = oc.slideBody, fontSize = (14 * k).sp, modifier = Modifier.padding(top = 5.dp))
-                    if (s.title == null && s.lines.isEmpty()) Text("(文字がありません)", color = oc.headerText, fontSize = (13 * k).sp, modifier = Modifier.padding(top = 4.dp))
+                    if (s.title == null && s.lines.isEmpty()) Text(Txt(R.string.office_ui_020), color = oc.headerText, fontSize = (13 * k).sp, modifier = Modifier.padding(top = 4.dp))
                 }
             }
         }

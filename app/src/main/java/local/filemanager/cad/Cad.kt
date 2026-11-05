@@ -83,7 +83,7 @@ class CadBuilder(private val maxShapes: Int = MAX_SHAPES) {
         layerIdx.getOrPut(name) { layers.add(CadLayer(name, visible)); layers.size - 1 }
 
     private fun count(layer: Int) {
-        if (++shapes > maxShapes) throw OpException("図形が多すぎて表示できません")
+        if (++shapes > maxShapes) throw OpException(Txt(R.string.cad_001))
         layers[layer].count++
     }
 
@@ -153,7 +153,7 @@ class CadBuilder(private val maxShapes: Int = MAX_SHAPES) {
         for (f in fillList) { var i = 0; while (i < f.xy.size) { grow(f.xy[i], f.xy[i + 1]); sample(f.xy[i], f.xy[i + 1]); i += 2 } }
         for (t in textList) { grow(t.x, t.y); sample(t.x, t.y) }
         for (p in pointList) { grow(p.x, p.y); sample(p.x, p.y) }
-        if (x0 > x1) throw OpException("図形がありません")
+        if (x0 > x1) throw OpException(Txt(R.string.cad_002))
         if (pointList.isNotEmpty()) {
             val ext = max(x1 - x0, y1 - y0)
             val arm = if (ext > 0) ext * 0.004 else 1.0

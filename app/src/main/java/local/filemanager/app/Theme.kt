@@ -1,6 +1,7 @@
 package local.filemanager
 
 import android.app.Activity
+import androidx.annotation.StringRes
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
@@ -44,10 +45,12 @@ class Pal(
 )
 
 /** テーマカラー。藍が既定(パステル調)。ティールは、濃いバーに青緑の差し色。ワイン赤は、深い赤のバー。 */
-enum class ThemeColor(val id: String, val label: String) {
-    INDIGO("indigo", "藍"),
-    TEAL("teal", "ティール"),
-    WINE("wine", "ワイン赤");
+enum class ThemeColor(val id: String, @StringRes val labelRes: Int) {
+    INDIGO("indigo", R.string.theme_color_indigo),
+    TEAL("teal", R.string.theme_color_teal),
+    WINE("wine", R.string.theme_color_wine);
+
+    val label: String get() = Txt(labelRes)
 
     companion object {
         fun of(id: String): ThemeColor = entries.firstOrNull { it.id == id } ?: INDIGO

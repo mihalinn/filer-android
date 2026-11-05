@@ -95,30 +95,27 @@ internal fun HomeScreen(vm: FmViewModel, onPending: (Pending) -> Unit) {
     val all = buildList {
         vm.volumes.forEach { v ->
             add(Tile("vol:${v.dir.path}", v.label, // 狭い列(4〜5)では全体の容量を省いて、文字が欠けないようにする
-                if (vm.homeCols >= 4) "空き ${FileOps.formatSize(v.free.coerceAtLeast(0))}" else "空き ${FileOps.formatSize(v.free.coerceAtLeast(0))} / ${FileOps.formatSize(v.total)}", true,
+                if (vm.homeCols >= 4) Txt(R.string.home_free, FileOps.formatSize(v.free.coerceAtLeast(0))) else Txt(R.string.home_free_total, FileOps.formatSize(v.free.coerceAtLeast(0)), FileOps.formatSize(v.total)), true,
                 { Badge(Icons.Default.Storage, Color(0xFF9AA3C7), 46) }) { vm.openLocal(v.dir.path) })
         }
-        add(Tile("system", "システム", null, false, { Badge(Icons.Default.PhoneAndroid, Color(0xFF9AA3C7), 54) }) { vm.openLocal("/") })
+        add(Tile("system", Txt(R.string.home_001), null, false, { Badge(Icons.Default.PhoneAndroid, Color(0xFF9AA3C7), 54) }) { vm.openLocal("/") })
         val download = vm.volumes.firstOrNull()?.dir?.let { File(it, "Download") }
         if (download != null && download.isDirectory) {
-            add(Tile("download", "ダウンロード", null, true, { Badge(Icons.Default.Download, Color(0xFF7FB5E6), 46) }) { vm.openShortcut(Place("local", download.path)) })
+            add(Tile("download", Txt(R.string.home_002), null, true, { Badge(Icons.Default.Download, Color(0xFF7FB5E6), 46) }) { vm.openShortcut(Place("local", download.path)) })
         }
-        for ((cat, label) in listOf(
-            Category.IMAGE to "画像", Category.AUDIO to "オーディオ", Category.VIDEO to "動画",
-            Category.DOCUMENT to "ドキュメント", Category.APK to "アプリ", Category.RECENT to "新着ファイル",
-        )) {
+        for (cat in listOf(Category.IMAGE, Category.AUDIO, Category.VIDEO, Category.DOCUMENT, Category.APK, Category.RECENT)) {
             val (icon, tint) = categoryStyle(cat)
-            add(Tile("cat:${cat.name}", label, catSub(cat), true, { Badge(icon, tint, 46) }) { vm.openShortcut(Place("cat", cat.name)) })
+            add(Tile("cat:${cat.name}", cat.label, catSub(cat), true, { Badge(icon, tint, 46) }) { vm.openShortcut(Place("cat", cat.name)) })
         }
-        add(Tile("trash", "ごみ箱", if (vm.trashSize == 0L) "空" else FileOps.formatSize(vm.trashSize), true,
+        add(Tile("trash", Txt(R.string.home_009), if (vm.trashSize == 0L) Txt(R.string.home_010) else FileOps.formatSize(vm.trashSize), true,
             { Badge(Icons.Default.Delete, Color(0xFFB3B9D6), 46) }) { vm.openTrash() })
-        add(Tile("network", "ネットワーク", "(${vm.remotes.size})", true, { Badge(Icons.Default.Computer, Color(0xFF8E9AD6), 46) }) { vm.openNetwork() })
-        add(Tile("analyze", "容量の分析", null, true, { Badge(Icons.Default.PieChart, Color(0xFFFFB366), 46) }) { vm.openAnalyze() })
+        add(Tile("network", Txt(R.string.home_011), "(${vm.remotes.size})", true, { Badge(Icons.Default.Computer, Color(0xFF8E9AD6), 46) }) { vm.openNetwork() })
+        add(Tile("analyze", Txt(R.string.home_012), null, true, { Badge(Icons.Default.PieChart, Color(0xFFFFB366), 46) }) { vm.openAnalyze() })
         vm.remotes.forEach { r ->
             add(Tile("smb:${r.id}", r.name, r.host, false, { FolderGlyph(kindColor(FileKind.FOLDER), Modifier.size(58.dp)) }) { vm.openShortcut(Place("smb:${r.id}", "")) })
         }
         vm.homeShortcuts.forEach { s ->
-            val where = if (s.fsId == "local") "端末" else vm.remotes.firstOrNull { "smb:${it.id}" == s.fsId }?.name
+            val where = if (s.fsId == "local") Txt(R.string.home_013) else vm.remotes.firstOrNull { "smb:${it.id}" == s.fsId }?.name
             add(Tile(s.id, s.name, where, false, { FolderGlyph(kindColor(FileKind.FOLDER), Modifier.size(58.dp)) }, removable = true) { vm.openShortcut(Place(s.fsId, s.path)) })
         }
     }
@@ -155,13 +152,13 @@ internal fun HomeScreen(vm: FmViewModel, onPending: (Pending) -> Unit) {
                 item(key = "update", span = { GridItemSpan(maxLineSpan) }) { UpdateBanner(vm.updater) }
             }
             if (categories.isNotEmpty()) {
-                item(key = "h:category", span = { GridItemSpan(maxLineSpan) }) { HomeSectionTitle("カテゴリ") }
+                item(key = "h:category", span = { GridItemSpan(maxLineSpan) }) { HomeSectionTitle(Txt(R.string.home_014)) }
                 items(categories.size, key = { categories[it].id }) { CardTile(categories[it], frame, onLongPress = edit) }
             }
             item(key = "h:nas", span = { GridItemSpan(maxLineSpan) }) {
                 HomeSectionTitle("NAS") {
-                    if (manage != null) TextButton(onClick = manage.onClick) { Text("管理", fontSize = 13.sp) }
-                    IconButton(onClick = { onPending(Pending.EditRemote(null)) }) { Icon(Icons.Default.Add, "NASを追加", tint = LocalPal.current.accent) }
+                    if (manage != null) TextButton(onClick = manage.onClick) { Text(Txt(R.string.home_015), fontSize = 13.sp) }
+                    IconButton(onClick = { onPending(Pending.EditRemote(null)) }) { Icon(Icons.Default.Add, Txt(R.string.home_016), tint = LocalPal.current.accent) }
                 }
             }
             if (vm.remotes.isEmpty()) {
@@ -170,19 +167,19 @@ internal fun HomeScreen(vm: FmViewModel, onPending: (Pending) -> Unit) {
                         Box(Modifier.size(40.dp), contentAlignment = Alignment.Center) { Badge(Icons.Default.Computer, Color(0xFF8E9AD6), 36) }
                         Spacer(Modifier.width(12.dp))
                         Column(Modifier.weight(1f)) {
-                            Text("NASを追加", fontSize = 16.sp, color = LocalPal.current.text)
-                            Text("SMB共有を、端末のフォルダと同じように操作できます", fontSize = 12.sp, color = LocalPal.current.subText)
+                            Text(Txt(R.string.home_017), fontSize = 16.sp, color = LocalPal.current.text)
+                            Text(Txt(R.string.home_018), fontSize = 12.sp, color = LocalPal.current.subText)
                         }
                     }
                 }
             }
             items(nas.size, key = { nas[it].id }, span = { GridItemSpan(maxLineSpan) }) { NasRow(nas[it], edit) }
             if (folders.isNotEmpty()) {
-                item(key = "h:folder", span = { GridItemSpan(maxLineSpan) }) { HomeSectionTitle("フォルダ") }
+                item(key = "h:folder", span = { GridItemSpan(maxLineSpan) }) { HomeSectionTitle(Txt(R.string.home_019)) }
                 items(folders.size, key = { folders[it].id }) { CardTile(folders[it], frame, onLongPress = edit) }
             }
             if (tools.isNotEmpty()) {
-                item(key = "h:tool", span = { GridItemSpan(maxLineSpan) }) { HomeSectionTitle("ツール") }
+                item(key = "h:tool", span = { GridItemSpan(maxLineSpan) }) { HomeSectionTitle(Txt(R.string.home_020)) }
                 items(tools.size, key = { tools[it].id }) { CardTile(tools[it], frame, onLongPress = edit) }
             }
         }
@@ -196,11 +193,11 @@ private fun UpdateBanner(u: UpdateManager) {
     val shape = RoundedCornerShape(10.dp)
     val st = u.status
     val (title, sub) = when (st) {
-        is UpdateStatus.Available -> "新しいバージョン ${st.info.version} があります" to
-            "いまのバージョン ${u.currentVersion}" + (if (st.info.apkSize > 0) "・約 ${FileOps.formatSize(st.info.apkSize)}" else "") + "。押すと更新できます"
-        is UpdateStatus.Downloading -> "新しいバージョン ${st.info.version} をダウンロードしています" to
+        is UpdateStatus.Available -> Txt(R.string.update_banner_available, st.info.version) to
+            if (st.info.apkSize > 0) Txt(R.string.update_banner_current_size, u.currentVersion, FileOps.formatSize(st.info.apkSize)) else Txt(R.string.update_banner_current, u.currentVersion)
+        is UpdateStatus.Downloading -> Txt(R.string.update_banner_downloading, st.info.version) to
             FileOps.formatSize(st.done) + (if (st.total > 0) " / ${FileOps.formatSize(st.total)}" else "")
-        is UpdateStatus.Ready -> "新しいバージョン ${st.info.version} をインストールできます" to "ダウンロードは終わっています。押すとインストールの画面が開きます"
+        is UpdateStatus.Ready -> Txt(R.string.update_banner_ready, st.info.version) to Txt(R.string.home_021)
         else -> return
     }
     Row(
@@ -295,15 +292,15 @@ private fun HomeEditor(vm: FmViewModel, tiles: List<Tile>) {
         item {
             Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp, top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
-                    Text("ホームの編集", fontSize = 20.sp, color = pal.text)
-                    Text("▲▼で並べ替え、スイッチで表示・非表示を切り替えます", fontSize = 12.sp, color = pal.subText)
+                    Text(Txt(R.string.home_022), fontSize = 20.sp, color = pal.text)
+                    Text(Txt(R.string.home_023), fontSize = 12.sp, color = pal.subText)
                 }
-                TextButton(onClick = { vm.homeEditing = false }) { Text("完了", fontSize = 16.sp) }
+                TextButton(onClick = { vm.homeEditing = false }) { Text(Txt(R.string.home_024), fontSize = 16.sp) }
             }
         }
         item {
             Column(Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
-                Text("1行に並べる数", fontSize = 13.sp, color = pal.subText)
+                Text(Txt(R.string.home_025), fontSize = 13.sp, color = pal.subText)
                 Spacer(Modifier.height(6.dp))
                 Row(
                     Modifier.fillMaxWidth().height(44.dp).clip(RoundedCornerShape(8.dp)).background(pal.tileBg).padding(3.dp),
@@ -334,12 +331,12 @@ private fun HomeEditor(vm: FmViewModel, tiles: List<Tile>) {
                 Spacer(Modifier.width(8.dp))
                 Column(Modifier.weight(1f)) {
                     Text(t.label, fontSize = 16.sp, color = if (hidden) pal.subText else pal.text, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    if (hidden) Text("非表示", fontSize = 11.sp, color = pal.subText)
+                    if (hidden) Text(Txt(R.string.home_026), fontSize = 11.sp, color = pal.subText)
                 }
-                IconButton(onClick = { vm.moveHomeTile(ids, i, -1) }, enabled = i > 0) { Icon(Icons.Default.KeyboardArrowUp, "上へ") }
-                IconButton(onClick = { vm.moveHomeTile(ids, i, 1) }, enabled = i < tiles.lastIndex) { Icon(Icons.Default.KeyboardArrowDown, "下へ") }
+                IconButton(onClick = { vm.moveHomeTile(ids, i, -1) }, enabled = i > 0) { Icon(Icons.Default.KeyboardArrowUp, Txt(R.string.home_027)) }
+                IconButton(onClick = { vm.moveHomeTile(ids, i, 1) }, enabled = i < tiles.lastIndex) { Icon(Icons.Default.KeyboardArrowDown, Txt(R.string.home_028)) }
                 if (t.removable) {
-                    IconButton(onClick = { vm.removeHomeShortcut(t.id) }) { Icon(Icons.Default.Close, "ホームから外す") }
+                    IconButton(onClick = { vm.removeHomeShortcut(t.id) }) { Icon(Icons.Default.Close, Txt(R.string.home_029)) }
                 } else {
                     Switch(checked = !hidden, onCheckedChange = { vm.setHomeTileHidden(t.id, !it) }, modifier = Modifier.padding(horizontal = 8.dp))
                 }
@@ -348,13 +345,13 @@ private fun HomeEditor(vm: FmViewModel, tiles: List<Tile>) {
         }
         item {
             Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 8.dp)) {
-                TextButton(onClick = { addDialog = true }) { Icon(Icons.Default.Add, null); Spacer(Modifier.width(6.dp)); Text("ブックマークからフォルダを追加") }
+                TextButton(onClick = { addDialog = true }) { Icon(Icons.Default.Add, null); Spacer(Modifier.width(6.dp)); Text(Txt(R.string.home_030)) }
             }
             Text(
-                "フォルダを選んで「その他」→「ホームに追加」からも追加できます",
+                Txt(R.string.home_031),
                 fontSize = 12.sp, color = pal.subText, modifier = Modifier.padding(horizontal = 16.dp),
             )
-            TextButton(onClick = vm::resetHome, modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp)) { Text("並びと表示を初期に戻す") }
+            TextButton(onClick = vm::resetHome, modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp)) { Text(Txt(R.string.home_032)) }
         }
     }
     if (addDialog) {
@@ -362,9 +359,9 @@ private fun HomeEditor(vm: FmViewModel, tiles: List<Tile>) {
         val cand = vm.bookmarks.filter { it.fsId != "cat" && HomeShortcut(it.fsId, it.path, "").id !in have }
         AlertDialog(
             onDismissRequest = { addDialog = false },
-            title = { Text("追加するフォルダ") },
+            title = { Text(Txt(R.string.home_033)) },
             text = {
-                if (cand.isEmpty()) Text("追加できるブックマークがありません。フォルダを選んで、「その他」から追加してください。")
+                if (cand.isEmpty()) Text(Txt(R.string.home_034))
                 else LazyColumn {
                     items(cand.size) { i ->
                         val p = cand[i]
@@ -373,12 +370,12 @@ private fun HomeEditor(vm: FmViewModel, tiles: List<Tile>) {
                         }
                         Column(Modifier.fillMaxWidth().clickable { vm.addHomeShortcut(p.fsId, p.path, name); addDialog = false }.padding(vertical = 8.dp)) {
                             Text(name, fontSize = 16.sp)
-                            Text(p.path.ifEmpty { "(共有の最上位)" }, fontSize = 12.sp, color = pal.subText, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            Text(p.path.ifEmpty { Txt(R.string.home_035) }, fontSize = 12.sp, color = pal.subText, maxLines = 1, overflow = TextOverflow.Ellipsis)
                         }
                     }
                 }
             },
-            confirmButton = { TextButton(onClick = { addDialog = false }) { Text("閉じる") } },
+            confirmButton = { TextButton(onClick = { addDialog = false }) { Text(Txt(R.string.home_036)) } },
         )
     }
 }
@@ -394,9 +391,9 @@ internal fun NetworkScreen(vm: FmViewModel, onPending: (Pending) -> Unit) {
         ) {
             Icon(Icons.Default.Computer, null, tint = pal.subText, modifier = Modifier.size(56.dp))
             Spacer(Modifier.height(12.dp))
-            Text("NAS(SMB共有)を追加すると、端末のフォルダと同じようにファイルを操作できます", color = pal.subText, textAlign = TextAlign.Center)
+            Text(Txt(R.string.home_037), color = pal.subText, textAlign = TextAlign.Center)
             Spacer(Modifier.height(12.dp))
-            TextButton(onClick = { onPending(Pending.EditRemote(null)) }) { Text("NASを追加") }
+            TextButton(onClick = { onPending(Pending.EditRemote(null)) }) { Text(Txt(R.string.home_038)) }
         }
     } else LazyColumn(
         Modifier.fillMaxSize(),
@@ -413,12 +410,12 @@ internal fun NetworkScreen(vm: FmViewModel, onPending: (Pending) -> Unit) {
                     Text("\\\\${r.host}\\${r.share}", fontSize = 12.sp, color = pal.subText, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
                 Box {
-                    IconButton(onClick = { menu = true }, modifier = Modifier.size(36.dp)) { Icon(Icons.Default.MoreVert, "メニュー", tint = pal.subText) }
+                    IconButton(onClick = { menu = true }, modifier = Modifier.size(36.dp)) { Icon(Icons.Default.MoreVert, Txt(R.string.home_039), tint = pal.subText) }
                     ListMenu(
                         menu, pal.dark, { menu = false },
                         listOf(
-                            VMenuItem.Action(Icons.Default.Edit, "編集") { onPending(Pending.EditRemote(r)) },
-                            VMenuItem.Action(Icons.Default.Delete, "削除") { onPending(Pending.DeleteRemote(r)) },
+                            VMenuItem.Action(Icons.Default.Edit, Txt(R.string.home_040)) { onPending(Pending.EditRemote(r)) },
+                            VMenuItem.Action(Icons.Default.Delete, Txt(R.string.home_041)) { onPending(Pending.DeleteRemote(r)) },
                         ),
                     )
                 }

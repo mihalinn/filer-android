@@ -42,61 +42,62 @@ internal object Credits {
     /** このアプリ自身の著作権表示 */
     const val COPYRIGHT = "Copyright (C) 2026 mihalin"
 
-    val list: List<Credit> = listOf(
+    /** 言語を切り替えたあとも追従するよう、見るたびに作る(Txt を使うので、値として持たない) */
+    val list: List<Credit> get() = listOf(
         Credit(
-            "ファイラー(このアプリ)", "GNU GPL v3",
-            "$COPYRIGHT。NextLib(GPL v3)を使っているため、アプリ全体も GPL v3 で提供しています。無保証です。", "gpl-3.0.txt",
+            Txt(R.string.about_ui_001), "GNU GPL v3",
+            Txt(R.string.credits_app_note, COPYRIGHT), "gpl-3.0.txt",
         ),
         Credit(
-            "NextLib 1.7.1-0.9.0(動画・音声の拡張)", "GNU GPL v3",
-            "libmedia3ext.so は、インターレース解除を加えて作り直したものです。変更内容とソースは native フォルダにあります。元のプロジェクト: github.com/anilbeesetti/nextlib",
+            Txt(R.string.about_ui_002), "GNU GPL v3",
+            Txt(R.string.about_ui_003),
             "gpl-3.0.txt",
         ),
         Credit(
-            "FFmpeg 6.0(NextLib に同梱)", "GNU LGPL v3 以降",
-            "動的ライブラリ(.so)として同梱しています。差し替えもできます。ソース: ffmpeg.org",
+            Txt(R.string.about_ui_004), Txt(R.string.about_ui_005),
+            Txt(R.string.about_ui_006),
             "lgpl-3.0.txt",
         ),
         Credit(
-            "libvpx 1.13.0(VP8・VP9 の読み取り用。FFmpeg に組み込まれています)", "BSD 3-Clause ライセンス",
-            "著作権: The WebM Project authors。libavcodec.so に組み込まれています。", "libvpx.txt",
+            Txt(R.string.about_ui_007), Txt(R.string.about_ui_008),
+            Txt(R.string.about_ui_009), "libvpx.txt",
         ),
-        Credit("AndroidX Media3 1.7.1(ExoPlayer・Session)", "Apache License 2.0", null, "apache-2.0.txt"),
+        Credit(Txt(R.string.about_ui_010), "Apache License 2.0", null, "apache-2.0.txt"),
         Credit(
-            "Jetpack Compose・Material 3・AndroidX", "Apache License 2.0",
-            "Activity、Core、Lifecycle、ExifInterface を含みます。画面のアイコンは Material Icons(Google)です。", "apache-2.0.txt",
-        ),
-        Credit(
-            "Kotlin 標準ライブラリ 1.9.22・kotlinx.coroutines 1.7.1", "Apache License 2.0",
-            "JetBrains annotations(Apache 2.0)を含みます", "apache-2.0.txt",
+            Txt(R.string.about_ui_011), "Apache License 2.0",
+            Txt(R.string.about_ui_012), "apache-2.0.txt",
         ),
         Credit(
-            "Guava 33.3.1(Android 用)", "Apache License 2.0",
-            "Media3 が使っています。failureaccess 1.0.2・listenablefuture 1.0・Error Prone annotations 2.38.0(いずれも Apache 2.0)を含みます。", "apache-2.0.txt",
+            Txt(R.string.about_ui_013), "Apache License 2.0",
+            Txt(R.string.about_ui_014), "apache-2.0.txt",
         ),
-        Credit("smbj 0.13.0(NAS への接続)", "Apache License 2.0", "同じ作者の asn-one 0.6.0(Apache 2.0)も使っています", "apache-2.0.txt"),
-        Credit("Mbassador 1.3.0", "MIT ライセンス", "smbj が使っています。作者: Benjamin Diedrichsen。", "mbassador.txt"),
+        Credit(
+            Txt(R.string.about_ui_015), "Apache License 2.0",
+            Txt(R.string.about_ui_016), "apache-2.0.txt",
+        ),
+        Credit(Txt(R.string.about_ui_017), "Apache License 2.0", Txt(R.string.about_ui_018), "apache-2.0.txt"),
+        Credit("Mbassador 1.3.0", Txt(R.string.about_ui_019), Txt(R.string.about_ui_020), "mbassador.txt"),
         Credit(
             "Apache Commons Compress 1.27.1", "Apache License 2.0",
-            "7z・tar などを読むために使っています。Commons Codec 1.17.1・IO 2.16.1・Lang 3.16.0 も含みます。押すと著作権表示(NOTICE)を表示します。",
+            Txt(R.string.about_ui_021),
             "commons-notice.txt",
         ),
         Credit(
-            "PDFium(PDF の表示と文字の選択)・PdfiumAndroidKt 1.0.35", "Apache License 2.0",
-            "PDF を絵にして、文字の位置を調べるために使っています。PDFium が使う FreeType・ICU・libjpeg-turbo・libpng・zlib・HarfBuzz などの著作権表示とライセンスも、押すと表示します",
+            Txt(R.string.about_ui_022), "Apache License 2.0",
+            Txt(R.string.about_ui_023),
             "pdfium-notice.txt",
         ),
         Credit("AndroidSVG 1.4", "Apache License 2.0", null, "apache-2.0.txt"),
-        Credit("Bouncy Castle 1.79", "MIT ライセンス", null, "bc.txt"),
-        Credit("SLF4J 2.0.17(API)・2.0.9(nop)", "MIT ライセンス", null, "slf4j.txt"),
-        Credit("XZ for Java 1.10", "0BSD(ほぼパブリックドメイン)", null, "xz.txt"),
+        Credit("Bouncy Castle 1.79", Txt(R.string.about_ui_024), null, "bc.txt"),
+        Credit(Txt(R.string.about_ui_025), Txt(R.string.about_ui_026), null, "slf4j.txt"),
+        Credit("XZ for Java 1.10", Txt(R.string.about_ui_027), null, "xz.txt"),
         Credit(
-            "junrar 8.1.2(RAR の読み取り)", "UnRAR ライセンス",
-            "RAR を読むためだけに使っています。RAR と互換の圧縮ソフトを作る目的には使えません。", "unrar.txt",
+            Txt(R.string.about_ui_028), Txt(R.string.about_ui_029),
+            Txt(R.string.about_ui_030), "unrar.txt",
         ),
         Credit(
-            "ezjww(JW_CAD の形式の参考)", "MIT ライセンス",
-            ".jww の構造は、公開されている解析(github.com/monozukuri-ai/ezjww)を参考にしました。読み込みの処理は自作です。", "ezjww.txt",
+            Txt(R.string.about_ui_031), Txt(R.string.about_ui_032),
+            Txt(R.string.about_ui_033), "ezjww.txt",
         ),
     )
 }
@@ -117,14 +118,14 @@ internal fun CrashLogDialog(onCleared: () -> Unit, dismiss: () -> Unit) {
     val shape = RoundedCornerShape(8.dp)
     AlertDialog(
         onDismissRequest = dismiss,
-        title = { Text("異常終了の記録") },
+        title = { Text(Txt(R.string.about_ui_034)) },
         text = {
             Column(Modifier.heightIn(max = 460.dp).verticalScroll(rememberScrollState())) {
                 if (entries.isEmpty()) {
-                    Text("異常終了の記録はありません", fontSize = 14.sp, color = pal.subText)
+                    Text(Txt(R.string.about_ui_035), fontSize = 14.sp, color = pal.subText)
                 } else {
                     Text(
-                        "アプリが止まったときの原因の記録です。不具合を報告するときに役立ちます。",
+                        Txt(R.string.about_ui_036),
                         fontSize = 12.sp, color = pal.subText,
                     )
                     androidx.compose.foundation.text.selection.SelectionContainer {
@@ -145,12 +146,12 @@ internal fun CrashLogDialog(onCleared: () -> Unit, dismiss: () -> Unit) {
                 }
             }
         },
-        confirmButton = { TextButton(onClick = dismiss) { Text("閉じる") } },
+        confirmButton = { TextButton(onClick = dismiss) { Text(Txt(R.string.about_ui_037)) } },
         dismissButton = {
             if (entries.isNotEmpty()) {
                 Row {
-                    TextButton(onClick = { clip.setText(androidx.compose.ui.text.AnnotatedString(full)) }) { Text("コピー") }
-                    TextButton(onClick = { confirm = true }) { Text("消去") }
+                    TextButton(onClick = { clip.setText(androidx.compose.ui.text.AnnotatedString(full)) }) { Text(Txt(R.string.about_ui_038)) }
+                    TextButton(onClick = { confirm = true }) { Text(Txt(R.string.about_ui_039)) }
                 }
             }
         },
@@ -158,10 +159,10 @@ internal fun CrashLogDialog(onCleared: () -> Unit, dismiss: () -> Unit) {
     if (confirm) {
         AlertDialog(
             onDismissRequest = { confirm = false },
-            title = { Text("記録を消去") },
-            text = { Text("いまある記録をすべて消去します。消去した記録は元に戻せません") },
-            confirmButton = { TextButton(onClick = { CrashLog.clear(ctx); onCleared(); dismiss() }) { Text("消去") } },
-            dismissButton = { TextButton(onClick = { confirm = false }) { Text("キャンセル") } },
+            title = { Text(Txt(R.string.about_ui_040)) },
+            text = { Text(Txt(R.string.about_ui_041)) },
+            confirmButton = { TextButton(onClick = { CrashLog.clear(ctx); onCleared(); dismiss() }) { Text(Txt(R.string.about_ui_042)) } },
+            dismissButton = { TextButton(onClick = { confirm = false }) { Text(Txt(R.string.about_ui_043)) } },
         )
     }
 }
@@ -180,10 +181,10 @@ internal fun LicenseTag(text: String) {
 internal fun LicenseDetail(c: Credit) {
     val pal = LocalPal.current
     val ctx = LocalContext.current
-    val text by produceState("読み込み中…", c.textFile) {
+    val text by produceState(Txt(R.string.about_ui_044), c.textFile) {
         value = withContext(Dispatchers.IO) {
             runCatching { ctx.assets.open("licenses/${c.textFile}").use { it.readBytes().toString(Charsets.UTF_8) } }
-                .getOrElse { "ライセンスの全文を読み込めませんでした" }
+                .getOrElse { Txt(R.string.about_ui_045) }
         }
     }
     val shape = RoundedCornerShape(10.dp)

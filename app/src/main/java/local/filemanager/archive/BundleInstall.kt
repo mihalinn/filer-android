@@ -14,16 +14,16 @@ import android.widget.Toast
 object InstallStatusText {
     fun of(status: Int, message: String?): String {
         val why = when (status) {
-            PackageInstaller.STATUS_SUCCESS -> return "インストールしました"
-            PackageInstaller.STATUS_FAILURE_ABORTED -> "中止されました"
-            PackageInstaller.STATUS_FAILURE_BLOCKED -> "ブロックされました(端末の設定や、ほかのアプリが止めています)"
-            PackageInstaller.STATUS_FAILURE_CONFLICT -> "入っているアプリと合いません(署名が違うなど。先にアンインストールすると入る場合があります)"
-            PackageInstaller.STATUS_FAILURE_INCOMPATIBLE -> "この端末に対応していません(CPUの種類や Android のバージョン)"
-            PackageInstaller.STATUS_FAILURE_INVALID -> "APK が正しくありません(部品が足りないか、壊れています)"
-            PackageInstaller.STATUS_FAILURE_STORAGE -> "空き容量が足りません"
-            else -> "失敗しました"
+            PackageInstaller.STATUS_SUCCESS -> return Txt(R.string.bundle_install_001)
+            PackageInstaller.STATUS_FAILURE_ABORTED -> Txt(R.string.bundle_install_002)
+            PackageInstaller.STATUS_FAILURE_BLOCKED -> Txt(R.string.bundle_install_003)
+            PackageInstaller.STATUS_FAILURE_CONFLICT -> Txt(R.string.bundle_install_004)
+            PackageInstaller.STATUS_FAILURE_INCOMPATIBLE -> Txt(R.string.bundle_install_005)
+            PackageInstaller.STATUS_FAILURE_INVALID -> Txt(R.string.bundle_install_006)
+            PackageInstaller.STATUS_FAILURE_STORAGE -> Txt(R.string.bundle_install_007)
+            else -> Txt(R.string.bundle_install_008)
         }
-        return "インストールできなかった: $why" + if (!message.isNullOrBlank()) "\n($message)" else ""
+        return Txt(R.string.bundle_install_009, why) + if (!message.isNullOrBlank()) "\n($message)" else ""
     }
 }
 
@@ -44,14 +44,14 @@ object BundleInstaller {
                     Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:${ctx.packageName}")).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                 )
             }
-            return "このアプリからのインストールを許可してから、もう一度試して"
+            return Txt(R.string.bundle_install_010)
         }
-        val src = openSource(fs, item.path) ?: throw OpException("このファイルを開けません")
+        val src = openSource(fs, item.path) ?: throw OpException(Txt(R.string.bundle_install_011))
         try {
             val reader = ZipReader(src)
             val plan = ApkBundle.plan(reader.entries, Build.SUPPORTED_ABIS.toList())
-            if (plan.base == null) throw OpException("本体のAPKが見つかりません")
-            if (plan.abiMismatch) throw OpException("この端末に合う部品がないため、インストールしても動きません")
+            if (plan.base == null) throw OpException(Txt(R.string.bundle_install_012))
+            if (plan.abiMismatch) throw OpException(Txt(R.string.bundle_install_013))
             progress.totalBytes = plan.totalBytes
             progress.itemsTotal = plan.chosen.size
 
@@ -81,7 +81,7 @@ object BundleInstaller {
             } finally {
                 runCatching { session.close() }
             }
-            return "部品 ${plan.chosen.size} 本を用意しました。確認画面で「インストール」を押してください"
+            return Txt.n(R.plurals.bundle_prepared, plan.chosen.size)
         } finally {
             src.close()
         }
@@ -97,14 +97,14 @@ class InstallResultReceiver : BroadcastReceiver() {
         if (status == PackageInstaller.STATUS_PENDING_USER_ACTION) {
             val confirm = intent.getParcelableExtra<Intent>(Intent.EXTRA_INTENT)
             if (confirm == null) {
-                Toast.makeText(context, "確認の画面を開けませんでした", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, Txt(R.string.bundle_install_014), Toast.LENGTH_LONG).show()
                 return
             }
             confirm.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             try {
                 context.startActivity(confirm)
             } catch (e: Exception) {
-                Toast.makeText(context, "確認の画面を開けなかった(${e.message ?: e.javaClass.simpleName})", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, Txt(R.string.bundle_install_015, e.message ?: e.javaClass.simpleName), Toast.LENGTH_LONG).show()
             }
             return
         }

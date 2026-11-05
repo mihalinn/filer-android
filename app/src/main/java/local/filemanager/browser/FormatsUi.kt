@@ -30,96 +30,97 @@ internal class FormatGroup(val title: String, val rows: List<FormatRow>)
 
 /** アプリ内で開ける・見られるファイルの形式。書き足したら FormatsTest が、実際に開けるかを確かめる。 */
 internal object SupportedFormats {
-    val groups: List<FormatGroup> = listOf(
+    /** 言語を切り替えたあとも追従するよう、見るたびに作る(Txt を使うので、値として持たない) */
+    val groups: List<FormatGroup> get() = listOf(
         FormatGroup(
-            "画像",
+            Txt(R.string.formats_ui_001),
             listOf(
-                FormatRow("JPEG・PNG・GIF・WebP・BMP", listOf("jpg", "jpeg", "png", "gif", "webp", "bmp")),
-                FormatRow("HEIC・HEIF・AVIF", listOf("heic", "heif", "avif"), "端末が対応している場合に表示します"),
-                FormatRow("SVG", listOf("svg"), "外部のファイルや通信は使いません"),
-                FormatRow("ライブフォト", listOf("livp"), "zip として中身を見ます"),
+                FormatRow(Txt(R.string.formats_ui_002), listOf("jpg", "jpeg", "png", "gif", "webp", "bmp")),
+                FormatRow(Txt(R.string.formats_ui_003), listOf("heic", "heif", "avif"), Txt(R.string.formats_ui_004)),
+                FormatRow("SVG", listOf("svg"), Txt(R.string.formats_ui_005)),
+                FormatRow(Txt(R.string.formats_ui_006), listOf("livp"), Txt(R.string.formats_ui_007)),
             ),
         ),
         FormatGroup(
-            "動画・音声",
+            Txt(R.string.formats_ui_008),
             listOf(
                 FormatRow(
-                    "動画", listOf("mp4", "mkv", "webm", "avi", "mov", "3gp", "m4v", "ts", "m2ts", "mts", "flv", "wmv"),
-                    "再生できるかは、端末と中身のコーデックによります。端末で再生できない形式は FFmpeg で再生を試みます",
+                    Txt(R.string.formats_ui_009), listOf("mp4", "mkv", "webm", "avi", "mov", "3gp", "m4v", "ts", "m2ts", "mts", "flv", "wmv"),
+                    Txt(R.string.formats_ui_010),
                 ),
                 FormatRow(
-                    "音声", listOf("mp3", "flac", "wav", "m4a", "aac", "ogg", "opus", "wma", "aiff", "alac", "caf"),
-                    "曲名やジャケット画像などの情報も表示します",
+                    Txt(R.string.formats_ui_011), listOf("mp3", "flac", "wav", "m4a", "aac", "ogg", "opus", "wma", "aiff", "alac", "caf"),
+                    Txt(R.string.formats_ui_012),
                 ),
-                FormatRow("MIDI", listOf("mid", "midi", "kar", "rmi"), "端末の機能で再生します"),
-                FormatRow("字幕", listOf("srt", "ass", "ssa", "vtt"), "動画に付けて表示できます"),
+                FormatRow("MIDI", listOf("mid", "midi", "kar", "rmi"), Txt(R.string.formats_ui_013)),
+                FormatRow(Txt(R.string.formats_ui_014), listOf("srt", "ass", "ssa", "vtt"), Txt(R.string.formats_ui_015)),
             ),
         ),
         FormatGroup(
-            "文書",
+            Txt(R.string.formats_ui_016),
             listOf(
-                FormatRow("PDF", listOf("pdf"), "パスワード付きは開けません"),
-                FormatRow("Word", listOf("docx", "doc", "dot"), "古い形式(doc)も読めます"),
-                FormatRow("Excel", listOf("xlsx", "xlsm", "xls", "xlt"), "古い形式(xls)も読めます"),
-                FormatRow("PowerPoint", listOf("pptx", "ppt", "pps"), "スライドを絵にして表示します"),
+                FormatRow("PDF", listOf("pdf"), Txt(R.string.formats_ui_017)),
+                FormatRow("Word", listOf("docx", "doc", "dot"), Txt(R.string.formats_ui_018)),
+                FormatRow("Excel", listOf("xlsx", "xlsm", "xls", "xlt"), Txt(R.string.formats_ui_019)),
+                FormatRow("PowerPoint", listOf("pptx", "ppt", "pps"), Txt(R.string.formats_ui_020)),
                 FormatRow("OpenDocument", listOf("odt", "ott", "ods", "ots", "odp", "otp")),
-                FormatRow("リッチテキスト", listOf("rtf")),
-                FormatRow("電子書籍", listOf("epub")),
-                FormatRow("マンガ", listOf("cbz", "cbr", "cb7", "cbt"), "ページをめくって読めます"),
+                FormatRow(Txt(R.string.formats_ui_021), listOf("rtf")),
+                FormatRow(Txt(R.string.formats_ui_022), listOf("epub")),
+                FormatRow(Txt(R.string.formats_ui_023), listOf("cbz", "cbr", "cb7", "cbt"), Txt(R.string.formats_ui_024)),
                 FormatRow("Markdown", listOf("md", "markdown")),
-                FormatRow("表", listOf("csv", "tsv")),
-                FormatRow("連絡先", listOf("vcf")),
-                FormatRow("Web ページ", listOf("html", "htm", "mht", "mhtml", "webarchive"), "外部への通信は止めて表示します"),
-                FormatRow("JSON・XML", listOf("json", "jsonl", "ndjson", "xml"), "整形して色分けします"),
+                FormatRow(Txt(R.string.formats_ui_025), listOf("csv", "tsv")),
+                FormatRow(Txt(R.string.formats_ui_026), listOf("vcf")),
+                FormatRow(Txt(R.string.formats_ui_027), listOf("html", "htm", "mht", "mhtml", "webarchive"), Txt(R.string.formats_ui_028)),
+                FormatRow(Txt(R.string.formats_ui_029), listOf("json", "jsonl", "ndjson", "xml"), Txt(R.string.formats_ui_030)),
             ),
         ),
         FormatGroup(
-            "テキスト・コード",
+            Txt(R.string.formats_ui_031),
             listOf(
                 FormatRow(
-                    "文字のファイル", listOf("txt", "log", "nfo", "ini", "conf", "cfg", "yml", "yaml", "toml", "properties", "tex", "m3u", "m3u8", "url"),
-                    "文字コードを自動で判定します。編集して保存もできます",
+                    Txt(R.string.formats_ui_032), listOf("txt", "log", "nfo", "ini", "conf", "cfg", "yml", "yaml", "toml", "properties", "tex", "m3u", "m3u8", "url"),
+                    Txt(R.string.formats_ui_033),
                 ),
                 FormatRow(
-                    "ソースコード", listOf("kt", "kts", "java", "gradle", "cs", "js", "mjs", "jsx", "tsx", "py", "c", "h", "cpp", "hpp", "cc", "go", "rs", "sh", "bat", "sql", "rb", "lua", "php", "css"),
-                    "キーワード・文字列・コメントを色分けします",
+                    Txt(R.string.formats_ui_034), listOf("kt", "kts", "java", "gradle", "cs", "js", "mjs", "jsx", "tsx", "py", "c", "h", "cpp", "hpp", "cc", "go", "rs", "sh", "bat", "sql", "rb", "lua", "php", "css"),
+                    Txt(R.string.formats_ui_035),
                 ),
             ),
         ),
         FormatGroup(
-            "図面・3D",
+            Txt(R.string.formats_ui_036),
             listOf(
-                FormatRow("CAD の図面", listOf("dxf", "jww", "jwc"), "DWG は形式が公開されていないため表示できません。DXF に書き出すと見られます"),
+                FormatRow(Txt(R.string.formats_ui_037), listOf("dxf", "jww", "jwc"), Txt(R.string.formats_ui_038)),
                 FormatRow("draw.io", listOf("drawio")),
-                FormatRow("3D モデル", listOf("stl", "obj", "ply", "off", "3mf"), "指で回して見られます"),
+                FormatRow(Txt(R.string.formats_ui_039), listOf("stl", "obj", "ply", "off", "3mf"), Txt(R.string.formats_ui_040)),
             ),
         ),
         FormatGroup(
-            "書庫・アプリ",
+            Txt(R.string.formats_ui_041),
             listOf(
-                FormatRow("ZIP", listOf("zip", "jar"), "中身の一覧を見て、1 つずつ取り出せます。圧縮もできます"),
-                FormatRow("7z・RAR", listOf("7z", "rar"), "パスワード付きは開けないことがあります"),
-                FormatRow("tar 系", listOf("tar", "tar.gz", "tgz", "tar.bz2", "tbz2", "tbz", "tar.xz", "txz")),
-                FormatRow("単体の圧縮", listOf("gz", "bz2", "xz")),
-                FormatRow("LZH", listOf("lzh", "lha"), "-lh5- など一般的な方式に対応しています。一部の古い方式は取り出せません"),
-                FormatRow("Android アプリ", listOf("apk", "apks", "xapk", "apkm"), "中身の確認と、インストールができます"),
-                FormatRow("iPhone アプリ", listOf("ipa"), "中身を見るだけです"),
+                FormatRow("ZIP", listOf("zip", "jar"), Txt(R.string.formats_ui_042)),
+                FormatRow(Txt(R.string.formats_ui_043), listOf("7z", "rar"), Txt(R.string.formats_ui_044)),
+                FormatRow(Txt(R.string.formats_ui_045), listOf("tar", "tar.gz", "tgz", "tar.bz2", "tbz2", "tbz", "tar.xz", "txz")),
+                FormatRow(Txt(R.string.formats_ui_046), listOf("gz", "bz2", "xz")),
+                FormatRow("LZH", listOf("lzh", "lha"), Txt(R.string.formats_ui_047)),
+                FormatRow(Txt(R.string.formats_ui_048), listOf("apk", "apks", "xapk", "apkm"), Txt(R.string.formats_ui_049)),
+                FormatRow(Txt(R.string.formats_ui_050), listOf("ipa"), Txt(R.string.formats_ui_051)),
             ),
         ),
         FormatGroup(
-            "iPhone の書類・データ",
+            Txt(R.string.formats_ui_052),
             listOf(
-                FormatRow("iWork", listOf("pages", "numbers", "key", "keynote"), "本文とプレビュー画像を見られます"),
-                FormatRow("Wallet のパス", listOf("pkpass")),
-                FormatRow("設定ファイル", listOf("plist", "mobileconfig", "mobileprovision")),
-                FormatRow("データベース", listOf("sqlite", "sqlite3", "db", "db3", "s3db", "sl3"), "表を見られます。読み取りだけの検索(SELECT)もできます"),
-                FormatRow("フォント", listOf("ttf", "otf", "ttc"), "見本の文字で表示できます"),
+                FormatRow("iWork", listOf("pages", "numbers", "key", "keynote"), Txt(R.string.formats_ui_053)),
+                FormatRow(Txt(R.string.formats_ui_054), listOf("pkpass")),
+                FormatRow(Txt(R.string.formats_ui_055), listOf("plist", "mobileconfig", "mobileprovision")),
+                FormatRow(Txt(R.string.formats_ui_056), listOf("sqlite", "sqlite3", "db", "db3", "s3db", "sl3"), Txt(R.string.formats_ui_057)),
+                FormatRow(Txt(R.string.formats_ui_058), listOf("ttf", "otf", "ttc"), Txt(R.string.formats_ui_059)),
             ),
         ),
     )
 
     /** 載せている拡張子すべて(試験用)。 */
-    val extensions: Set<String> = groups.flatMap { g -> g.rows.flatMap { it.exts } }.toSet()
+    val extensions: Set<String> by lazy { groups.flatMap { g -> g.rows.flatMap { it.exts } }.toSet() }
 }
 
 /** 設定の中の「対応しているファイル形式」の画面。 */
@@ -134,7 +135,7 @@ internal fun FormatsPage() {
     ) {
         item {
             Text(
-                "アプリの中で開ける形式です。拡張子がなくても、中身から文字のファイルなどを判断します。ここにない形式は「他のアプリで開く」で開けます。",
+                Txt(R.string.formats_ui_060),
                 Modifier.padding(start = 6.dp, top = 2.dp, bottom = 4.dp), fontSize = 13.sp, color = pal.subText,
             )
         }

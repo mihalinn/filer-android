@@ -97,7 +97,7 @@ class AtomicWriteTest {
 
     @Test
     fun 通知の文は進み具合から作られる() {
-        val p = ProgressView("コピー", "/a", "/b", doneBytes = 512L * 1024 * 1024, totalBytes = 1024L * 1024 * 1024,
+        val p = ProgressView(OpKind.COPY, "/a", "/b", doneBytes = 512L * 1024 * 1024, totalBytes = 1024L * 1024 * 1024,
             bytesPerSecond = 100L * 1024 * 1024, itemsDone = 0, itemsTotal = 2, elapsedMs = 65_000)
         val c = noticeContent("コピー中…", p)
         assertEquals("コピーしています 50%", c.title)
@@ -109,7 +109,7 @@ class AtomicWriteTest {
 
     @Test
     fun 全体の大きさが分からないときは動き続けるバー() {
-        val p = ProgressView("展開", "", "", 3L * 1024 * 1024, 0, 0, 0, 1, 1000)
+        val p = ProgressView(OpKind.UNZIP, "", "", 3L * 1024 * 1024, 0, 0, 0, 1, 1000)
         val c = noticeContent("展開中…", p)
         assertNull(c.percent)
         assertEquals("展開しています", c.title)

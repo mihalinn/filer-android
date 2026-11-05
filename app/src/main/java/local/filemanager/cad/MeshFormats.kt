@@ -30,7 +30,7 @@ internal class MeshBuilder(private val yUp: Boolean = false, private val maxVert
     /** color: 0xAARRGGBB(NO_COLOR = 色なし) */
     fun vertex(x0: Float, y0: Float, z0: Float, color: Int = NO_COLOR) {
         if (x0.isNaN() || y0.isNaN() || z0.isNaN() || x0.isInfinite() || y0.isInfinite() || z0.isInfinite()) throw BadVertex
-        if (n >= maxVertices) throw OpException("大きすぎて表示できません(頂点が多すぎます)")
+        if (n >= maxVertices) throw OpException(Txt(R.string.mesh_formats_001))
         val x = x0
         val y = if (yUp) -z0 else y0
         val z = if (yUp) y0 else z0
@@ -71,7 +71,7 @@ internal class MeshBuilder(private val yUp: Boolean = false, private val maxVert
 
     fun build(points: Boolean = false): Mesh {
         val count = if (points) n else n - n % 3
-        if (count == 0) throw OpException(if (points) "点がありません" else "三角形がありません")
+        if (count == 0) throw OpException(if (points) Txt(R.string.mesh_formats_002) else Txt(R.string.mesh_formats_003))
         val buf = ByteBuffer.allocateDirect(count * 12).order(ByteOrder.nativeOrder()).asFloatBuffer()
         buf.put(pos, 0, count * 3)
         buf.flip()
@@ -111,11 +111,11 @@ object MeshFormats {
         "ply" -> { limit(size, MAX_BINARY_BYTES); parsePly(input) }
         "off" -> { limit(size, MAX_TEXT_BYTES); parseOff(input) }
         "3mf" -> { limit(size, MAX_TEXT_BYTES); parse3mf(input) }
-        else -> throw OpException("3D モデルとして読めません")
+        else -> throw OpException(Txt(R.string.mesh_formats_004))
     }
 
     private fun limit(size: Long, max: Long) {
-        if (size > max) throw OpException("大きすぎて表示できません(${max / 1024 / 1024} MB まで)")
+        if (size > max) throw OpException(Txt(R.string.mesh_formats_005, max / 1024 / 1024))
     }
 
     // ---------------------------------------------------------------- OBJ
@@ -187,7 +187,7 @@ object MeshFormats {
                 }
             }
         }
-        if (faces == 0) throw OpException("OBJ に面がありません")
+        if (faces == 0) throw OpException(Txt(R.string.mesh_formats_006))
         return b.build()
     }
 
@@ -203,23 +203,23 @@ object MeshFormats {
                 if (s.isNotEmpty()) return s
             }
         }
-        val head = next() ?: throw OpException("OFF として読めません")
-        if (!head.uppercase().contains("OFF")) throw OpException("OFF として読めません")
+        val head = next() ?: throw OpException(Txt(R.string.mesh_formats_007))
+        if (!head.uppercase().contains("OFF")) throw OpException(Txt(R.string.mesh_formats_008))
         val hasColor = head.uppercase().startsWith("C")
         var counts = head.substring(head.uppercase().indexOf("OFF") + 3).trim()
-        if (counts.isEmpty()) counts = next() ?: throw OpException("OFF として読めません")
+        if (counts.isEmpty()) counts = next() ?: throw OpException(Txt(R.string.mesh_formats_009))
         val ct = StringTokenizer(counts)
-        if (ct.countTokens() < 2) throw OpException("OFF として読めません")
-        val nv = ct.nextToken().toIntOrNull() ?: throw OpException("OFF として読めません")
-        val nf = ct.nextToken().toIntOrNull() ?: throw OpException("OFF として読めません")
-        if (nv <= 0 || nv > MeshBuilder.MAX_VERTICES) throw OpException("OFF として読めません")
+        if (ct.countTokens() < 2) throw OpException(Txt(R.string.mesh_formats_010))
+        val nv = ct.nextToken().toIntOrNull() ?: throw OpException(Txt(R.string.mesh_formats_011))
+        val nf = ct.nextToken().toIntOrNull() ?: throw OpException(Txt(R.string.mesh_formats_012))
+        if (nv <= 0 || nv > MeshBuilder.MAX_VERTICES) throw OpException(Txt(R.string.mesh_formats_013))
         val xs = FloatArray(nv * 3)
         val cs = IntArray(nv)
         var anyColor = false
         for (i in 0 until nv) {
-            val l = next() ?: throw OpException("OFF の頂点が足りません")
+            val l = next() ?: throw OpException(Txt(R.string.mesh_formats_014))
             val st = StringTokenizer(l)
-            if (st.countTokens() < 3) throw OpException("OFF の頂点が読めません")
+            if (st.countTokens() < 3) throw OpException(Txt(R.string.mesh_formats_015))
             xs[i * 3] = st.nextToken().toFloatOrNull() ?: Float.NaN
             xs[i * 3 + 1] = st.nextToken().toFloatOrNull() ?: Float.NaN
             xs[i * 3 + 2] = st.nextToken().toFloatOrNull() ?: Float.NaN
@@ -255,7 +255,7 @@ object MeshFormats {
                 }
             }
         }
-        if (faces == 0) throw OpException("OFF に面がありません")
+        if (faces == 0) throw OpException(Txt(R.string.mesh_formats_016))
         return b.build()
     }
 
@@ -287,7 +287,7 @@ object MeshFormats {
                 sb.setLength(0)
                 var c = input.read()
                 while (c >= 0 && c <= 32) c = input.read()
-                if (c < 0) throw OpException("PLY のデータが途中で終わっています")
+                if (c < 0) throw OpException(Txt(R.string.mesh_formats_017))
                 while (c > 32) { sb.append(c.toChar()); c = input.read() }
                 return sb.toString().toDoubleOrNull() ?: Double.NaN
             }
@@ -296,7 +296,7 @@ object MeshFormats {
             var got = 0
             while (got < n) {
                 val r = input.read(bb.array(), got, n - got)
-                if (r < 0) throw OpException("PLY のデータが途中で終わっています")
+                if (r < 0) throw OpException(Txt(R.string.mesh_formats_018))
                 got += r
             }
             return when (type) {
@@ -320,15 +320,15 @@ object MeshFormats {
                 val c = input.read()
                 if (c < 0) return if (sb.isEmpty()) null else sb.toString()
                 if (c == '\n'.code) return sb.toString().trimEnd('\r')
-                if (sb.length > 4096) throw OpException("PLY として読めません")
+                if (sb.length > 4096) throw OpException(Txt(R.string.mesh_formats_019))
                 sb.append(c.toChar())
             }
         }
-        if (headerLine()?.trim() != "ply") throw OpException("PLY として読めません")
+        if (headerLine()?.trim() != "ply") throw OpException(Txt(R.string.mesh_formats_020))
         var format = ""
         val elements = ArrayList<PlyElement>()
         while (true) {
-            val l = headerLine() ?: throw OpException("PLY のヘッダーが途中で終わっています")
+            val l = headerLine() ?: throw OpException(Txt(R.string.mesh_formats_021))
             val t = l.trim().split(Regex("\\s+"))
             when (t[0]) {
                 "format" -> format = t.getOrElse(1) { "" }
@@ -336,11 +336,11 @@ object MeshFormats {
                 "property" -> {
                     val el = elements.lastOrNull() ?: continue
                     if (t.getOrNull(1) == "list") {
-                        val ct = plyTypes[t.getOrNull(2)] ?: throw OpException("PLY の型が読めません")
-                        val it = plyTypes[t.getOrNull(3)] ?: throw OpException("PLY の型が読めません")
+                        val ct = plyTypes[t.getOrNull(2)] ?: throw OpException(Txt(R.string.mesh_formats_022))
+                        val it = plyTypes[t.getOrNull(3)] ?: throw OpException(Txt(R.string.mesh_formats_023))
                         el.props.add(PlyProp(t.getOrElse(4) { "" }, it, ct, true))
                     } else {
-                        val ty = plyTypes[t.getOrNull(1)] ?: throw OpException("PLY の型が読めません")
+                        val ty = plyTypes[t.getOrNull(1)] ?: throw OpException(Txt(R.string.mesh_formats_024))
                         el.props.add(PlyProp(t.getOrElse(2) { "" }, ty, 0, false))
                     }
                 }
@@ -351,7 +351,7 @@ object MeshFormats {
             "ascii" -> PlyIn(input, true, ByteOrder.LITTLE_ENDIAN)
             "binary_little_endian" -> PlyIn(input, false, ByteOrder.LITTLE_ENDIAN)
             "binary_big_endian" -> PlyIn(input, false, ByteOrder.BIG_ENDIAN)
-            else -> throw OpException("PLY の形式($format)に対応していません")
+            else -> throw OpException(Txt(R.string.mesh_formats_025, format))
         }
         var xs = FloatArray(0)
         var cs = IntArray(0)
@@ -360,7 +360,7 @@ object MeshFormats {
         val b = MeshBuilder()
         var faces = 0
         for (el in elements) {
-            if (el.count < 0 || el.count > MeshBuilder.MAX_VERTICES.toLong() * 2) throw OpException("大きすぎて表示できません")
+            if (el.count < 0 || el.count > MeshBuilder.MAX_VERTICES.toLong() * 2) throw OpException(Txt(R.string.mesh_formats_026))
             val isVertex = el.name == "vertex"
             val isFace = el.name == "face"
             if (isVertex) {
@@ -383,7 +383,7 @@ object MeshFormats {
                 for ((pi, p) in el.props.withIndex()) {
                     if (p.isList) {
                         val cnt = rd.value(p.countType).toInt()
-                        if (cnt < 0 || cnt > 20_000_000) throw OpException("PLY のデータが読めません")
+                        if (cnt < 0 || cnt > 20_000_000) throw OpException(Txt(R.string.mesh_formats_027))
                         if (pi == il && cnt > list.size) list = IntArray(cnt)
                         for (j in 0 until cnt) {
                             val v = rd.value(p.type)
@@ -401,7 +401,7 @@ object MeshFormats {
                 }
                 val color = if (ir >= 0 && ig >= 0 && ib >= 0) rgb(channel(ir), channel(ig), channel(ib)) else NO_COLOR
                 if (isVertex) {
-                    if (ix < 0 || iy < 0 || iz < 0) throw OpException("PLY に座標がありません")
+                    if (ix < 0 || iy < 0 || iz < 0) throw OpException(Txt(R.string.mesh_formats_028))
                     xs[r * 3] = vals[ix].toFloat(); xs[r * 3 + 1] = vals[iy].toFloat(); xs[r * 3 + 2] = vals[iz].toFloat()
                     cs[r] = color
                     if (color != NO_COLOR) anyColor = true
@@ -443,7 +443,7 @@ object MeshFormats {
                 }
             }
         }
-        if (vn == 0) throw OpException("PLY に頂点がありません")
+        if (vn == 0) throw OpException(Txt(R.string.mesh_formats_029))
         if (faces > 0) return b.build()
         // 面が無ければ点群として見せる
         val p = MeshBuilder(maxVertices = MeshBuilder.MAX_VERTICES)
@@ -512,7 +512,7 @@ object MeshFormats {
                 if (n == "3d/3dmodel.model") break
             }
         }
-        val bytes = model ?: throw OpException("3MF にモデルがありません")
+        val bytes = model ?: throw OpException(Txt(R.string.mesh_formats_030))
         val objs = HashMap<String, Obj3>()
         val palettes = HashMap<String, IntArray>() // basematerials / colorgroup の id → 色
         val build = ArrayList<Pair<String, Affine3>>()
@@ -583,7 +583,7 @@ object MeshFormats {
         } catch (e: OpException) {
             throw e
         } catch (e: Exception) {
-            throw OpException("3MF として読めません")
+            throw OpException(Txt(R.string.mesh_formats_031))
         }
         val b = MeshBuilder()
         var tris = 0
@@ -606,7 +606,7 @@ object MeshFormats {
         }
         if (build.isEmpty()) objs.values.forEach { emit(it, Affine3.IDENTITY, 0) }
         else for ((id, t) in build) objs[id]?.let { emit(it, t, 0) }
-        if (tris == 0) throw OpException("3MF に三角形がありません")
+        if (tris == 0) throw OpException(Txt(R.string.mesh_formats_032))
         return b.build()
     }
 }

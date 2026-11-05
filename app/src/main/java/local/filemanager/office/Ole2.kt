@@ -16,9 +16,9 @@ class Ole2(private val d: ByteArray) {
     private val miniStream: ByteArray
 
     init {
-        if (!isOle2(d)) throw OpException("古い形式のOfficeファイル(OLE2)ではありません")
+        if (!isOle2(d)) throw OpException(Txt(R.string.ole2_001))
         val shift = u16(30)
-        if (shift != 9 && shift != 12) throw OpException("OLE2の形式が読めません")
+        if (shift != 9 && shift != 12) throw OpException(Txt(R.string.ole2_002))
         sectorSize = 1 shl shift
         miniSectorSize = 1 shl u16(32)
         miniCutoff = i32(56).let { if (it <= 0) 4096 else it }
@@ -49,7 +49,7 @@ class Ole2(private val d: ByteArray) {
         }
         fat = fatList.toIntArray()
 
-        val dirBytes = readChain(i32(48), -1L) ?: throw OpException("OLE2の目録が読めません")
+        val dirBytes = readChain(i32(48), -1L) ?: throw OpException(Txt(R.string.ole2_003))
         val list = ArrayList<Entry>()
         var p = 0
         while (p + 128 <= dirBytes.size) {

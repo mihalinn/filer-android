@@ -91,30 +91,30 @@ internal fun SongInfoDialog(item: FileItem, tags: MediaMetadata, tracks: Tracks,
     fun add(label: String, v: String?) {
         if (!v.isNullOrBlank()) rows.add(label to v)
     }
-    add("曲名", tags.title?.toString())
-    add("アーティスト", tags.artist?.toString())
-    add("アルバム", tags.albumTitle?.toString())
-    add("アルバムのアーティスト", tags.albumArtist?.toString())
-    add("作曲", tags.composer?.toString())
-    add("ジャンル", tags.genre?.toString())
-    (tags.recordingYear ?: tags.releaseYear)?.let { add("年", it.toString()) }
-    if (tags.trackNumber != null) add("トラック", "${tags.trackNumber}" + (tags.totalTrackCount?.let { "/$it" } ?: ""))
-    if (tags.discNumber != null) add("ディスク", "${tags.discNumber}" + (tags.totalDiscCount?.let { "/$it" } ?: ""))
-    add("説明", tags.description?.toString())
+    add(Txt(R.string.audio_ui_001), tags.title?.toString())
+    add(Txt(R.string.audio_ui_002), tags.artist?.toString())
+    add(Txt(R.string.audio_ui_003), tags.albumTitle?.toString())
+    add(Txt(R.string.audio_ui_004), tags.albumArtist?.toString())
+    add(Txt(R.string.audio_ui_005), tags.composer?.toString())
+    add(Txt(R.string.audio_ui_006), tags.genre?.toString())
+    (tags.recordingYear ?: tags.releaseYear)?.let { add(Txt(R.string.audio_ui_007), it.toString()) }
+    if (tags.trackNumber != null) add(Txt(R.string.audio_ui_008), "${tags.trackNumber}" + (tags.totalTrackCount?.let { "/$it" } ?: ""))
+    if (tags.discNumber != null) add(Txt(R.string.audio_ui_009), "${tags.discNumber}" + (tags.totalDiscCount?.let { "/$it" } ?: ""))
+    add(Txt(R.string.audio_ui_010), tags.description?.toString())
     val fmt = tracks.groups.firstOrNull { it.type == C.TRACK_TYPE_AUDIO && it.length > 0 }?.getTrackFormat(0)
     if (fmt != null) {
-        add("形式", TrackLabels.codec(fmt.sampleMimeType) ?: fmt.sampleMimeType)
-        add("ビットレート", MusicText.bitrate(if (fmt.averageBitrate > 0) fmt.averageBitrate else fmt.bitrate))
-        add("サンプリング周波数", MusicText.sampleRate(fmt.sampleRate))
-        add("チャンネル", TrackLabels.channels(fmt.channelCount))
+        add(Txt(R.string.audio_ui_011), TrackLabels.codec(fmt.sampleMimeType) ?: fmt.sampleMimeType)
+        add(Txt(R.string.audio_ui_012), MusicText.bitrate(if (fmt.averageBitrate > 0) fmt.averageBitrate else fmt.bitrate))
+        add(Txt(R.string.audio_ui_013), MusicText.sampleRate(fmt.sampleRate))
+        add(Txt(R.string.audio_ui_014), TrackLabels.channels(fmt.channelCount))
     }
-    if (durationMs > 0) add("長さ", formatClock(durationMs))
-    add("ファイル", item.name)
-    add("ファイルの大きさ", FileOps.formatSize(item.size))
-    if (rows.size <= 3) rows.add(0, "タグ" to "この曲には、曲名などのタグが入っていません")
+    if (durationMs > 0) add(Txt(R.string.audio_ui_015), formatClock(durationMs))
+    add(Txt(R.string.audio_ui_016), item.name)
+    add(Txt(R.string.audio_ui_017), FileOps.formatSize(item.size))
+    if (rows.size <= 3) rows.add(0, Txt(R.string.audio_ui_018) to Txt(R.string.audio_ui_019))
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("曲の情報") },
+        title = { Text(Txt(R.string.audio_ui_020)) },
         text = {
             SelectionContainer {
                 Column(Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState())) {
@@ -127,6 +127,6 @@ internal fun SongInfoDialog(item: FileItem, tags: MediaMetadata, tracks: Tracks,
                 }
             }
         },
-        confirmButton = { TextButton(onClick = onDismiss) { Text("閉じる") } },
+        confirmButton = { TextButton(onClick = onDismiss) { Text(Txt(R.string.audio_ui_021)) } },
     )
 }

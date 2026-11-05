@@ -121,11 +121,11 @@ internal fun SlidesView(deck: SlideDeck, read: (String) -> ByteArray?, dark: Boo
     // スライドの絵はそのまま。まわりの背景だけを暗くする
     val backdrop = if (dark) Color(0xFF0E0E0E) else slideBackdrop
     if (deck.slides.isEmpty()) {
-        Box(Modifier.fillMaxSize().background(backdrop)) { Text("スライドがありません", color = if (dark) Color(0xFFB0B0B0) else Color.DarkGray, modifier = Modifier.align(Alignment.Center)) }
+        Box(Modifier.fillMaxSize().background(backdrop)) { Text(Txt(R.string.slide_ui_001), color = if (dark) Color(0xFFB0B0B0) else Color.DarkGray, modifier = Modifier.align(Alignment.Center)) }
         return
     }
     DisposableEffect(deck, copy) {
-        copy?.set("全スライドの文字をコピー") { deck.plainText() }
+        copy?.set(Txt(R.string.slide_ui_002)) { deck.plainText() }
         onDispose { copy?.provider = null }
     }
     val list = rememberLazyListState()
@@ -207,7 +207,7 @@ private fun SlideCard(slide: SlideDoc, deck: SlideDeck, cardWidth: Dp, images: S
     val s = cardWidth.value / deck.widthPt
     Column {
         Text(
-            "${slide.number}" + if (slide.hidden) "(非表示のスライド)" else "",
+            "${slide.number}" + if (slide.hidden) Txt(R.string.slide_ui_003) else "",
             color = if (dark) Color(0xFF9A9A9A) else Color(0xFF777777), fontSize = 11.sp, modifier = Modifier.padding(start = 2.dp, bottom = 2.dp),
         )
         Box(Modifier.width(cardWidth).height((deck.heightPt * s).dp).clipToBounds().background(Color.White)) {
@@ -338,9 +338,9 @@ private fun ShapeView(sh: SShape, s: Float, images: SlideImages, slide: SlideDoc
             ListMenu(
                 expanded = true, dark = Pv.dark, onDismiss = { menu = false },
                 items = listOfNotNull(
-                    if (own.isNotBlank()) VMenuItem.Action(Icons.Default.ContentCopy, "この文字をコピー") { copyToClipboard(ctx, own) } else null,
-                    VMenuItem.Action(Icons.Default.ContentCopy, "このスライドの文字をコピー") { copyToClipboard(ctx, slide.plainText()) },
-                    VMenuItem.Action(Icons.Default.ContentCopy, "全スライドの文字をコピー") { copyToClipboard(ctx, deck.plainText()) },
+                    if (own.isNotBlank()) VMenuItem.Action(Icons.Default.ContentCopy, Txt(R.string.slide_ui_004)) { copyToClipboard(ctx, own) } else null,
+                    VMenuItem.Action(Icons.Default.ContentCopy, Txt(R.string.slide_ui_005)) { copyToClipboard(ctx, slide.plainText()) },
+                    VMenuItem.Action(Icons.Default.ContentCopy, Txt(R.string.slide_ui_006)) { copyToClipboard(ctx, deck.plainText()) },
                 ),
             )
         }

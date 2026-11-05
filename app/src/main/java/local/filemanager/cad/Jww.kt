@@ -28,7 +28,7 @@ object Jww {
         val remaining: Int get() = d.size - p
 
         private fun need(n: Int) {
-            if (n < 0 || p + n > d.size) throw OpException("JW_CAD のデータが途中で終わっています")
+            if (n < 0 || p + n > d.size) throw OpException(Txt(local.filemanager.R.string.jww_001))
         }
 
         fun skip(n: Int) { need(n); p += n }
@@ -60,7 +60,7 @@ object Jww {
                     len = w
                 }
             }
-            if (len < 0 || len > 1 shl 24) throw OpException("JW_CAD の文字列が読めません")
+            if (len < 0 || len > 1 shl 24) throw OpException(Txt(local.filemanager.R.string.jww_002))
             return if (unicode) String(bytes(len * 2), Charsets.UTF_16LE) else decode(bytes(len))
         }
     }
@@ -166,12 +166,12 @@ object Jww {
             Tag.New -> {
                 r.u16() // スキーマ番号
                 val n = r.u16()
-                if (n > 64) throw OpException("JW_CAD の図形の種類が読めません")
+                if (n > 64) throw OpException(Txt(local.filemanager.R.string.jww_003))
                 String(r.bytes(n), Charsets.ISO_8859_1).also { t.registerClass(it) }
             }
             Tag.Null -> return null
-            is Tag.ClassRef -> t.names[tag.pid] ?: throw OpException("JW_CAD の図形の種類が読めません")
-            is Tag.ObjectRef -> throw OpException("JW_CAD の図形の参照が読めません")
+            is Tag.ClassRef -> t.names[tag.pid] ?: throw OpException(Txt(local.filemanager.R.string.jww_004))
+            is Tag.ObjectRef -> throw OpException(Txt(local.filemanager.R.string.jww_005))
         }
         val e: E = when (name) {
             "CDataSen" -> readLine(r, version)
@@ -215,7 +215,7 @@ object Jww {
                 }
                 EDim(b, line, text, aux)
             }
-            else -> throw OpException("JW_CAD の図形(${name})に対応していません")
+            else -> throw OpException(Txt(local.filemanager.R.string.jww_006, name))
         }
         t.next++
         return e
@@ -365,18 +365,18 @@ object Jww {
     // ---------------------------------------------------------------- 変換
 
     fun parse(data: ByteArray): CadDrawing {
-        if (!isJww(data)) throw OpException("JW_CAD(.jww)として読めません")
-        val header = try { readHeader(data) } catch (e: OpException) { throw OpException("JW_CAD のヘッダーが読めません") }
-        val start = findEntityList(data, header.version) ?: throw OpException("JW_CAD の図形が見つかりません")
+        if (!isJww(data)) throw OpException(Txt(local.filemanager.R.string.jww_007))
+        val header = try { readHeader(data) } catch (e: OpException) { throw OpException(Txt(local.filemanager.R.string.jww_008)) }
+        val start = findEntityList(data, header.version) ?: throw OpException(Txt(local.filemanager.R.string.jww_009))
         val r = R(data, start)
         val table = Table()
         val list = readEntityList(r, header.version, table)
         val defs = if (list.truncated) emptyList() else readBlockDefs(r, header.version, table)
-        if (list.entities.isEmpty()) throw OpException("図形がありません")
+        if (list.entities.isEmpty()) throw OpException(Txt(local.filemanager.R.string.jww_010))
         val conv = Converter(header, defs.associateBy { it.number })
         conv.run(list.entities, Xf.ID, null, 0)
         val note = buildString {
-            if (list.truncated) append("ファイルの途中までしか読めませんでした")
+            if (list.truncated) append(Txt(local.filemanager.R.string.jww_011))
         }
         return conv.b.build(note)
     }

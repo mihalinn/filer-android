@@ -66,7 +66,7 @@ object Ops {
     }
 
     fun snapshot(p: Progress, speed: Long) = ProgressView(
-        verb = p.verb, from = p.from, to = p.to, doneBytes = p.doneBytes, totalBytes = p.totalBytes,
+        kind = p.kind, from = p.from, to = p.to, doneBytes = p.doneBytes, totalBytes = p.totalBytes,
         bytesPerSecond = speed, itemsDone = p.itemsDone, itemsTotal = p.itemsTotal,
         elapsedMs = System.currentTimeMillis() - p.startedAt,
     )
@@ -82,15 +82,15 @@ data class NoticeContent(
 )
 
 fun noticeContent(busy: String?, p: ProgressView?): NoticeContent {
-    if (p == null) return NoticeContent(busy ?: "処理しています…", "", null, "")
+    if (p == null) return NoticeContent(busy ?: Txt(R.string.ops_001), "", null, "")
     val pct = p.fraction?.let { (it * 100).toInt() }
-    val title = "${p.verb}しています" + (pct?.let { " $it%" } ?: "")
+    val title = Txt(p.kind.title) + (pct?.let { " $it%" } ?: "")
     val size = if (p.totalBytes > 0) "${FileOps.formatSize(p.doneBytes)} / ${FileOps.formatSize(p.totalBytes)}" else FileOps.formatSize(p.doneBytes)
-    val speed = if (p.bytesPerSecond > 0) "・${FileOps.formatSize(p.bytesPerSecond)}/s" else ""
+    val speed = if (p.bytesPerSecond > 0) Txt(R.string.ops_002, FileOps.formatSize(p.bytesPerSecond)) else ""
     val text = size + speed
     val lines = ArrayList<String>()
     lines.add(text)
-    if (p.itemsTotal > 0) lines.add("項目 ${p.itemsDone} / ${p.itemsTotal}")
-    lines.add("経過 ${formatElapsed(p.elapsedMs)}")
+    if (p.itemsTotal > 0) lines.add(Txt(R.string.progress_items, p.itemsDone, p.itemsTotal))
+    lines.add(Txt(R.string.progress_elapsed, formatElapsed(p.elapsedMs)))
     return NoticeContent(title, text, pct, lines.joinToString("\n"))
 }

@@ -313,11 +313,11 @@ internal object PptDeck {
     fun parse(bytes: ByteArray): Result = parse(Ole2(bytes))
 
     fun parse(ole: Ole2): Result {
-        val doc = ole.stream("PowerPoint Document") ?: throw OpException("PowerPointの文書(PowerPoint Document)が見つかりません")
+        val doc = ole.stream("PowerPoint Document") ?: throw OpException(Txt(R.string.ppt_deck_001))
         val pics = ole.stream("Pictures")
         val persist = Ppt.readPersist(ole.stream("Current User"), doc)
         val docRec = if (persist.docOffset >= 0) Ppt.rec(doc, persist.docOffset) else null
-        if (docRec == null || docRec.type != 0x03E8) throw OpException("PowerPointの文書の構造が読めません")
+        if (docRec == null || docRec.type != 0x03E8) throw OpException(Txt(R.string.ppt_deck_002))
 
         var wPt = 720f
         var hPt = 540f
@@ -344,7 +344,7 @@ internal object PptDeck {
                 }
             }
         }
-        if (slideIds.isEmpty()) throw OpException("スライドが見つかりません")
+        if (slideIds.isEmpty()) throw OpException(Txt(R.string.ppt_deck_003))
         val shared = Shared(doc, fonts, env, dgg, bses)
 
         val masters = HashMap<Int, Master?>()

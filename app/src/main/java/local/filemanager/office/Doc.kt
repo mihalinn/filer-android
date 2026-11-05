@@ -17,11 +17,11 @@ object Doc {
     fun parse(ole: Ole2): DocxDoc = open(ole).doc
 
     fun open(ole: Ole2): Opened {
-        val word = ole.stream("WordDocument") ?: throw OpException("Wordの文書(WordDocument)が見つかりません")
-        if (word.size < 512 || u16(word, 0) != 0xA5EC) throw OpException("Word 97〜2003 の文書として読めません")
+        val word = ole.stream("WordDocument") ?: throw OpException(Txt(R.string.doc_001))
+        if (word.size < 512 || u16(word, 0) != 0xA5EC) throw OpException(Txt(R.string.doc_002))
         val flags = u16(word, 10)
-        if ((flags and 0x0100) != 0) throw OpException("パスワードで保護された文書は開けません")
-        val table = ole.stream(if ((flags and 0x0200) != 0) "1Table" else "0Table") ?: throw OpException("文書の表(Table)が見つかりません")
+        if ((flags and 0x0100) != 0) throw OpException(Txt(R.string.doc_003))
+        val table = ole.stream(if ((flags and 0x0200) != 0) "1Table" else "0Table") ?: throw OpException(Txt(R.string.doc_004))
         val f = Fib(word)
         val pieces = readPieces(word, table, f)
         val text = buildText(word, pieces, f.ccpText)
@@ -196,15 +196,15 @@ object Doc {
     }
 
     private fun readPieces(word: ByteArray, table: ByteArray, f: Fib): List<Piece> {
-        if (f.lcbClx <= 0 || f.fcClx < 0 || f.fcClx + f.lcbClx > table.size) throw OpException("文書の文字の並び(CLX)が読めません")
+        if (f.lcbClx <= 0 || f.fcClx < 0 || f.fcClx + f.lcbClx > table.size) throw OpException(Txt(R.string.doc_005))
         var p = f.fcClx
         val end = f.fcClx + f.lcbClx
         while (p < end && (table[p].toInt() and 0xFF) == 1) p += 3 + u16(table, p + 1) // Prc を飛ばす
-        if (p >= end || (table[p].toInt() and 0xFF) != 2) throw OpException("文書の文字の並び(Pcdt)が読めません")
+        if (p >= end || (table[p].toInt() and 0xFF) != 2) throw OpException(Txt(R.string.doc_006))
         val lcb = le32(table, p + 1)
         val plc = p + 5
         val n = (lcb - 4) / 12
-        if (n <= 0 || plc + lcb > table.size) throw OpException("文書の文字の並びが空")
+        if (n <= 0 || plc + lcb > table.size) throw OpException(Txt(R.string.doc_007))
         val out = ArrayList<Piece>()
         for (i in 0 until n) {
             val cp0 = le32(table, plc + i * 4)

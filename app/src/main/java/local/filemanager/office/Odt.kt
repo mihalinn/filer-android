@@ -3,10 +3,10 @@ package local.filemanager
 /** OpenDocument のテキスト文書(.odt)を、Word と同じ形(DocxDoc)にする。Android に依存しない。 */
 object Odt {
     fun parse(read: (String) -> ByteArray?): DocxDoc {
-        val content = Odf.xml(read, "content.xml") ?: throw OpException("OpenDocumentのファイルとして読めません")
+        val content = Odf.xml(read, "content.xml") ?: throw OpException(Txt(R.string.odt_001))
         val styles = Odf.xml(read, "styles.xml")
         val st = OdfStyles(styles, content)
-        val text = content.child("body")?.child("text") ?: throw OpException("文書(.odt)として読めません")
+        val text = content.child("body")?.child("text") ?: throw OpException(Txt(R.string.odt_002))
         val b = Builder(st)
         b.blocks(text.kids, b.pages.last(), true)
         val pages = b.pages.filter { it.isNotEmpty() }

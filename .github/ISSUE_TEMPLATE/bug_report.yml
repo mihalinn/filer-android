@@ -1,57 +1,66 @@
-name: 不具合の報告
-description: 動かない・表示がおかしい・異常終了した、などを報告します
-title: "[不具合] "
+name: 不具合の報告 / Bug report
+description: 動かない・表示がおかしい・異常終了した、などを報告します / Report something that does not work, looks wrong, or crashes
+title: "[不具合 / Bug] "
 labels: ["bug"]
 body:
   - type: markdown
     attributes:
       value: |
-        報告ありがとうございます。
+        報告ありがとうございます。日本語でも英語でもかまいません。
         **パスワード、NAS の名前や IP アドレス、個人のファイル名など、公開したくない情報は書かないでください**(伏せ字にしてください)。この内容は誰でも読めます。
+
+        Thank you for reporting. Please write in Japanese or English.
+        **Do not include passwords, NAS names, IP addresses, personal file names or any other private information** (mask it). Anyone can read this issue.
   - type: textarea
     id: what
     attributes:
-      label: 何が起きましたか
-      description: どの画面で、どのファイルを開いたときかも書いてください。画面の写真があれば貼ってください。
-      placeholder: "例: txt を開いて「検索」を押すと、検索の入力欄がキーボードの下に隠れる"
+      label: 何が起きましたか / What happened
+      description: どの画面で、どのファイルを開いたときかも書いてください。画面の写真があれば貼ってください。 / Please say which screen it was and which file you opened. Add a screenshot if you have one.
+      placeholder: "例: txt を開いて「検索」を押すと、検索の入力欄がキーボードの下に隠れる / e.g. When I open a .txt file and tap Search, the search field is hidden behind the keyboard"
     validations:
       required: true
   - type: textarea
     id: steps
     attributes:
-      label: 再現の手順
-      description: 同じことをもう一度起こす手順です。分かる範囲でかまいません。
+      label: 再現の手順 / Steps to reproduce
+      description: 同じことをもう一度起こす手順です。分かる範囲でかまいません。 / The steps to make it happen again, as far as you know.
       placeholder: |
-        1. 〜を開く
-        2. 〜を押す
-        3. 〜になる
+        1. 〜を開く / Open ...
+        2. 〜を押す / Tap ...
+        3. 〜になる / ... happens
   - type: textarea
     id: expected
     attributes:
-      label: 本来はどうなってほしいですか
+      label: 本来はどうなってほしいですか / What did you expect?
   - type: input
     id: version
     attributes:
-      label: アプリのバージョン
-      description: 設定の「アプリの更新」に表示されています。
-      placeholder: "例: 0.45.0"
+      label: アプリのバージョン / App version
+      description: 設定の「アプリの更新」に表示されています。 / Shown in Settings under “App updates”.
+      placeholder: "例 / e.g. 0.62.1"
     validations:
       required: true
   - type: input
     id: device
     attributes:
-      label: 端末と Android のバージョン
-      placeholder: "例: Pixel 8 / Android 14"
+      label: 端末と Android のバージョン / Device and Android version
+      placeholder: "例 / e.g. Pixel 8 / Android 14"
+  - type: input
+    id: language
+    attributes:
+      label: アプリの言語 / App language
+      description: 設定の「表示」の「言語」で選んだもの(日本語 / English / 端末に合わせる)。 / The one chosen in Settings → Display → Language.
+      placeholder: "例 / e.g. English"
   - type: textarea
     id: log
     attributes:
-      label: 異常終了の記録(あれば)
-      description: 設定の「このアプリについて」→「前回の異常終了の記録」からコピーできます。ファイル名などが入っていないか、確認してから貼ってください。
+      label: 異常終了の記録(あれば) / Crash log (if any)
+      description: 設定の「このアプリについて」→「異常終了の記録」からコピーできます。ファイル名などが入っていないか、確認してから貼ってください。 / You can copy it from Settings → About this app → Crash log. Check that it contains no file names or other private information before pasting.
       render: text
   - type: checkboxes
     id: check
     attributes:
-      label: 確認
+      label: 確認 / Confirmation
       options:
-        - label: パスワードや個人情報が入っていないことを確認しました
+        - label: パスワードや個人情報が入っていないことを確認しました / I have checked that no passwords or personal information are included
           required: true

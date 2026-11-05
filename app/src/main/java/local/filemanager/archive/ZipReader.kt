@@ -32,7 +32,7 @@ class ZipReader(private val src: RandomSource) {
         var got = 0
         while (got < len) {
             val n = src.readAt(pos + got, b, got, len - got)
-            if (n <= 0) throw OpException("ZIPが途中で切れているか、壊れています")
+            if (n <= 0) throw OpException(Txt(R.string.zip_reader_001))
             got += n
         }
         return b
@@ -45,7 +45,7 @@ class ZipReader(private val src: RandomSource) {
 
     private fun readEntries(): List<Entry> {
         val total = src.size
-        if (total < 22) throw OpException("ZIPファイルではありません")
+        if (total < 22) throw OpException(Txt(R.string.zip_reader_002))
         // 末尾の「目次の終わり」を探す(コメントがあると末尾からずれるので、最大 64KB 手前まで)
         val tailLen = minOf(total, 22L + 65535L).toInt()
         val tail = readAt(total - tailLen, tailLen)
@@ -56,19 +56,19 @@ class ZipReader(private val src: RandomSource) {
                 break
             }
         }
-        if (eocd < 0) throw OpException("ZIPファイルではありません")
+        if (eocd < 0) throw OpException(Txt(R.string.zip_reader_003))
         val count = u16(tail, eocd + 10)
         val cdSize = u32(tail, eocd + 12)
         val cdOffset = u32(tail, eocd + 16)
         if (count == 0xFFFF || cdSize == 0xFFFFFFFFL || cdOffset == 0xFFFFFFFFL) {
-            throw OpException("4GBを超えるZIP(ZIP64)は未対応")
+            throw OpException(Txt(R.string.zip_reader_004))
         }
-        if (cdOffset + cdSize > total) throw OpException("ZIPが壊れています")
+        if (cdOffset + cdSize > total) throw OpException(Txt(R.string.zip_reader_005))
         val cd = readAt(cdOffset, cdSize.toInt())
         val raws = ArrayList<Raw>(count)
         var p = 0
         repeat(count) {
-            if (p + 46 > cd.size || u32(cd, p) != 0x02014b50L) throw OpException("ZIPの目次が壊れています")
+            if (p + 46 > cd.size || u32(cd, p) != 0x02014b50L) throw OpException(Txt(R.string.zip_reader_006))
             val flags = u16(cd, p + 8)
             val method = u16(cd, p + 10)
             val dosTime = u16(cd, p + 12)
@@ -80,9 +80,9 @@ class ZipReader(private val src: RandomSource) {
             val commentLen = u16(cd, p + 32)
             val offset = u32(cd, p + 42)
             if (csize == 0xFFFFFFFFL || usize == 0xFFFFFFFFL || offset == 0xFFFFFFFFL) {
-                throw OpException("4GBを超えるZIP(ZIP64)は未対応")
+                throw OpException(Txt(R.string.zip_reader_007))
             }
-            if (p + 46 + nameLen > cd.size) throw OpException("ZIPの目次が壊れています")
+            if (p + 46 + nameLen > cd.size) throw OpException(Txt(R.string.zip_reader_008))
             val nameBytes = cd.copyOfRange(p + 46, p + 46 + nameLen)
             val isDir = nameBytes.isNotEmpty() && nameBytes.last() == '/'.code.toByte()
             raws.add(
@@ -121,9 +121,9 @@ class ZipReader(private val src: RandomSource) {
 
     /** 1つの中身を取り出す(展開した内容が読める)。使い終わったら close する。 */
     fun open(e: Entry): InputStream {
-        if (e.encrypted) throw OpException("パスワード付きのZIPは未対応")
+        if (e.encrypted) throw OpException(Txt(R.string.zip_reader_009))
         val head = readAt(e.localOffset, 30)
-        if (u32(head, 0) != 0x04034b50L) throw OpException("ZIPが壊れています: ${e.name}")
+        if (u32(head, 0) != 0x04034b50L) throw OpException(Txt(R.string.zip_reader_010, e.name))
         val dataStart = e.localOffset + 30 + u16(head, 26) + u16(head, 28)
         return when (e.method) {
             0 -> RangeStream(src, dataStart, e.compressedSize, padByte = false)
@@ -140,7 +140,7 @@ class ZipReader(private val src: RandomSource) {
                     }
                 }
             }
-            else -> throw OpException("未対応の圧縮方式のZIP(${e.method}): ${e.name}")
+            else -> throw OpException(Txt(R.string.zip_reader_011, e.method, e.name))
         }
     }
 
@@ -161,7 +161,7 @@ class ZipReader(private val src: RandomSource) {
         private fun fill(): Boolean {
             if (remaining <= 0) return false
             val n = src.readAt(pos, buf, 0, minOf(buf.size.toLong(), remaining).toInt())
-            if (n <= 0) throw IOException("ZIPが途中で切れています")
+            if (n <= 0) throw IOException(Txt(R.string.zip_reader_012))
             pos += n
             remaining -= n
             bufPos = 0

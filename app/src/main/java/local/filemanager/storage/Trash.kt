@@ -20,7 +20,7 @@ object Trash {
 
     fun moveToTrash(volume: File, f: File) {
         val box = File(root(volume), "${System.currentTimeMillis()}_${counter.incrementAndGet()}")
-        if (!box.mkdirs()) throw OpException("ごみ箱を作成できません")
+        if (!box.mkdirs()) throw OpException(Txt(R.string.trash_001))
         try {
             File(box, META).writeText("${f.path}\n${System.currentTimeMillis()}")
             FileOps.move(f, box)
@@ -52,11 +52,11 @@ object Trash {
 
     /** 元の場所へ戻す。元のフォルダが無ければ作り、同名があれば「名前 (1)」にする。 */
     fun restore(child: File): File {
-        val box = child.parentFile ?: throw OpException("ごみ箱の記録が壊れています")
+        val box = child.parentFile ?: throw OpException(Txt(R.string.trash_002))
         val origin = File(box, META).takeIf { it.isFile }?.readLines()?.firstOrNull()
-            ?: throw OpException("元の場所の記録がありません: ${child.name}")
-        val parent = File(origin).parentFile ?: throw OpException("元の場所が不明です")
-        if (!parent.isDirectory && !parent.mkdirs()) throw OpException("元のフォルダを作成できません")
+            ?: throw OpException(Txt(R.string.trash_003, child.name))
+        val parent = File(origin).parentFile ?: throw OpException(Txt(R.string.trash_004))
+        if (!parent.isDirectory && !parent.mkdirs()) throw OpException(Txt(R.string.trash_005))
         val restored = FileOps.move(child, parent)
         FileOps.delete(box)
         return restored

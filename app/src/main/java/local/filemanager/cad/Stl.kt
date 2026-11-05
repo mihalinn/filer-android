@@ -54,17 +54,17 @@ object Stl {
             if (n < 0) break
             got += n
         }
-        if (got < 15) throw OpException("STLとして読めません")
+        if (got < 15) throw OpException(Txt(R.string.stl_001))
         val startsSolid = String(head, 0, 5, Charsets.US_ASCII).equals("solid", ignoreCase = true)
         val count = if (got >= 84) (ByteBuffer.wrap(head, 80, 4).order(ByteOrder.LITTLE_ENDIAN).int.toLong() and 0xFFFFFFFFL) else -1L
         val binaryExact = count >= 0 && 84 + 50 * count == size
         // 「solid」で始まっていても、大きさがぴったり合うバイナリがある(ヘッダーに solid と書く作成ソフトがある)
         val binary = binaryExact || (!startsSolid && count in 1..((size - 84) / 50))
         return if (binary) {
-            if (size > MAX_BINARY_BYTES) throw OpException("大きすぎて表示できません(${MAX_BINARY_BYTES / 1024 / 1024} MB まで)")
+            if (size > MAX_BINARY_BYTES) throw OpException(Txt(R.string.stl_002, MAX_BINARY_BYTES / 1024 / 1024))
             readBinary(input, count.toInt())
         } else {
-            if (size > MAX_ASCII_BYTES) throw OpException("大きすぎて表示できません(${MAX_ASCII_BYTES / 1024 / 1024} MB まで)")
+            if (size > MAX_ASCII_BYTES) throw OpException(Txt(R.string.stl_003, MAX_ASCII_BYTES / 1024 / 1024))
             val rest = input.readBytes()
             val all = ByteArray(got + rest.size)
             System.arraycopy(head, 0, all, 0, got)
@@ -76,7 +76,7 @@ object Stl {
     fun parse(bytes: ByteArray): Mesh = parse(bytes.inputStream(), bytes.size.toLong())
 
     private fun readBinary(input: InputStream, count: Int): Mesh {
-        if (count <= 0) throw OpException("三角形がありません")
+        if (count <= 0) throw OpException(Txt(R.string.stl_004))
         val buf = direct(count * 9)
         val b = Bounds()
         val rec = ByteArray(50 * 1024) // 1024 三角形ずつ
@@ -111,7 +111,7 @@ object Stl {
             left -= tris
             if (tris < minOf(left + tris, 1024)) break // ファイルが途中で終わっている
         }
-        if (written == 0) throw OpException("三角形がありません")
+        if (written == 0) throw OpException(Txt(R.string.stl_005))
         buf.flip()
         return Mesh(buf, written * 3, b.min, b.max)
     }
@@ -133,7 +133,7 @@ object Stl {
             }
         }
         val tris = vals.size / 9
-        if (tris == 0) throw OpException("STLとして読めません")
+        if (tris == 0) throw OpException(Txt(R.string.stl_006))
         val buf = direct(tris * 9)
         val b = Bounds()
         var written = 0
@@ -145,7 +145,7 @@ object Stl {
             for (k in 0 until 9) buf.put(vals[t * 9 + k])
             written++
         }
-        if (written == 0) throw OpException("三角形がありません")
+        if (written == 0) throw OpException(Txt(R.string.stl_007))
         buf.flip()
         return Mesh(buf, written * 3, b.min, b.max)
     }

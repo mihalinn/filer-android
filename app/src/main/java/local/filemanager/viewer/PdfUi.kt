@@ -134,14 +134,14 @@ private fun openPdf(ctx: Context, fs: Fs, item: FileItem, task: BgTask): PdfLoad
         val file: File = if (fs.isLocal) {
             File(item.path)
         } else {
-            if (item.size > PDF_REMOTE_LIMIT) return PdfLoad.Fail("大きすぎて表示できません(${PDF_REMOTE_LIMIT / 1024 / 1024} MB まで)。メニューの「他のアプリで開く」を使ってください")
+            if (item.size > PDF_REMOTE_LIMIT) return PdfLoad.Fail(Txt(R.string.pdf_ui_001, PDF_REMOTE_LIMIT / 1024 / 1024))
             val dir = File(ctx.cacheDir, "pdfview").also { it.mkdirs() }
             val name = "pdf_" + (fs.id + "|" + item.path + "|" + item.size + "|" + item.modified).hashCode().toUInt().toString(16) + ".pdf"
             val dest = File(dir, name)
             if (!dest.exists() || dest.length() != item.size) {
                 val tmp = File(dir, "$name.part")
                 BgTasks.run(task, item.size) { task.download(fs, item.path, tmp) }
-                if (!tmp.renameTo(dest)) throw java.io.IOException("一時ファイルを作れません")
+                if (!tmp.renameTo(dest)) throw java.io.IOException(Txt(R.string.pdf_ui_002))
             }
             dest.setLastModified(System.currentTimeMillis())
             trimPdfCache(dir, dest)
@@ -149,9 +149,9 @@ private fun openPdf(ctx: Context, fs: Fs, item: FileItem, task: BgTask): PdfLoad
         }
         PdfLoad.Ok(PdfiumDoc(ctx, file))
     } catch (e: SecurityException) {
-        PdfLoad.Fail("パスワード付きのPDFは表示できません。メニューの「他のアプリで開く」を使ってください")
+        PdfLoad.Fail(Txt(R.string.pdf_ui_003))
     } catch (e: Exception) {
-        PdfLoad.Fail("PDFを開けません(${e.message ?: e.javaClass.simpleName})")
+        PdfLoad.Fail(Txt(R.string.pdf_ui_004, e.message ?: e.javaClass.simpleName))
     }
 }
 
@@ -172,7 +172,7 @@ private fun trimPdfCache(dir: File, keep: File) {
 internal fun PdfPane(fs: Fs, item: FileItem, bars: Boolean, gotoDialog: Boolean, onGotoDismiss: () -> Unit, onTap: () -> Unit, dark: Boolean = false, copy: CopyHolder? = null) {
     val ctx = LocalContext.current
     val copyScope = rememberCoroutineScope()
-    val task = rememberBgTask(item.path, "「${item.name}」を取り込んでいます", "「${item.name}」の取り込みが終わりました", "「${item.name}」を取り込めませんでした")
+    val task = rememberBgTask(item.path, Txt(R.string.pdf_ui_005, item.name), Txt(R.string.pdf_ui_006, item.name), Txt(R.string.pdf_ui_007, item.name))
     val load = produceState<PdfLoad>(PdfLoad.Busy, item.path) {
         value = withContext(Dispatchers.IO) { openPdf(ctx, fs, item, task) }
     }.value
@@ -184,7 +184,7 @@ internal fun PdfPane(fs: Fs, item: FileItem, bars: Boolean, gotoDialog: Boolean,
         is PdfLoad.Ok -> {
             DisposableEffect(load.doc) { onDispose { load.doc.close() } }
             DisposableEffect(load.doc, copy) {
-                copy?.setAction("全ページの文字をコピー") { pdfCopy(ctx, copyScope, load.doc, null) }
+                copy?.setAction(Txt(R.string.pdf_ui_008)) { pdfCopy(ctx, copyScope, load.doc, null) }
                 onDispose { copy?.action = null }
             }
             PdfPages(load.doc, bars, gotoDialog, onGotoDismiss, onTap, dark) { page -> pdfCopy(ctx, copyScope, load.doc, page) }
@@ -308,11 +308,11 @@ private fun PdfPages(doc: PdfiumDoc, bars: Boolean, gotoDialog: Boolean, onGotoD
                     .background(Color(0xEE202020), RoundedCornerShape(8.dp)),
             ) {
                 Text(
-                    "コピー", color = Color.White, fontSize = 15.sp,
+                    Txt(R.string.pdf_ui_009), color = Color.White, fontSize = 15.sp,
                     modifier = Modifier.clickable { copyToClipboard(ctx, st); activePage = null; selText = null }.padding(horizontal = 20.dp, vertical = 10.dp),
                 )
                 Text(
-                    "解除", color = Color(0xFFBBBBBB), fontSize = 15.sp,
+                    Txt(R.string.pdf_ui_010), color = Color(0xFFBBBBBB), fontSize = 15.sp,
                     modifier = Modifier.clickable { activePage = null; selText = null }.padding(horizontal = 20.dp, vertical = 10.dp),
                 )
             }
@@ -331,11 +331,11 @@ private fun PdfPages(doc: PdfiumDoc, bars: Boolean, gotoDialog: Boolean, onGotoD
         val n = text.toIntOrNull()
         AlertDialog(
             onDismissRequest = onGotoDismiss,
-            title = { Text("ページ移動") },
+            title = { Text(Txt(R.string.pdf_ui_011)) },
             text = {
                 OutlinedTextField(
                     value = text, onValueChange = { text = it.filter(Char::isDigit).take(6) }, singleLine = true,
-                    label = { Text("1 〜 ${doc.pageCount}") },
+                    label = { Text(Txt(R.string.pdf_ui_012, doc.pageCount)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 )
             },
@@ -346,9 +346,9 @@ private fun PdfPages(doc: PdfiumDoc, bars: Boolean, gotoDialog: Boolean, onGotoD
                         scope.launch { list.scrollToItem((n ?: 1) - 1) }
                         onGotoDismiss()
                     },
-                ) { Text("移動") }
+                ) { Text(Txt(R.string.pdf_ui_013)) }
             },
-            dismissButton = { TextButton(onClick = onGotoDismiss) { Text("キャンセル") } },
+            dismissButton = { TextButton(onClick = onGotoDismiss) { Text(Txt(R.string.pdf_ui_014)) } },
         )
     }
 }
@@ -491,8 +491,8 @@ private fun PdfPage(
             ListMenu(
                 expanded = true, dark = Pv.dark, onDismiss = { menu = false },
                 items = listOf(
-                    VMenuItem.Action(Icons.Default.ContentCopy, "このページの文字をコピー") { onCopy(index) },
-                    VMenuItem.Action(Icons.Default.ContentCopy, "全ページの文字をコピー") { onCopy(null) },
+                    VMenuItem.Action(Icons.Default.ContentCopy, Txt(R.string.pdf_ui_015)) { onCopy(index) },
+                    VMenuItem.Action(Icons.Default.ContentCopy, Txt(R.string.pdf_ui_016)) { onCopy(null) },
                 ),
             )
         }
@@ -517,7 +517,7 @@ private fun PdfPage(
                 }
             }
         } else if (failed) {
-            Text("このページを表示できません", color = Color.Gray, fontSize = 13.sp)
+            Text(Txt(R.string.pdf_ui_017), color = Color.Gray, fontSize = 13.sp)
         } else {
             CircularProgressIndicator(Modifier.height(28.dp), color = Color.LightGray, strokeWidth = 2.dp)
         }
@@ -531,15 +531,15 @@ private fun PdfPage(
 
 /** PDF の文字をコピーする。page は 0 から数えたページ(null なら全ページ)。取り出しは裏で行う。 */
 private fun pdfCopy(ctx: Context, scope: kotlinx.coroutines.CoroutineScope, doc: PdfiumDoc, page: Int?) {
-    android.widget.Toast.makeText(ctx, "文字を取り出しています", android.widget.Toast.LENGTH_SHORT).show()
+    android.widget.Toast.makeText(ctx, Txt(R.string.pdf_ui_018), android.widget.Toast.LENGTH_SHORT).show()
     scope.launch {
         // 上限より 1 文字多く取り出して、超えたときは copyToClipboard が「先頭だけコピーした」と知らせる
         val r = withContext(Dispatchers.IO) { runCatching { doc.extractText(page?.let { it..it }, CopyText.MAX_CHARS + 1) } }
         r.onSuccess { res ->
             if (res.hasText) copyToClipboard(ctx, res.text)
-            else android.widget.Toast.makeText(ctx, "文字がありません(スキャンした画像の PDF など)", android.widget.Toast.LENGTH_LONG).show()
+            else android.widget.Toast.makeText(ctx, Txt(R.string.pdf_ui_019), android.widget.Toast.LENGTH_LONG).show()
         }.onFailure { e ->
-            android.widget.Toast.makeText(ctx, e.message ?: "文字を取り出せませんでした", android.widget.Toast.LENGTH_LONG).show()
+            android.widget.Toast.makeText(ctx, e.message ?: Txt(R.string.pdf_ui_020), android.widget.Toast.LENGTH_LONG).show()
         }
     }
 }

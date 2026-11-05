@@ -63,7 +63,7 @@ class XlsxFile(private val read: (String) -> ByteArray?) : SheetBook {
     val sheets: List<Ref> = readSheetList()
 
     private fun readSheetList(): List<Ref> {
-        val wb = read("xl/workbook.xml") ?: throw OpException("Excelのファイルとして読めません")
+        val wb = read("xl/workbook.xml") ?: throw OpException(Txt(R.string.xlsx_001))
         val rels = OfficeXml.relationships(read("xl/_rels/workbook.xml.rels"), "xl")
         val out = ArrayList<Ref>()
         OfficeXml.parse(
@@ -80,7 +80,7 @@ class XlsxFile(private val read: (String) -> ByteArray?) : SheetBook {
                 }
             },
         )
-        if (out.isEmpty()) throw OpException("シートが見つかりません")
+        if (out.isEmpty()) throw OpException(Txt(R.string.xlsx_002))
         return out
     }
 
@@ -268,7 +268,7 @@ class XlsxFile(private val read: (String) -> ByteArray?) : SheetBook {
     /** i 番目のシートを読む。行・列が多すぎるときは、先頭だけ(truncated)。 */
     fun load(i: Int, maxRows: Int = 50_000, maxCols: Int = 256): XlsxSheet {
         val ref = sheets[i]
-        val bytes = read(ref.path) ?: throw OpException("シート「${ref.name}」を読めません")
+        val bytes = read(ref.path) ?: throw OpException(Txt(R.string.xlsx_003, ref.name))
         val rows = ArrayList<ArrayList<String>>()
         val meta = HashMap<Long, Int>()
         val widths = HashMap<Int, Float>()

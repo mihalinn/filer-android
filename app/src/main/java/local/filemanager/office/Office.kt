@@ -262,7 +262,7 @@ class Slide(val number: Int, val title: String?, val lines: List<String>)
 
 object Pptx {
     fun parse(read: (String) -> ByteArray?): List<Slide> {
-        val pres = read("ppt/presentation.xml") ?: throw OpException("PowerPointのファイルとして読めません")
+        val pres = read("ppt/presentation.xml") ?: throw OpException(Txt(R.string.office_001))
         val rels = OfficeXml.relationships(read("ppt/_rels/presentation.xml.rels"), "ppt")
         val order = ArrayList<String>()
         OfficeXml.parse(

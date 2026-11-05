@@ -67,14 +67,14 @@ internal fun AppDrawer(vm: FmViewModel, close: () -> Unit, onPending: (Pending) 
         Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             FolderGlyph(kindColor(FileKind.FOLDER), Modifier.size(26.dp))
             Spacer(Modifier.width(10.dp))
-            Text("ファイラー", fontSize = 19.sp, fontWeight = FontWeight.Bold, color = pal.text)
+            Text(Txt(R.string.app_name), fontSize = 19.sp, fontWeight = FontWeight.Bold, color = pal.text)
         }
         // 場所 / ブックマーク / 履歴 の切り替え(文字のつまみ)
         Row(
             Modifier.fillMaxWidth().padding(horizontal = 10.dp).clip(RoundedCornerShape(8.dp)).background(pal.tileBg).padding(3.dp),
             horizontalArrangement = Arrangement.spacedBy(3.dp),
         ) {
-            listOf("場所", "ブックマーク", "履歴").forEachIndexed { i, label ->
+            listOf(Txt(R.string.drawer_001), Txt(R.string.drawer_002), Txt(R.string.drawer_003)).forEachIndexed { i, label ->
                 val on = tab == i
                 Box(
                     Modifier.weight(1f).height(34.dp).clip(RoundedCornerShape(6.dp))
@@ -93,14 +93,14 @@ internal fun AppDrawer(vm: FmViewModel, close: () -> Unit, onPending: (Pending) 
         Column(Modifier.verticalScroll(rememberScrollState())) {
             when (tab) {
                 0 -> LocationsTab(vm, close)
-                1 -> PlacesTab(vm, vm.bookmarks, "ブックマークはまだありません。\nフォルダを長押しして、「その他」から追加できます。", close, removable = true)
+                1 -> PlacesTab(vm, vm.bookmarks, Txt(R.string.drawer_004), close, removable = true)
                 else -> {
                     if (vm.history.isNotEmpty()) {
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = androidx.compose.foundation.layout.Arrangement.End) {
-                            TextButton(onClick = vm::clearHistory) { Text("履歴を消去") }
+                            TextButton(onClick = vm::clearHistory) { Text(Txt(R.string.drawer_005)) }
                         }
                     }
-                    PlacesTab(vm, vm.history, "履歴はありません", close, removable = false)
+                    PlacesTab(vm, vm.history, Txt(R.string.drawer_006), close, removable = false)
                 }
             }
         }
@@ -151,7 +151,7 @@ private fun SectionHeading(text: String) {
 @Composable
 private fun LocationsTab(vm: FmViewModel, close: () -> Unit) {
     val pal = LocalPal.current
-    DrawerRow(icon = { Badge(Icons.Default.Home, Color(0xFF8E9CF0)) }, title = "ホーム") {
+    DrawerRow(icon = { Badge(Icons.Default.Home, Color(0xFF8E9CF0)) }, title = Txt(R.string.drawer_007)) {
         close(); vm.goHome()
     }
     vm.volumes.forEach { v ->
@@ -166,23 +166,23 @@ private fun LocationsTab(vm: FmViewModel, close: () -> Unit) {
                     Box(Modifier.fillMaxWidth(frac.coerceIn(0f, 1f)).height(6.dp).clip(RoundedCornerShape(3.dp)).background(pal.accent))
                 }
                 Spacer(Modifier.height(3.dp))
-                Text("使用 ${FileOps.formatSize(used)} / ${FileOps.formatSize(v.total)}", fontSize = 11.sp, color = pal.subText, maxLines = 1)
+                Text(Txt(R.string.storage_used_total, FileOps.formatSize(used), FileOps.formatSize(v.total)), fontSize = 11.sp, color = pal.subText, maxLines = 1)
             },
         ) { close(); vm.openLocal(v.dir.path) }
     }
-    DrawerRow(icon = { Badge(Icons.Default.PhoneAndroid, Color(0xFF9AA3C7)) }, title = "システム") { close(); vm.openLocal("/") }
+    DrawerRow(icon = { Badge(Icons.Default.PhoneAndroid, Color(0xFF9AA3C7)) }, title = Txt(R.string.drawer_008)) { close(); vm.openLocal("/") }
     DrawerRow(
         icon = { Badge(Icons.Default.Delete, Color(0xFFB3B9D6)) },
-        title = "ごみ箱",
+        title = Txt(R.string.drawer_009),
         trailing = { Text(FileOps.formatSize(vm.trashSize), fontSize = 13.sp, color = pal.subText, modifier = Modifier.padding(end = 8.dp)) },
     ) { close(); vm.openTrash() }
     DrawerRow(
-        icon = { Badge(Icons.Default.Settings, Color(0xFFB3B9D6)) }, title = "設定",
+        icon = { Badge(Icons.Default.Settings, Color(0xFFB3B9D6)) }, title = Txt(R.string.drawer_010),
         trailing = if (vm.updater.status is UpdateStatus.Available || vm.updater.status is UpdateStatus.Ready) {
-            { Text("更新あり", fontSize = 13.sp, color = pal.accent, modifier = Modifier.padding(end = 8.dp)) }
+            { Text(Txt(R.string.drawer_011), fontSize = 13.sp, color = pal.accent, modifier = Modifier.padding(end = 8.dp)) }
         } else null,
     ) { close(); vm.openSettings() }
-    if (vm.pinned.isNotEmpty()) SectionHeading("固定した場所")
+    if (vm.pinned.isNotEmpty()) SectionHeading(Txt(R.string.drawer_012))
     // 固定した場所(ピンのアイコン)が上、そのあとに最近開いた場所(⋮ から固定・履歴から削除)
     vm.pinned.forEach { p ->
         DrawerRow(
@@ -191,12 +191,12 @@ private fun LocationsTab(vm: FmViewModel, close: () -> Unit) {
             subtitle = vm.placeSubtitle(p),
             trailing = {
                 IconButton(onClick = { vm.unpin(p) }) {
-                    Icon(Icons.Default.PushPin, "固定を外す", tint = pal.accent, modifier = Modifier.size(22.dp))
+                    Icon(Icons.Default.PushPin, Txt(R.string.drawer_013), tint = pal.accent, modifier = Modifier.size(22.dp))
                 }
             },
         ) { close(); vm.openShortcut(p) }
     }
-    if (vm.opened.isNotEmpty()) SectionHeading("最近開いた場所")
+    if (vm.opened.isNotEmpty()) SectionHeading(Txt(R.string.drawer_014))
     vm.opened.forEach { p ->
         var menu by remember { mutableStateOf(false) }
         DrawerRow(
@@ -205,12 +205,12 @@ private fun LocationsTab(vm: FmViewModel, close: () -> Unit) {
             subtitle = vm.placeSubtitle(p),
             trailing = {
                 Box {
-                    IconButton(onClick = { menu = true }) { Icon(Icons.Default.MoreVert, "メニュー", tint = pal.text) }
+                    IconButton(onClick = { menu = true }) { Icon(Icons.Default.MoreVert, Txt(R.string.drawer_015), tint = pal.text) }
                     ListMenu(
                         menu, pal.dark, { menu = false },
                         listOf(
-                            VMenuItem.Action(Icons.Default.PushPin, "固定する") { vm.pin(p) },
-                            VMenuItem.Action(Icons.Default.Delete, "履歴から削除") { vm.removeOpened(p) },
+                            VMenuItem.Action(Icons.Default.PushPin, Txt(R.string.drawer_016)) { vm.pin(p) },
+                            VMenuItem.Action(Icons.Default.Delete, Txt(R.string.drawer_017)) { vm.removeOpened(p) },
                         ),
                     )
                 }
@@ -253,17 +253,17 @@ private fun PlacesTab(vm: FmViewModel, places: List<Place>, empty: String, close
             title = vm.placeLabel(p),
             subtitle = p.path,
             trailing = if (removable) {
-                { IconButton(onClick = { vm.removeBookmark(p) }) { Icon(Icons.Default.Close, "削除", tint = pal.subText) } }
+                { IconButton(onClick = { vm.removeBookmark(p) }) { Icon(Icons.Default.Close, Txt(R.string.drawer_018), tint = pal.subText) } }
             } else {
                 {
                     // 履歴の行: 固定する / 履歴から削除
                     Box {
-                        IconButton(onClick = { menu = true }) { Icon(Icons.Default.MoreVert, "メニュー", tint = pal.text) }
+                        IconButton(onClick = { menu = true }) { Icon(Icons.Default.MoreVert, Txt(R.string.drawer_019), tint = pal.text) }
                         ListMenu(
                             menu, pal.dark, { menu = false },
                             listOf(
-                                VMenuItem.Action(Icons.Default.PushPin, "固定する") { vm.pin(p) },
-                                VMenuItem.Action(Icons.Default.Delete, "履歴から削除") { vm.removeHistory(p) },
+                                VMenuItem.Action(Icons.Default.PushPin, Txt(R.string.drawer_020)) { vm.pin(p) },
+                                VMenuItem.Action(Icons.Default.Delete, Txt(R.string.drawer_021)) { vm.removeHistory(p) },
                             ),
                         )
                     }

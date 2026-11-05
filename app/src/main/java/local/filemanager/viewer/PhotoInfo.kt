@@ -38,12 +38,12 @@ object PhotoInfoReader {
     fun read(fs: Fs, item: FileItem): PhotoInfo {
         val head = fs.open(item.path).use { TextDecode.readUpTo(it, HEAD_BYTES).first }
         val rows = ArrayList<Pair<String, String>>()
-        rows.add("ファイル" to item.name)
-        rows.add("ファイルの大きさ" to FileOps.formatSize(item.size))
+        rows.add(Txt(R.string.photo_info_001) to item.name)
+        rows.add(Txt(R.string.photo_info_002) to FileOps.formatSize(item.size))
         val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
         BitmapFactory.decodeByteArray(head, 0, head.size, bounds)
         if (bounds.outWidth > 0 && bounds.outHeight > 0) {
-            rows.add("画像の大きさ" to "${bounds.outWidth} × ${bounds.outHeight}(${ExifFormat.megapixels(bounds.outWidth, bounds.outHeight)})")
+            rows.add(Txt(R.string.photo_info_003) to "${bounds.outWidth} × ${bounds.outHeight}(${ExifFormat.megapixels(bounds.outWidth, bounds.outHeight)})")
         }
         val exif = try {
             ExifInterface(ByteArrayInputStream(head))
@@ -56,28 +56,28 @@ object PhotoInfoReader {
         }
         val make = exif.getAttribute(ExifInterface.TAG_MAKE)?.trim()
         val model = exif.getAttribute(ExifInterface.TAG_MODEL)?.trim()
-        add("カメラ", listOfNotNull(make?.takeIf { it.isNotEmpty() }, model?.takeIf { it.isNotEmpty() && (make == null || !it.startsWith(make)) }).joinToString(" "))
-        add("レンズ", exif.getAttribute(ExifInterface.TAG_LENS_MODEL))
-        add("撮影日時", ExifFormat.date(exif.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL) ?: exif.getAttribute(ExifInterface.TAG_DATETIME)))
-        add("シャッター速度", ExifFormat.exposure(exif.getAttribute(ExifInterface.TAG_EXPOSURE_TIME)))
-        add("絞り", ExifFormat.fNumber(exif.getAttribute(ExifInterface.TAG_F_NUMBER)))
-        add("ISO感度", ExifFormat.iso(exif.getAttribute(ExifInterface.TAG_PHOTOGRAPHIC_SENSITIVITY)))
-        add("焦点距離", ExifFormat.focalLength(exif.getAttribute(ExifInterface.TAG_FOCAL_LENGTH), exif.getAttribute(ExifInterface.TAG_FOCAL_LENGTH_IN_35MM_FILM)))
-        add("露出補正", ExifFormat.exposureBias(exif.getAttribute(ExifInterface.TAG_EXPOSURE_BIAS_VALUE)))
-        add("フラッシュ", ExifFormat.flash(exif.getAttribute(ExifInterface.TAG_FLASH)?.toIntOrNull()))
-        add("向き", ExifFormat.orientation(exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1)))
-        add("ソフトウェア", exif.getAttribute(ExifInterface.TAG_SOFTWARE))
+        add(Txt(R.string.photo_info_004), listOfNotNull(make?.takeIf { it.isNotEmpty() }, model?.takeIf { it.isNotEmpty() && (make == null || !it.startsWith(make)) }).joinToString(" "))
+        add(Txt(R.string.photo_info_005), exif.getAttribute(ExifInterface.TAG_LENS_MODEL))
+        add(Txt(R.string.photo_info_006), ExifFormat.date(exif.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL) ?: exif.getAttribute(ExifInterface.TAG_DATETIME)))
+        add(Txt(R.string.photo_info_007), ExifFormat.exposure(exif.getAttribute(ExifInterface.TAG_EXPOSURE_TIME)))
+        add(Txt(R.string.photo_info_008), ExifFormat.fNumber(exif.getAttribute(ExifInterface.TAG_F_NUMBER)))
+        add(Txt(R.string.photo_info_009), ExifFormat.iso(exif.getAttribute(ExifInterface.TAG_PHOTOGRAPHIC_SENSITIVITY)))
+        add(Txt(R.string.photo_info_010), ExifFormat.focalLength(exif.getAttribute(ExifInterface.TAG_FOCAL_LENGTH), exif.getAttribute(ExifInterface.TAG_FOCAL_LENGTH_IN_35MM_FILM)))
+        add(Txt(R.string.photo_info_011), ExifFormat.exposureBias(exif.getAttribute(ExifInterface.TAG_EXPOSURE_BIAS_VALUE)))
+        add(Txt(R.string.photo_info_012), ExifFormat.flash(exif.getAttribute(ExifInterface.TAG_FLASH)?.toIntOrNull()))
+        add(Txt(R.string.photo_info_013), ExifFormat.orientation(exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1)))
+        add(Txt(R.string.photo_info_014), exif.getAttribute(ExifInterface.TAG_SOFTWARE))
         var lat: Double? = null
         var lon: Double? = null
         val ll = exif.latLong
         if (ll != null && ll.size == 2) {
             lat = ll[0]
             lon = ll[1]
-            rows.add("撮影した場所" to "${ExifFormat.latitude(ll[0])}  ${ExifFormat.longitude(ll[1])}")
+            rows.add(Txt(R.string.photo_info_015) to "${ExifFormat.latitude(ll[0])}  ${ExifFormat.longitude(ll[1])}")
             val alt = exif.getAltitude(Double.NaN)
-            if (!alt.isNaN()) rows.add("高度" to "%.1f m".format(alt))
+            if (!alt.isNaN()) rows.add(Txt(R.string.photo_info_016) to "%.1f m".format(alt))
         }
-        if (rows.size <= 4 && lat == null) rows.add("写真の情報" to "この画像には、カメラの情報(EXIF)が入っていません")
+        if (rows.size <= 4 && lat == null) rows.add(Txt(R.string.photo_info_017) to Txt(R.string.photo_info_018))
         return PhotoInfo(rows, lat, lon)
     }
 }
@@ -91,12 +91,12 @@ internal fun PhotoInfoDialog(fs: Fs, item: FileItem, onDismiss: () -> Unit) {
     }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("写真の情報") },
+        title = { Text(Txt(R.string.photo_info_019)) },
         text = {
             val r = info
             when {
                 r == null -> CircularProgressIndicator()
-                r.isFailure -> Text(r.exceptionOrNull()?.message ?: "読み込めません")
+                r.isFailure -> Text(r.exceptionOrNull()?.message ?: Txt(R.string.photo_info_020))
                 else -> SelectionContainer {
                     Column(Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState())) {
                         for ((label, value) in r.getOrThrow().rows) {
@@ -109,13 +109,13 @@ internal fun PhotoInfoDialog(fs: Fs, item: FileItem, onDismiss: () -> Unit) {
                 }
             }
         },
-        confirmButton = { TextButton(onClick = onDismiss) { Text("閉じる") } },
+        confirmButton = { TextButton(onClick = onDismiss) { Text(Txt(R.string.photo_info_021)) } },
         dismissButton = {
             val p = info?.getOrNull()
             if (p?.lat != null && p.lon != null) {
                 TextButton(onClick = {
                     runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(ExifFormat.geoUri(p.lat, p.lon))).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
-                }) { Text("地図で開く") }
+                }) { Text(Txt(R.string.photo_info_022)) }
             }
         },
     )

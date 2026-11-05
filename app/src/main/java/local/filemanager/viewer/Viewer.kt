@@ -242,7 +242,7 @@ internal fun ViewerScreen(
             Column(Modifier.fillMaxWidth().background(if (officeKind) Color(0xCC000000) else barBg).statusBarsPadding()) {
                 val fg = if (officeKind) Color.White else barFg
                 Row(Modifier.fillMaxWidth().height(56.dp), verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = onClose) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "閉じる", tint = fg) }
+                    IconButton(onClick = onClose) { Icon(Icons.AutoMirrored.Filled.ArrowBack, Txt(R.string.viewer_001), tint = fg) }
                     Column(Modifier.weight(1f)) {
                         Text(current.name, color = fg, fontSize = 16.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
                         if (isImage && req.files.size > 1) {
@@ -252,9 +252,9 @@ internal fun ViewerScreen(
                     // 文字のファイルは、すぐ編集に入れる(種類が分からないファイルは、メニューの「編集」から)
                     // CSV・TSV は、表で見ているときは表で編集する(テキストで見ているときは文字として編集する)
                     val gridEdit = kind == PreviewKind.CSV && !raw
-                    if (editable && kind != PreviewKind.UNKNOWN) IconButton(onClick = { if (gridEdit) editingGrid = true else editing = true }) { Icon(Icons.Default.Edit, "編集", tint = fg) }
+                    if (editable && kind != PreviewKind.UNKNOWN) IconButton(onClick = { if (gridEdit) editingGrid = true else editing = true }) { Icon(Icons.Default.Edit, Txt(R.string.viewer_002), tint = fg) }
                     Box {
-                        IconButton(onClick = { menu = true }) { Icon(Icons.Default.MoreVert, "メニュー", tint = fg) }
+                        IconButton(onClick = { menu = true }) { Icon(Icons.Default.MoreVert, Txt(R.string.viewer_003), tint = fg) }
                         // 並びは固定: 開く・共有(最上段)→ 表示 → ファイル。種類によって変わるのは各まとまりの中身だけ
                         val modes = ArrayList<VMenuItem>()
                         val toggles = ArrayList<VMenuItem>()
@@ -262,60 +262,60 @@ internal fun ViewerScreen(
                         fun mode(label: String, a: String, b: String, second: Boolean, set: (Boolean) -> Unit) {
                             modes.add(VMenuItem.Segment(label, listOf(a, b), if (second) 1 else 0) { set(it == 1) })
                         }
-                        if (currentIsSvg && !svgSource) mode("表示のしかた", "絵", "ソース(XML)", false) { raw = it }
+                        if (currentIsSvg && !svgSource) mode(Txt(R.string.viewer_004), Txt(R.string.viewer_005), Txt(R.string.viewer_006), false) { raw = it }
                         when (kind) {
                             null, PreviewKind.PDF, PreviewKind.DRAWIO, PreviewKind.STL, PreviewKind.MODEL, PreviewKind.APK, PreviewKind.FONT, PreviewKind.PKPASS,
                             PreviewKind.ZIP, PreviewKind.ARCHIVE, PreviewKind.BUNDLE,
                             -> {}
                             PreviewKind.CAD -> {
-                                if (cadIsText) mode("表示のしかた", "図面", "テキスト", raw) { raw = it }
+                                if (cadIsText) mode(Txt(R.string.viewer_007), Txt(R.string.viewer_008), Txt(R.string.viewer_009), raw) { raw = it }
                                 if (raw && cadIsText) sizeRow = true
                             }
                             PreviewKind.COMIC -> {
-                                mode("表示のしかた", "マンガ", "ファイル一覧", bundleList) { bundleList = it }
+                                mode(Txt(R.string.viewer_010), Txt(R.string.viewer_011), Txt(R.string.viewer_012), bundleList) { bundleList = it }
                                 if (!bundleList) {
                                     modes.add(
-                                        VMenuItem.Segment("めくる向き", listOf("右から左(マンガ)", "左から右"), if (vm.comicRtl) 0 else 1) { i ->
+                                        VMenuItem.Segment(Txt(R.string.viewer_013), listOf(Txt(R.string.viewer_014), Txt(R.string.viewer_015)), if (vm.comicRtl) 0 else 1) { i ->
                                             if ((i == 0) != vm.comicRtl) vm.toggleComicRtl()
                                         },
                                     )
                                 }
                             }
-                            PreviewKind.IWORK, PreviewKind.IPA -> mode("表示のしかた", "情報", "ファイル一覧", bundleList) { bundleList = it }
+                            PreviewKind.IWORK, PreviewKind.IPA -> mode(Txt(R.string.viewer_016), Txt(R.string.viewer_017), Txt(R.string.viewer_018), bundleList) { bundleList = it }
                             PreviewKind.EPUB -> {
-                                mode("表示のしかた", "本", "ファイル一覧", bundleList) { bundleList = it }
+                                mode(Txt(R.string.viewer_019), Txt(R.string.viewer_020), Txt(R.string.viewer_021), bundleList) { bundleList = it }
                                 if (!bundleList) sizeRow = true
                             }
                             PreviewKind.HTML, PreviewKind.MHTML, PreviewKind.WEBARCHIVE -> {
-                                mode("表示のしかた", "ページ", if (kind == PreviewKind.WEBARCHIVE) "構造" else "ソース", raw) { raw = it }
+                                mode(Txt(R.string.viewer_022), Txt(R.string.viewer_023), if (kind == PreviewKind.WEBARCHIVE) Txt(R.string.viewer_024) else Txt(R.string.viewer_025), raw) { raw = it }
                                 if (!raw) {
-                                    toggles.add(VMenuItem.Toggle(Icons.Default.Javascript, "JavaScript を許可", htmlJs) { htmlJs = it })
-                                    if (kind == PreviewKind.HTML) toggles.add(VMenuItem.Toggle(Icons.Default.Public, "外部の読み込みを許可", htmlNet) { htmlNet = it })
-                                    else toggles.add(VMenuItem.Toggle(Icons.Default.Computer, "パソコン向けの幅で表示", mhtWide) { mhtWide = it })
+                                    toggles.add(VMenuItem.Toggle(Icons.Default.Javascript, Txt(R.string.viewer_026), htmlJs) { htmlJs = it })
+                                    if (kind == PreviewKind.HTML) toggles.add(VMenuItem.Toggle(Icons.Default.Public, Txt(R.string.viewer_027), htmlNet) { htmlNet = it })
+                                    else toggles.add(VMenuItem.Toggle(Icons.Default.Computer, Txt(R.string.viewer_028), mhtWide) { mhtWide = it })
                                 } else sizeRow = true
                             }
                             PreviewKind.VCARD -> {
-                                mode("表示のしかた", "連絡先", "テキスト", raw) { raw = it }
+                                mode(Txt(R.string.viewer_029), Txt(R.string.viewer_030), Txt(R.string.viewer_031), raw) { raw = it }
                                 if (raw) sizeRow = true
                             }
                             else -> {
                                 when (kind) {
-                                    PreviewKind.MARKDOWN -> mode("表示のしかた", "整形", "テキスト", raw) { raw = it }
-                                    PreviewKind.CSV -> mode("表示のしかた", "表", "テキスト", raw) { raw = it }
+                                    PreviewKind.MARKDOWN -> mode(Txt(R.string.viewer_032), Txt(R.string.viewer_033), Txt(R.string.viewer_034), raw) { raw = it }
+                                    PreviewKind.CSV -> mode(Txt(R.string.viewer_035), Txt(R.string.viewer_036), Txt(R.string.viewer_037), raw) { raw = it }
                                     PreviewKind.JSON, PreviewKind.XML ->
-                                        if (svgSource) mode("表示のしかた", "絵", "ソース(XML)", true) { raw = it }
-                                        else mode("表示のしかた", "整形", "テキスト", raw) { raw = it }
+                                        if (svgSource) mode(Txt(R.string.viewer_038), Txt(R.string.viewer_039), Txt(R.string.viewer_040), true) { raw = it }
+                                        else mode(Txt(R.string.viewer_041), Txt(R.string.viewer_042), Txt(R.string.viewer_043), raw) { raw = it }
                                     else -> {}
                                 }
-                                if (kind == PreviewKind.CSV && !raw) toggles.add(VMenuItem.Toggle(Icons.Default.TableRows, "1行目を見出しにする", headerOn) { headerOn = it })
+                                if (kind == PreviewKind.CSV && !raw) toggles.add(VMenuItem.Toggle(Icons.Default.TableRows, Txt(R.string.viewer_044), headerOn) { headerOn = it })
                                 sizeRow = true
                             }
                         }
                         if (themed) {
-                            modes.add(VMenuItem.Segment("配色", listOf("ライト", "ダーク"), if (Pv.dark) 1 else 0) { vm.changeViewerTheme(if (it == 1) "dark" else "light") })
+                            modes.add(VMenuItem.Segment(Txt(R.string.viewer_045), listOf(Txt(R.string.viewer_046), Txt(R.string.viewer_047)), if (Pv.dark) 1 else 0) { vm.changeViewerTheme(if (it == 1) "dark" else "light") })
                         }
                         if (Pv.dark && (kind == PreviewKind.PDF || kind == PreviewKind.DRAWIO || ((kind == PreviewKind.HTML || kind == PreviewKind.MHTML || kind == PreviewKind.WEBARCHIVE) && !raw))) {
-                            toggles.add(VMenuItem.Toggle(Icons.Default.InvertColorsOff, "元の色で表示", keepColors) { keepColors = it })
+                            toggles.add(VMenuItem.Toggle(Icons.Default.InvertColorsOff, Txt(R.string.viewer_048), keepColors) { keepColors = it })
                         }
                         val viewItems = ArrayList<VMenuItem>().apply {
                             addAll(modes); addAll(toggles)
@@ -324,30 +324,30 @@ internal fun ViewerScreen(
                         val fileItems = ArrayList<VMenuItem>()
                         if (editable) {
                             if (kind == PreviewKind.CSV && !raw) {
-                                fileItems.add(VMenuItem.Action(Icons.Default.Edit, "表で編集") { editingGrid = true })
-                                fileItems.add(VMenuItem.Action(Icons.Default.Edit, "テキストとして編集") { editing = true })
+                                fileItems.add(VMenuItem.Action(Icons.Default.Edit, Txt(R.string.viewer_049)) { editingGrid = true })
+                                fileItems.add(VMenuItem.Action(Icons.Default.Edit, Txt(R.string.viewer_050)) { editing = true })
                             } else {
-                                fileItems.add(VMenuItem.Action(Icons.Default.Edit, "編集") { editing = true })
+                                fileItems.add(VMenuItem.Action(Icons.Default.Edit, Txt(R.string.viewer_051)) { editing = true })
                             }
                         }
-                        if (searchable) fileItems.add(VMenuItem.Action(Icons.Default.Search, "検索") { searching = true })
+                        if (searchable) fileItems.add(VMenuItem.Action(Icons.Default.Search, Txt(R.string.viewer_052)) { searching = true })
                         val copyAct = copyHolder.action
                         val copyProv = copyHolder.provider
                         if (copyAct != null) fileItems.add(VMenuItem.Action(Icons.Default.ContentCopy, copyHolder.label) { copyAct() })
                         else if (copyProv != null) fileItems.add(VMenuItem.Action(Icons.Default.ContentCopy, copyHolder.label) { copyToClipboard(appCtx, copyProv()) })
-                        if (kind == PreviewKind.PDF) fileItems.add(VMenuItem.Action(Icons.Default.Pageview, "ページ移動…") { gotoDialog = true })
-                        if (kind == PreviewKind.CAD && !(raw && cadIsText)) fileItems.add(VMenuItem.Action(Icons.Default.Layers, "レイヤー…") { layersDialog = true })
-                        if (isImage && !currentIsSvg) fileItems.add(VMenuItem.Action(Icons.Default.Info, "写真の情報") { infoFor = current })
+                        if (kind == PreviewKind.PDF) fileItems.add(VMenuItem.Action(Icons.Default.Pageview, Txt(R.string.viewer_053)) { gotoDialog = true })
+                        if (kind == PreviewKind.CAD && !(raw && cadIsText)) fileItems.add(VMenuItem.Action(Icons.Default.Layers, Txt(R.string.viewer_054)) { layersDialog = true })
+                        if (isImage && !currentIsSvg) fileItems.add(VMenuItem.Action(Icons.Default.Info, Txt(R.string.viewer_055)) { infoFor = current })
                         val canUnpack = kind == PreviewKind.COMIC || kind == PreviewKind.IWORK || kind == PreviewKind.IPA ||
                             kind == PreviewKind.ZIP || kind == PreviewKind.ARCHIVE || kind == PreviewKind.BUNDLE
-                        if (canUnpack && !nested) fileItems.add(VMenuItem.Action(Icons.Default.Unarchive, "ここに展開") { vm.unzipItem(current); onClose() })
+                        if (canUnpack && !nested) fileItems.add(VMenuItem.Action(Icons.Default.Unarchive, Txt(R.string.viewer_056)) { vm.unzipItem(current); onClose() })
                         ViewerMenu(
                             expanded = menu,
                             dark = if (themed) Pv.dark else true,
                             onDismiss = { menu = false },
                             onOpenExternal = { vm.openItem(current, req.fs) },
                             onShare = { vm.shareItems(listOf(current), req.fs) },
-                            sections = listOf(VMenuSection("表示", viewItems), VMenuSection("ファイル", fileItems)),
+                            sections = listOf(VMenuSection(Txt(R.string.viewer_057), viewItems), VMenuSection(Txt(R.string.viewer_058), fileItems)),
                         )
                     }
                 }
@@ -406,17 +406,17 @@ private fun SearchBar(
             modifier = Modifier.weight(1f).focusRequester(focus).background(Pv.searchField, RoundedCornerShape(6.dp)).padding(10.dp),
             decorationBox = { inner ->
                 Box {
-                    if (query.isEmpty()) Text("検索する言葉", color = Color.Gray, fontSize = 16.sp)
+                    if (query.isEmpty()) Text(Txt(R.string.viewer_059), color = Color.Gray, fontSize = 16.sp)
                     inner()
                 }
             },
         )
         Text(
-            if (query.isEmpty()) "" else if (count == 0) "0件" else "${hit + 1}/$count",
+            if (query.isEmpty()) "" else if (count == 0) Txt(R.string.viewer_060) else "${hit + 1}/$count",
             color = Pv.barText, fontSize = 13.sp, modifier = Modifier.padding(horizontal = 8.dp),
         )
-        IconButton(onClick = onPrev) { Icon(Icons.Default.KeyboardArrowUp, "前へ", tint = Pv.barText) }
-        IconButton(onClick = onNext) { Icon(Icons.Default.KeyboardArrowDown, "次へ", tint = Pv.barText) }
-        IconButton(onClick = onClose) { Icon(Icons.Default.Close, "閉じる", tint = Pv.barText) }
+        IconButton(onClick = onPrev) { Icon(Icons.Default.KeyboardArrowUp, Txt(R.string.viewer_061), tint = Pv.barText) }
+        IconButton(onClick = onNext) { Icon(Icons.Default.KeyboardArrowDown, Txt(R.string.viewer_062), tint = Pv.barText) }
+        IconButton(onClick = onClose) { Icon(Icons.Default.Close, Txt(R.string.viewer_063), tint = Pv.barText) }
     }
 }

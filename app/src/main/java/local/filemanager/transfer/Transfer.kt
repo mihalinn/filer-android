@@ -83,11 +83,11 @@ object Transfer {
     ): String {
         if (srcFs.isLocal && dstFs.isLocal) return FileOps.copy(File(src.path), File(dstDir), check, progress, overwrite).path
         if (srcFs.id == dstFs.id && src.isDir && isUnder(src.path, dstDir)) {
-            throw OpException("フォルダを自分自身の中にはコピーできません: ${src.name}")
+            throw OpException(Txt(R.string.transfer_001, src.name))
         }
         val target = if (overwrite) dstFs.child(dstDir, src.name) else uniquePath(dstFs, dstDir, src.name, src.isDir)
         if (overwrite && srcFs.id == dstFs.id && isUnder(target, src.path) && isUnder(src.path, target)) {
-            throw OpException("同じ場所には上書きできません: ${src.name}")
+            throw OpException(Txt(R.string.transfer_002, src.name))
         }
         val existed = overwrite && dstFs.exists(target)
         try {
@@ -108,13 +108,13 @@ object Transfer {
             val ex = if (overwrite) dstFs.stat(dst) else null
             when {
                 ex == null -> dstFs.mkdir(dst)
-                !ex.isDir -> throw OpException("同じ名前のファイルがあります: ${src.name}")
+                !ex.isDir -> throw OpException(Txt(R.string.transfer_003, src.name))
             }
-            val children = srcFs.list(src.path) ?: throw OpException("フォルダを読めませんでした: ${src.name}")
+            val children = srcFs.list(src.path) ?: throw OpException(Txt(R.string.transfer_004, src.name))
             for (c in children) copyRecursive(srcFs, c, dstFs, dstFs.child(dst, c.name), check, progress, overwrite)
         } else {
             val ex = if (overwrite) dstFs.stat(dst) else null
-            if (ex != null && ex.isDir) throw OpException("同じ名前のフォルダがあります: ${src.name}")
+            if (ex != null && ex.isDir) throw OpException(Txt(R.string.transfer_005, src.name))
             progress?.begin(src.path, dst)
             writeAtomically(dstFs, dst, replace = ex != null) { w ->
                 srcFs.open(src.path).use { i -> dstFs.create(w).use { o -> pump(i, o, check, progress) } }
@@ -130,12 +130,12 @@ object Transfer {
         if (srcFs.isLocal && dstFs.isLocal) return FileOps.move(File(src.path), File(dstDir), check, progress, overwrite).path
         if (srcFs.id == dstFs.id) {
             if (srcFs.parent(src.path)?.trimEnd('/') == dstDir.trimEnd('/')) {
-                throw OpException("同じフォルダには移動できません: ${src.name}")
+                throw OpException(Txt(R.string.transfer_006, src.name))
             }
-            if (src.isDir && isUnder(src.path, dstDir)) throw OpException("フォルダを自分自身の中には移動できません: ${src.name}")
+            if (src.isDir && isUnder(src.path, dstDir)) throw OpException(Txt(R.string.transfer_007, src.name))
             val target = if (overwrite) dstFs.child(dstDir, src.name) else uniquePath(dstFs, dstDir, src.name, src.isDir)
             val ex = if (overwrite) dstFs.stat(target) else null
-            if (ex != null && ex.isDir != src.isDir) throw OpException("同じ名前で種類の違うものがあります: ${src.name}")
+            if (ex != null && ex.isDir != src.isDir) throw OpException(Txt(R.string.transfer_008, src.name))
             when {
                 ex == null -> if (srcFs.moveInside(src.path, target)) return target
                 !ex.isDir -> {
@@ -164,7 +164,7 @@ object Transfer {
 
     /** items を1つの ZIP にまとめて out に作る。作る途中は仮の名前に書き、失敗したら何も残さない。 */
     fun zip(fs: Fs, items: List<FileItem>, out: String, check: () -> Unit = {}, progress: Progress? = null) {
-        if (fs.exists(out)) throw OpException("同じ名前のファイルがすでにあります")
+        if (fs.exists(out)) throw OpException(Txt(R.string.transfer_009))
         try {
             writeAtomically(fs, out, replace = false) { w ->
                 java.util.zip.ZipOutputStream(fs.create(w).buffered()).use { z ->
@@ -209,7 +209,7 @@ object Transfer {
      * 失敗したら作りかけのフォルダを消す。
      */
     fun unzip(fs: Fs, zip: FileItem, check: () -> Unit = {}, progress: Progress? = null): String {
-        val src = fs.openRandom(zip.path) ?: throw OpException("この場所のZIPは展開できません")
+        val src = fs.openRandom(zip.path) ?: throw OpException(Txt(R.string.transfer_010))
         try {
             val reader = ZipReader(src)
             val base = zip.name.let { if (it.endsWith(".zip", ignoreCase = true) && it.length > 4) it.dropLast(4) else it }
@@ -234,7 +234,7 @@ object Transfer {
         check: () -> Unit,
         progress: Progress?,
     ): String {
-        val parent = fs.parent(archive.path) ?: throw OpException("展開先が見つかりません")
+        val parent = fs.parent(archive.path) ?: throw OpException(Txt(R.string.transfer_011))
         val root = uniquePath(fs, parent, base, true)
         if (progress != null && progress.totalBytes == 0L) {
             progress.totalBytes = entries.sumOf { maxOf(it.size, 0L) }
@@ -250,7 +250,7 @@ object Transfer {
         try {
             for (e in entries) {
                 check()
-                val rel = safeRelative(e.name) ?: throw OpException("不正なパスを含む書庫です: ${e.name}")
+                val rel = safeRelative(e.name) ?: throw OpException(Txt(R.string.transfer_012, e.name))
                 if (rel.isEmpty()) continue
                 val target = rel.split('/').fold(root) { acc, seg -> fs.child(acc, seg) }
                 if (e.isDir) {

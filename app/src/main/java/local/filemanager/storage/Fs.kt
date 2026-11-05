@@ -75,7 +75,7 @@ object LocalFs : Fs {
     override fun stat(path: String): FileItem? = File(path).takeIf { it.exists() }?.let { FileOps.toItem(it) }
 
     override fun mkdir(path: String) {
-        if (!File(path).mkdirs() && !File(path).isDirectory) throw OpException("フォルダを作成できません")
+        if (!File(path).mkdirs() && !File(path).isDirectory) throw OpException(Txt(R.string.fs_001))
     }
 
     override fun delete(path: String) = FileOps.delete(File(path))

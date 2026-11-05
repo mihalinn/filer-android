@@ -53,7 +53,7 @@ object CopyText {
 
 /** いま開いているファイルの「全体をコピー」。画面ごとに、中身の取り出し方を入れる(入っていなければメニューに出さない)。 */
 internal class CopyHolder {
-    var label by mutableStateOf("全文をコピー")
+    var label by mutableStateOf(Txt(R.string.preview_copy_001))
     var provider by mutableStateOf<(() -> String)?>(null)
 
     /** 取り出しに時間がかかるものは、画面が自分でコピーまでやる(PDF など)。入っていれば、provider より先に使う。 */
@@ -75,9 +75,9 @@ internal fun copyToClipboard(ctx: Context, text: String) {
     runCatching {
         ctx.getSystemService(ClipboardManager::class.java).setPrimaryClip(ClipData.newPlainText("text", t))
     }.onSuccess {
-        Toast.makeText(ctx, if (cut) "大きいため、先頭の ${CopyText.MAX_CHARS / 10_000} 万文字だけコピーしました" else "コピーしました", Toast.LENGTH_SHORT).show()
+        Toast.makeText(ctx, if (cut) Txt(R.string.preview_copy_cut, CopyText.MAX_CHARS / 10_000, CopyText.MAX_CHARS) else Txt(R.string.preview_copy_002), Toast.LENGTH_SHORT).show()
     }.onFailure {
-        Toast.makeText(ctx, "コピーできませんでした", Toast.LENGTH_SHORT).show()
+        Toast.makeText(ctx, Txt(R.string.preview_copy_003), Toast.LENGTH_SHORT).show()
     }
 }
 
@@ -151,10 +151,10 @@ internal fun CellCopyMenu(onDismiss: () -> Unit, cell: String, row: () -> String
         ListMenu(
             expanded = true, dark = Pv.dark, onDismiss = onDismiss,
             items = listOf(
-                VMenuItem.Action(Icons.Default.ContentCopy, "セルをコピー") { copy { cell } },
-                VMenuItem.Action(Icons.Default.TableRows, "行をコピー") { copy(row) },
-                VMenuItem.Action(Icons.Default.ViewColumn, "列をコピー") { copy(column) },
-                VMenuItem.Action(Icons.Default.GridOn, "表全体をコピー") { copy(all) },
+                VMenuItem.Action(Icons.Default.ContentCopy, Txt(R.string.preview_copy_004)) { copy { cell } },
+                VMenuItem.Action(Icons.Default.TableRows, Txt(R.string.preview_copy_005)) { copy(row) },
+                VMenuItem.Action(Icons.Default.ViewColumn, Txt(R.string.preview_copy_006)) { copy(column) },
+                VMenuItem.Action(Icons.Default.GridOn, Txt(R.string.preview_copy_007)) { copy(all) },
             ),
         )
     }

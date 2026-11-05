@@ -63,7 +63,7 @@ class Bdav private constructor(private val src: RandomSource) : Shim {
             if (want < 192) return false
             val got = Shims.readFully(src, k * 192, tmp, want)
             val packets = got / 192
-            if (packets == 0) throw IOException("ファイルが途中までしか読めませんでした")
+            if (packets == 0) throw IOException(Txt(R.string.shims_001))
             for (i in 0 until packets) System.arraycopy(tmp, i * 192 + 4, out, i * 188, 188)
             oPos = off
             oLen = packets * 188
@@ -143,7 +143,7 @@ class AiffWav private constructor(
                 val need = minOf(buf.size.toLong(), dataLen - a).toInt()
                 if (need <= 0) return false
                 val got = Shims.readFully(src, dataStart + a, buf, need)
-                if (got <= 0) throw IOException("ファイルが途中までしか読めませんでした")
+                if (got <= 0) throw IOException(Txt(R.string.shims_002))
                 val usable = got - got % bps
                 convert(buf, usable)
                 bPos = (p - a).toInt()

@@ -20,11 +20,11 @@ object MusicText {
         if (who != null) out.add(who)
         val al = album?.trim()?.takeIf { it.isNotEmpty() }
         val y = year?.takeIf { it in 1000..9999 }
-        if (al != null) out.add(if (y != null) "$al($y)" else al) else if (y != null) out.add("$y 年")
+        if (al != null) out.add(if (y != null) "$al($y)" else al) else if (y != null) out.add(Txt(R.string.music_info_001, y))
         val parts = ArrayList<String>()
-        if (track != null && track > 0) parts.add("トラック $track" + if (trackTotal != null && trackTotal > 0) "/$trackTotal" else "")
-        if (disc != null && disc > 0 && (discTotal == null || discTotal > 1 || disc > 1)) parts.add("ディスク $disc" + if (discTotal != null && discTotal > 0) "/$discTotal" else "")
-        if (parts.isNotEmpty()) out.add(parts.joinToString("・"))
+        if (track != null && track > 0) parts.add(Txt(R.string.music_info_002, track) + if (trackTotal != null && trackTotal > 0) "/$trackTotal" else "")
+        if (disc != null && disc > 0 && (discTotal == null || discTotal > 1 || disc > 1)) parts.add(Txt(R.string.music_info_003, disc) + if (discTotal != null && discTotal > 0) "/$discTotal" else "")
+        if (parts.isNotEmpty()) out.add(parts.joinToString(Txt(R.string.sep_dot)))
         return out
     }
 

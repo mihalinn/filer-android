@@ -69,10 +69,10 @@ internal fun LoadingPanel(name: String, task: BgTask, remote: Boolean) {
         ) {
             Column(Modifier.padding(horizontal = 16.dp, vertical = 14.dp)) {
                 val title = when {
-                    !fetching -> "ファイルを開いています…"
-                    i.read == 0L -> "NAS に接続して、読み込みを始めています…"
-                    i.stalledMs > 4000 -> "NAS からの返事を待っています…"
-                    else -> "NAS から読み込み中"
+                    !fetching -> Txt(R.string.loading_panel_001)
+                    i.read == 0L -> Txt(R.string.loading_panel_002)
+                    i.stalledMs > 4000 -> Txt(R.string.loading_panel_003)
+                    else -> Txt(R.string.loading_panel_004)
                 }
                 Text(title, color = Pv.barText, fontSize = 14.sp)
                 Text(name, color = Pv.barSub, fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -87,12 +87,12 @@ internal fun LoadingPanel(name: String, task: BgTask, remote: Boolean) {
                     if (i.read > 0) Text(ReadFormat.amount(i.read, i.total), color = Pv.barText, fontSize = 13.sp)
                     val speedText = if (i.bytesPerSec >= 1024) ReadFormat.speed(i.bytesPerSec) else null
                     val etaText = ReadFormat.eta(i.read, i.total, i.bytesPerSec)
-                    val tail = listOfNotNull(speedText, etaText).joinToString("・")
+                    val tail = listOfNotNull(speedText, etaText).joinToString(Txt(R.string.sep_dot))
                     if (tail.isNotEmpty()) Text(tail, color = Pv.barSub, fontSize = 12.sp)
                     // 通知を出して続けるのは、大きいときだけ
-                    if (task.tracked) Text("画面を消しても、読み込みは続きます", color = Pv.barSub, fontSize = 12.sp, modifier = Modifier.padding(top = 6.dp))
+                    if (task.tracked) Text(Txt(R.string.loading_panel_005), color = Pv.barSub, fontSize = 12.sp, modifier = Modifier.padding(top = 6.dp))
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                        TextButton(onClick = { task.cancel(); close() }) { Text("キャンセル", color = Pv.accent) }
+                        TextButton(onClick = { task.cancel(); close() }) { Text(Txt(R.string.loading_panel_006), color = Pv.accent) }
                     }
                 }
             }

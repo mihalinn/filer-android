@@ -31,7 +31,7 @@ object Plist {
     // ---------------------------------------------------------------- バイナリ
 
     private fun parseBinary(b: ByteArray): PValue {
-        if (b.size < 40) throw OpException("バイナリplistとして読めません")
+        if (b.size < 40) throw OpException(Txt(R.string.plist_001))
         val t = b.size - 32
         val offSize = b[t + 6].toInt() and 0xFF
         val refSize = b[t + 7].toInt() and 0xFF
@@ -39,14 +39,14 @@ object Plist {
         val top = be(b, t + 16, 8)
         val tableOff = be(b, t + 24, 8)
         if (offSize !in 1..8 || refSize !in 1..8 || n <= 0 || n > MAX_OBJECTS || tableOff < 8 || tableOff + n * offSize > b.size || top >= n) {
-            throw OpException("バイナリplistの末尾の情報が読めません")
+            throw OpException(Txt(R.string.plist_002))
         }
         val offsets = LongArray(n.toInt()) { be(b, (tableOff + it.toLong() * offSize).toInt(), offSize) }
         var visited = 0
         fun obj(idx: Long, depth: Int): PValue {
-            if (idx < 0 || idx >= n || depth > 64 || ++visited > MAX_OBJECTS) throw OpException("バイナリplistの入れ子が深すぎるか、壊れています")
+            if (idx < 0 || idx >= n || depth > 64 || ++visited > MAX_OBJECTS) throw OpException(Txt(R.string.plist_003))
             var p = offsets[idx.toInt()].toInt()
-            if (p < 8 || p >= t) throw OpException("バイナリplistの位置が壊れています")
+            if (p < 8 || p >= t) throw OpException(Txt(R.string.plist_004))
             val marker = b[p].toInt() and 0xFF
             val type = marker shr 4
             val info = marker and 0xF
@@ -64,18 +64,18 @@ object Plist {
                 0x1 -> { val size = 1 shl info; PValue.Int(if (size == 8) beSigned(b, p) else be(b, p, minOf(size, 8))) }
                 0x2 -> { val size = 1 shl info; PValue.Real(if (size == 4) java.lang.Float.intBitsToFloat(be(b, p, 4).toInt()).toDouble() else java.lang.Double.longBitsToDouble(beSigned(b, p))) }
                 0x3 -> PValue.Date(appleDate(java.lang.Double.longBitsToDouble(beSigned(b, p))))
-                0x4 -> { val c = count(); if (p + c > t) throw OpException("バイナリplistのデータが壊れています"); PValue.Data(b.copyOfRange(p, p + c)) }
-                0x5 -> { val c = count(); if (p + c > t) throw OpException("バイナリplistの文字が壊れています"); PValue.Str(String(b, p, c, Charsets.ISO_8859_1)) }
-                0x6 -> { val c = count(); if (p + c * 2 > t) throw OpException("バイナリplistの文字が壊れています"); PValue.Str(String(b, p, c * 2, Charsets.UTF_16BE)) }
+                0x4 -> { val c = count(); if (p + c > t) throw OpException(Txt(R.string.plist_005)); PValue.Data(b.copyOfRange(p, p + c)) }
+                0x5 -> { val c = count(); if (p + c > t) throw OpException(Txt(R.string.plist_006)); PValue.Str(String(b, p, c, Charsets.ISO_8859_1)) }
+                0x6 -> { val c = count(); if (p + c * 2 > t) throw OpException(Txt(R.string.plist_007)); PValue.Str(String(b, p, c * 2, Charsets.UTF_16BE)) }
                 0x8 -> PValue.Uid(be(b, p, (info + 1).coerceAtMost(8)))
                 0xA, 0xC -> {
                     val c = count()
-                    if (p + c.toLong() * refSize > t) throw OpException("バイナリplistの配列が壊れています")
+                    if (p + c.toLong() * refSize > t) throw OpException(Txt(R.string.plist_008))
                     PValue.Arr(List(c) { obj(be(b, p + it * refSize, refSize), depth + 1) })
                 }
                 0xD -> {
                     val c = count()
-                    if (p + c.toLong() * refSize * 2 > t) throw OpException("バイナリplistの辞書が壊れています")
+                    if (p + c.toLong() * refSize * 2 > t) throw OpException(Txt(R.string.plist_009))
                     val m = LinkedHashMap<String, PValue>()
                     for (i in 0 until c) {
                         val k = obj(be(b, p + i * refSize, refSize), depth + 1)
@@ -84,7 +84,7 @@ object Plist {
                     }
                     PValue.Dict(m)
                 }
-                else -> throw OpException("バイナリplistの未知の型(0x${type.toString(16)})があります")
+                else -> throw OpException(Txt(R.string.plist_010, type.toString(16)))
             }
         }
         return obj(top, 0)
@@ -122,15 +122,15 @@ object Plist {
         } catch (e: OpException) {
             throw e
         } catch (e: Exception) {
-            throw OpException("plist(XML)として読めません")
+            throw OpException(Txt(R.string.plist_011))
         }
         val top = if (root.name == "plist") root.kids.firstOrNull() else root
-        top ?: throw OpException("plistの中身が空")
+        top ?: throw OpException(Txt(R.string.plist_012))
         return fromNode(top, 0)
     }
 
     private fun fromNode(n: XNode, depth: Int): PValue {
-        if (depth > 64) throw OpException("plistの入れ子が深すぎます")
+        if (depth > 64) throw OpException(Txt(R.string.plist_013))
         return when (n.name) {
             "dict" -> {
                 val m = LinkedHashMap<String, PValue>()
@@ -205,7 +205,7 @@ object Plist {
                 val shown = v.bytes.copyOf(minOf(v.bytes.size, DATA_SHOWN))
                 val b64 = Base64.getEncoder().encodeToString(shown)
                 sb.append(ind).append("<data>").append(b64)
-                if (v.bytes.size > DATA_SHOWN) sb.append("…(全体 ").append(v.bytes.size).append(" バイト)")
+                if (v.bytes.size > DATA_SHOWN) sb.append(Txt(R.string.plist_014)).append(v.bytes.size).append(Txt(R.string.plist_015))
                 sb.append("</data>\n")
             }
         }
@@ -223,9 +223,9 @@ object Plist {
     /** 表示用の文字。バイナリ plist・webarchive・署名つきの mobileprovision は XML の文字に直す。そのままの XML は null(呼び出し側がそのまま出す)。 */
     fun displayText(name: String, b: ByteArray): Pair<String, String>? {
         val ext = FileOps.extensionOf(name)
-        if (isBinary(b)) return runCatching { toXml(parseBinary(b)) }.getOrNull()?.let { it to "バイナリplist→XML" }
-        if (ext == "mobileprovision") return embeddedXml(b)?.let { it to "署名つきplistの中身" }
-        if (b.size > 1 && b[0] == 0x30.toByte() && embeddedXml(b) != null) return embeddedXml(b)?.let { it to "署名つきplistの中身" }
+        if (isBinary(b)) return runCatching { toXml(parseBinary(b)) }.getOrNull()?.let { it to Txt(R.string.plist_016) }
+        if (ext == "mobileprovision") return embeddedXml(b)?.let { it to Txt(R.string.plist_017) }
+        if (b.size > 1 && b[0] == 0x30.toByte() && embeddedXml(b) != null) return embeddedXml(b)?.let { it to Txt(R.string.plist_018) }
         return null
     }
 

@@ -109,15 +109,15 @@ private fun PermissionScreen(onRequest: () -> Unit) {
         ) {
             FolderGlyph(kindColor(FileKind.FOLDER), Modifier.size(72.dp))
             Spacer(Modifier.height(24.dp))
-            Text("すべてのファイルへのアクセスが必要です", style = MaterialTheme.typography.titleMedium, color = pal.text)
+            Text(Txt(R.string.screens_001), style = MaterialTheme.typography.titleMedium, color = pal.text)
             Spacer(Modifier.height(8.dp))
             Text(
-                "ファイルを表示・操作するため、設定で「ファイルへのアクセスを許可」をオンにしてください",
+                Txt(R.string.screens_002),
                 style = MaterialTheme.typography.bodyMedium,
                 color = pal.subText,
             )
             Spacer(Modifier.height(24.dp))
-            Button(onClick = onRequest) { Text("設定を開く") }
+            Button(onClick = onRequest) { Text(Txt(R.string.screens_003)) }
         }
     }
 }
@@ -137,7 +137,7 @@ private fun MainScreen(vm: FmViewModel, actions: Actions) {
         val unseen = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { CrashLog.hasUnseen(appCtx) }
         if (unseen) {
             CrashLog.markSeen(appCtx)
-            vm.messages.emit("前回、アプリが異常終了しました。原因の記録は、「設定」の「異常終了の記録」で確認できます")
+            vm.messages.emit(Txt(R.string.screens_004))
         }
     }
     LaunchedEffect(Unit) { vm.openRequests.collect { actions.openFile(it) } }
@@ -167,7 +167,7 @@ private fun MainScreen(vm: FmViewModel, actions: Actions) {
                         onClick = { pending = Pending.NewFolder },
                         containerColor = pal.accent,
                         contentColor = pal.onAccent,
-                    ) { Icon(Icons.Default.Add, "新しいフォルダ") }
+                    ) { Icon(Icons.Default.Add, Txt(R.string.screens_005)) }
                 }
             },
         ) { pad ->
@@ -219,16 +219,16 @@ private fun TopBar(vm: FmViewModel, onMenu: () -> Unit, onPending: (Pending) -> 
         vm.selected.isNotEmpty() -> TopAppBar(
                 title = {
                     Column {
-                        Text("${vm.selected.size}件を選択", fontSize = 18.sp, maxLines = 1)
-                        Text("全${vm.visible.size}件", fontSize = 12.sp, color = pal.onBar.copy(alpha = 0.65f), maxLines = 1)
+                        Text(Txt.n(R.plurals.selection_count, vm.selected.size), fontSize = 18.sp, maxLines = 1)
+                        Text(Txt.n(R.plurals.selection_total, vm.visible.size), fontSize = 12.sp, color = pal.onBar.copy(alpha = 0.65f), maxLines = 1)
                     }
                 },
                 navigationIcon = {
-                    IconButton(onClick = vm::clearSelection) { Icon(Icons.Default.Close, "選択を解除") }
+                    IconButton(onClick = vm::clearSelection) { Icon(Icons.Default.Close, Txt(R.string.screens_006)) }
                 },
                 actions = {
-                    IconButton(onClick = vm::selectAll) { Icon(Icons.Default.SelectAll, "すべて選択") }
-                    IconButton(onClick = vm::invertSelection) { Icon(Icons.Default.FlipToBack, "選択を反転") }
+                    IconButton(onClick = vm::selectAll) { Icon(Icons.Default.SelectAll, Txt(R.string.screens_007)) }
+                    IconButton(onClick = vm::invertSelection) { Icon(Icons.Default.FlipToBack, Txt(R.string.screens_008)) }
                 },
                 colors = barColors(pal.selectBar, pal.onBar),
             )
@@ -239,7 +239,7 @@ private fun TopBar(vm: FmViewModel, onMenu: () -> Unit, onPending: (Pending) -> 
             TopAppBar(
                 title = {
                     Box {
-                        if (query.isEmpty()) Text("このフォルダ内を検索", color = pal.onBar.copy(alpha = 0.6f))
+                        if (query.isEmpty()) Text(Txt(R.string.screens_009), color = pal.onBar.copy(alpha = 0.6f))
                         BasicTextField(
                             value = query,
                             onValueChange = vm::setQuery,
@@ -251,10 +251,10 @@ private fun TopBar(vm: FmViewModel, onMenu: () -> Unit, onPending: (Pending) -> 
                     }
                 },
                 navigationIcon = {
-                    IconButton(onClick = vm::closeSearch) { Icon(Icons.Default.Close, "検索を閉じる") }
+                    IconButton(onClick = vm::closeSearch) { Icon(Icons.Default.Close, Txt(R.string.screens_010)) }
                 },
                 actions = {
-                    if (query.isNotEmpty()) IconButton(onClick = { vm.setQuery("") }) { Icon(Icons.Default.Clear, "消去") }
+                    if (query.isNotEmpty()) IconButton(onClick = { vm.setQuery("") }) { Icon(Icons.Default.Clear, Txt(R.string.screens_011)) }
                 },
                 colors = barColors(pal.topBar, pal.onBar),
             )
@@ -262,31 +262,31 @@ private fun TopBar(vm: FmViewModel, onMenu: () -> Unit, onPending: (Pending) -> 
 
         else -> TopAppBar(
             title = { Text(vm.titleOf(screen), maxLines = 1) },
-            navigationIcon = { IconButton(onClick = onMenu) { Icon(Icons.Default.Menu, "メニュー") } },
+            navigationIcon = { IconButton(onClick = onMenu) { Icon(Icons.Default.Menu, Txt(R.string.screens_012)) } },
             actions = {
-                if (vm.canSearch) IconButton(onClick = vm::startSearch) { Icon(Icons.Default.Search, "検索") }
+                if (vm.canSearch) IconButton(onClick = vm::startSearch) { Icon(Icons.Default.Search, Txt(R.string.screens_013)) }
                 val gridToggle: @Composable () -> Unit = {
                     IconButton(onClick = vm::toggleGrid) {
-                        if (vm.gridView) Icon(Icons.Default.ViewList, "一覧表示にする") else Icon(Icons.Default.GridView, "グリッド表示にする")
+                        if (vm.gridView) Icon(Icons.Default.ViewList, Txt(R.string.screens_014)) else Icon(Icons.Default.GridView, Txt(R.string.screens_015))
                     }
                 }
                 when (screen) {
                     Screen.Trash -> if (vm.items.isNotEmpty()) {
-                        IconButton(onClick = { onPending(Pending.EmptyTrash) }) { Icon(Icons.Default.DeleteForever, "ごみ箱を空にする") }
+                        IconButton(onClick = { onPending(Pending.EmptyTrash) }) { Icon(Icons.Default.DeleteForever, Txt(R.string.screens_016)) }
                     }
-                    Screen.Network -> IconButton(onClick = { onPending(Pending.EditRemote(null)) }) { Icon(Icons.Default.Add, "NASを追加") }
+                    Screen.Network -> IconButton(onClick = { onPending(Pending.EditRemote(null)) }) { Icon(Icons.Default.Add, Txt(R.string.screens_017)) }
                     Screen.Home -> {
-                        if (!vm.homeEditing) IconButton(onClick = { vm.homeEditing = true }) { Icon(Icons.Default.Edit, "ホームを編集") }
-                        IconButton(onClick = { onPending(Pending.Display) }) { Icon(Icons.Default.Tune, "表示設定") }
+                        if (!vm.homeEditing) IconButton(onClick = { vm.homeEditing = true }) { Icon(Icons.Default.Edit, Txt(R.string.screens_018)) }
+                        IconButton(onClick = { onPending(Pending.Display) }) { Icon(Icons.Default.Tune, Txt(R.string.screens_019)) }
                     }
                     is Screen.Cat -> gridToggle()
                     is Screen.Settings -> {}
                     is Screen.Analyze -> if (screen.fsId != null && !vm.analyzing) {
-                        IconButton(onClick = vm::rescan) { Icon(Icons.Default.Refresh, "調べ直す") }
+                        IconButton(onClick = vm::rescan) { Icon(Icons.Default.Refresh, Txt(R.string.screens_020)) }
                     }
                     else -> {
                         if (screen is Screen.Dir) gridToggle()
-                        IconButton(onClick = { onPending(Pending.Display) }) { Icon(Icons.Default.Tune, "表示設定") }
+                        IconButton(onClick = { onPending(Pending.Display) }) { Icon(Icons.Default.Tune, Txt(R.string.screens_021)) }
                     }
                 }
             },
@@ -321,9 +321,18 @@ private fun BottomBar(vm: FmViewModel, actions: Actions, onPending: (Pending) ->
     if (!showIncoming && count == 0 && (clip == null || vm.screen !is Screen.Dir || vm.searchQuery != null)) return
     val message = when {
         showIncoming && incoming != null ->
-            "「${incoming.first().name + if (incoming.size > 1) " ほか${incoming.size - 1}件" else ""}」の保存先を開いて、「ここに保存」を押してください"
-        count == 0 && clip != null ->
-            "「${clip.items.first().name + if (clip.items.size > 1) " ほか${clip.items.size - 1}件" else ""}」を${if (clip.move) "移動" else "コピー"}する場所を開いて、「貼り付け」を押してください"
+            if (incoming.size > 1) Txt.n(R.plurals.hint_save_more, incoming.size - 1, incoming.first().name)
+            else Txt(R.string.hint_save_one, incoming.first().name)
+        count == 0 && clip != null -> {
+            val first = clip.items.first().name
+            val others = clip.items.size - 1
+            when {
+                clip.move && others > 0 -> Txt.n(R.plurals.hint_paste_move_more, others, first)
+                clip.move -> Txt(R.string.hint_paste_move_one, first)
+                others > 0 -> Txt.n(R.plurals.hint_paste_copy_more, others, first)
+                else -> Txt(R.string.hint_paste_copy_one, first)
+            }
+        }
         else -> null
     }
     Column(Modifier.fillMaxWidth().background(pal.surface)) {
@@ -333,24 +342,24 @@ private fun BottomBar(vm: FmViewModel, actions: Actions, onPending: (Pending) ->
         }
         Row(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 4.dp)) {
             if (count > 0 && vm.screen == Screen.Trash) {
-                ActionButton(Icons.Default.RestoreFromTrash, "元に戻す", Modifier.weight(1f)) { vm.restoreSelected() }
-                ActionButton(Icons.Default.DeleteForever, "完全に削除", Modifier.weight(1f), danger = true) { onPending(Pending.Delete(count, false)) }
+                ActionButton(Icons.Default.RestoreFromTrash, Txt(R.string.screens_022), Modifier.weight(1f)) { vm.restoreSelected() }
+                ActionButton(Icons.Default.DeleteForever, Txt(R.string.screens_023), Modifier.weight(1f), danger = true) { onPending(Pending.Delete(count, false)) }
             } else if (count > 0) {
                 var more by remember { mutableStateOf(false) }
-                ActionButton(Icons.Default.ContentCopy, "コピー", Modifier.weight(1f)) { vm.copySelected() }
-                ActionButton(Icons.Default.DriveFileMove, "移動", Modifier.weight(1f)) { vm.cutSelected() }
-                ActionButton(Icons.Default.Share, "共有", Modifier.weight(1f)) { vm.shareSelected() }
-                ActionButton(Icons.Default.Delete, "削除", Modifier.weight(1f), danger = true) { onPending(Pending.Delete(count, vm.deletesToTrash)) }
+                ActionButton(Icons.Default.ContentCopy, Txt(R.string.screens_024), Modifier.weight(1f)) { vm.copySelected() }
+                ActionButton(Icons.Default.DriveFileMove, Txt(R.string.screens_025), Modifier.weight(1f)) { vm.cutSelected() }
+                ActionButton(Icons.Default.Share, Txt(R.string.screens_026), Modifier.weight(1f)) { vm.shareSelected() }
+                ActionButton(Icons.Default.Delete, Txt(R.string.screens_027), Modifier.weight(1f), danger = true) { onPending(Pending.Delete(count, vm.deletesToTrash)) }
                 Box(Modifier.weight(1f)) {
-                    ActionButton(Icons.Default.MoreVert, "その他", Modifier.fillMaxWidth()) { more = true }
+                    ActionButton(Icons.Default.MoreVert, Txt(R.string.screens_028), Modifier.fillMaxWidth()) { more = true }
                     MoreMenu(vm, more, { more = false }, actions, onPending)
                 }
             } else if (showIncoming) {
-                ActionButton(Icons.Default.Close, "キャンセル", Modifier.weight(1f)) { vm.cancelIncoming() }
-                ActionButton(Icons.Default.Save, "ここに保存", Modifier.weight(1f), enabled = vm.screen is Screen.Dir) { vm.saveIncoming() }
+                ActionButton(Icons.Default.Close, Txt(R.string.screens_029), Modifier.weight(1f)) { vm.cancelIncoming() }
+                ActionButton(Icons.Default.Save, Txt(R.string.screens_030), Modifier.weight(1f), enabled = vm.screen is Screen.Dir) { vm.saveIncoming() }
             } else if (clip != null) {
-                ActionButton(Icons.Default.Close, "キャンセル", Modifier.weight(1f)) { vm.cancelClip() }
-                ActionButton(Icons.Default.ContentPaste, "貼り付け", Modifier.weight(1f), enabled = vm.canPaste) { vm.paste() }
+                ActionButton(Icons.Default.Close, Txt(R.string.screens_031), Modifier.weight(1f)) { vm.cancelClip() }
+                ActionButton(Icons.Default.ContentPaste, Txt(R.string.screens_032), Modifier.weight(1f), enabled = vm.canPaste) { vm.paste() }
             }
         }
     }
@@ -361,26 +370,26 @@ private fun MoreMenu(vm: FmViewModel, expanded: Boolean, dismiss: () -> Unit, ac
     val single = items.singleOrNull()
     if (!expanded) return
     val list = ArrayList<VMenuItem.Action>()
-    if (single != null) list.add(VMenuItem.Action(Icons.Default.DriveFileRenameOutline, "名前の変更") { onPending(Pending.Rename(single)) })
+    if (single != null) list.add(VMenuItem.Action(Icons.Default.DriveFileRenameOutline, Txt(R.string.screens_033)) { onPending(Pending.Rename(single)) })
     if (vm.screen is Screen.Dir) {
         list.add(
-            VMenuItem.Action(Icons.Default.FolderZip, "ZIPに圧縮") {
-                val suggested = if (single != null) single.name.substringBeforeLast('.', single.name) + ".zip" else "アーカイブ.zip"
+            VMenuItem.Action(Icons.Default.FolderZip, Txt(R.string.screens_034)) {
+                val suggested = if (single != null) single.name.substringBeforeLast('.', single.name) + ".zip" else Txt(R.string.screens_035)
                 onPending(Pending.Zip(suggested))
             },
         )
     }
     if (vm.screen is Screen.Dir && single != null && !single.isDir && (single.name.endsWith(".zip", ignoreCase = true) || Archives.isOtherArchive(single.name))) {
-        list.add(VMenuItem.Action(Icons.Default.Unarchive, if (single.name.endsWith(".zip", ignoreCase = true)) "ZIPを展開" else "展開") { vm.unzipSelected() })
+        list.add(VMenuItem.Action(Icons.Default.Unarchive, if (single.name.endsWith(".zip", ignoreCase = true)) Txt(R.string.screens_036) else Txt(R.string.screens_037)) { vm.unzipSelected() })
     }
     if (single != null && single.isDir) {
-        list.add(VMenuItem.Action(Icons.Default.BookmarkAdd, "ブックマークに追加") { vm.addBookmark(single) })
-        list.add(VMenuItem.Action(Icons.Default.Home, "ホームに追加") { vm.addHomeShortcutOf(single) })
+        list.add(VMenuItem.Action(Icons.Default.BookmarkAdd, Txt(R.string.screens_038)) { vm.addBookmark(single) })
+        list.add(VMenuItem.Action(Icons.Default.Home, Txt(R.string.screens_039)) { vm.addHomeShortcutOf(single) })
         (vm.screen as? Screen.Dir)?.let { d ->
-            list.add(VMenuItem.Action(Icons.Default.PieChart, "容量を分析") { vm.openAnalyze(d.fsId, single.path) })
+            list.add(VMenuItem.Action(Icons.Default.PieChart, Txt(R.string.screens_040)) { vm.openAnalyze(d.fsId, single.path) })
         }
     }
-    list.add(VMenuItem.Action(Icons.Default.Info, "詳細") { onPending(Pending.Details(items)) })
+    list.add(VMenuItem.Action(Icons.Default.Info, Txt(R.string.screens_041)) { onPending(Pending.Details(items)) })
     ListMenu(expanded, LocalPal.current.dark, dismiss, list, above = true)
 }
 
@@ -397,7 +406,7 @@ private fun BusyOverlay(message: String, onCancel: () -> Unit) {
                 Spacer(Modifier.height(16.dp))
                 Text(message)
                 Spacer(Modifier.height(8.dp))
-                TextButton(onClick = onCancel) { Text("中止") }
+                TextButton(onClick = onCancel) { Text(Txt(R.string.screens_042)) }
             }
         }
     }

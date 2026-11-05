@@ -156,7 +156,7 @@ private fun deviceDecoders(mime: String): List<String> = runCatching {
         .filter { !it.isEncoder && it.supportedTypes.any { t -> t.equals(mime, ignoreCase = true) } }
         .map { info ->
             val v = runCatching { info.getCapabilitiesForType(mime).videoCapabilities }.getOrNull()
-            if (v != null) "${info.name}(最大 ${v.supportedWidths.upper}x${v.supportedHeights.upper})" else info.name
+            if (v != null) Txt(R.string.player_setup_001, info.name, v.supportedWidths.upper, v.supportedHeights.upper) else info.name
         }
 }.getOrDefault(emptyList())
 
@@ -170,14 +170,14 @@ internal fun videoProblem(tracks: Tracks): String? {
     if (groups.isEmpty() || groups.any { g -> (0 until g.length).any { g.isTrackSelected(it) } }) return null
     val g = groups.first()
     val f = g.getTrackFormat(0)
-    val mime = f.sampleMimeType ?: "不明"
+    val mime = f.sampleMimeType ?: Txt(R.string.player_setup_002)
     val why = when (g.getTrackSupport(0)) {
-        C.FORMAT_UNSUPPORTED_TYPE -> "この形式を再生できるデコーダーがありません"
-        C.FORMAT_EXCEEDS_CAPABILITIES -> "デコーダーの上限(大きさなど)を超えています"
-        C.FORMAT_UNSUPPORTED_SUBTYPE -> "この形式の細かい種類に対応していません"
-        else -> "再生できる状態になっていません"
+        C.FORMAT_UNSUPPORTED_TYPE -> Txt(R.string.player_setup_003)
+        C.FORMAT_EXCEEDS_CAPABILITIES -> Txt(R.string.player_setup_004)
+        C.FORMAT_UNSUPPORTED_SUBTYPE -> Txt(R.string.player_setup_005)
+        else -> Txt(R.string.player_setup_006)
     }
     val size = if (f.width > 0 && f.height > 0) " ${f.width}x${f.height}" else ""
     val dec = deviceDecoders(mime)
-    return "映像($mime$size)を再生できない\n$why\nこの端末のデコーダー: " + if (dec.isEmpty()) "なし" else dec.joinToString(", ")
+    return Txt(R.string.player_setup_007, mime, size, why) + if (dec.isEmpty()) Txt(R.string.player_setup_008) else dec.joinToString(", ")
 }

@@ -17,7 +17,7 @@ object Ppt {
     fun parse(bytes: ByteArray): List<Slide> = parse(Ole2(bytes))
 
     fun parse(ole: Ole2): List<Slide> {
-        val doc = ole.stream("PowerPoint Document") ?: throw OpException("PowerPointの文書(PowerPoint Document)が見つかりません")
+        val doc = ole.stream("PowerPoint Document") ?: throw OpException(Txt(R.string.ppt_001))
         val persist = readPersist(ole.stream("Current User"), doc)
         val docOff = persist.docOffset
         // スライドの並び(SlideListWithText の SlidePersistAtom)
@@ -36,7 +36,7 @@ object Ppt {
             // 目録が読めないときは、ファイル全体から Slide コンテナを順に探す
             var n = 0
             scanForSlides(doc) { texts -> n++; slides.add(makeSlide(n, texts)) }
-            if (slides.isEmpty()) throw OpException("スライドが見つかりません")
+            if (slides.isEmpty()) throw OpException(Txt(R.string.ppt_002))
             return slides
         }
         for ((i, pid) in order.withIndex()) {

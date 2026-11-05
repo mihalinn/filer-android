@@ -52,7 +52,7 @@ class SmbFs(val cfg: RemoteConfig) : Fs {
                 else AuthenticationContext(cfg.user, cfg.password.toCharArray(), cfg.domain),
             )
             val disk = session.connectShare(cfg.share) as? DiskShare
-                ?: throw OpException("「${cfg.share}」はファイル共有ではありません")
+                ?: throw OpException(Txt(R.string.smb_fs_001, cfg.share))
             client = c
             share = disk
             disk
@@ -104,17 +104,17 @@ class SmbFs(val cfg: RemoteConfig) : Fs {
         is OpException -> e
         is SMBApiException -> OpException(
             when (e.status.name) {
-                "STATUS_LOGON_FAILURE", "STATUS_WRONG_PASSWORD", "STATUS_NO_SUCH_USER" -> "ユーザー名かパスワードが違います"
-                "STATUS_BAD_NETWORK_NAME" -> "共有名「${cfg.share}」が見つかりません"
-                "STATUS_ACCESS_DENIED" -> "アクセスが拒否されました"
-                "STATUS_OBJECT_NAME_NOT_FOUND", "STATUS_OBJECT_PATH_NOT_FOUND", "STATUS_NO_SUCH_FILE" -> "見つかりません"
-                "STATUS_OBJECT_NAME_COLLISION" -> "同じ名前がすでにあります"
-                "STATUS_DISK_FULL" -> "NASの空き容量が足りません"
-                "STATUS_SHARING_VIOLATION" -> "他で使用中のため操作できません"
-                else -> "NASのエラー: ${e.status.name}"
+                "STATUS_LOGON_FAILURE", "STATUS_WRONG_PASSWORD", "STATUS_NO_SUCH_USER" -> Txt(R.string.smb_fs_002)
+                "STATUS_BAD_NETWORK_NAME" -> Txt(R.string.smb_fs_003, cfg.share)
+                "STATUS_ACCESS_DENIED" -> Txt(R.string.smb_fs_004)
+                "STATUS_OBJECT_NAME_NOT_FOUND", "STATUS_OBJECT_PATH_NOT_FOUND", "STATUS_NO_SUCH_FILE" -> Txt(R.string.smb_fs_005)
+                "STATUS_OBJECT_NAME_COLLISION" -> Txt(R.string.smb_fs_006)
+                "STATUS_DISK_FULL" -> Txt(R.string.smb_fs_007)
+                "STATUS_SHARING_VIOLATION" -> Txt(R.string.smb_fs_008)
+                else -> Txt(R.string.smb_fs_009, e.status.name)
             },
         )
-        else -> OpException("NAS(${cfg.host})に接続できません: ${e.message ?: e.javaClass.simpleName}")
+        else -> OpException(Txt(R.string.smb_fs_010, cfg.host, e.message ?: e.javaClass.simpleName))
     }
 
     /** 通信が切れていたら1回だけつなぎ直して再実行する。認証や権限のエラーは再試行しない。 */
@@ -170,7 +170,7 @@ class SmbFs(val cfg: RemoteConfig) : Fs {
 
     override fun rename(path: String, newName: String): String {
         FileOps.validateName(newName)?.let { throw OpException(it) }
-        val parent = parent(path) ?: throw OpException("名前を変更できません")
+        val parent = parent(path) ?: throw OpException(Txt(R.string.smb_fs_011))
         val dst = child(parent, newName)
         moveInside(path, dst)
         return dst
@@ -179,7 +179,7 @@ class SmbFs(val cfg: RemoteConfig) : Fs {
     override fun moveInside(src: String, dst: String): Boolean = op { sh ->
         val s = rel(src)
         val d = rel(dst)
-        if (sh.fileExists(d) || sh.folderExists(d)) throw OpException("同じ名前のファイルがすでにあります")
+        if (sh.fileExists(d) || sh.folderExists(d)) throw OpException(Txt(R.string.smb_fs_012))
         val options = if (sh.folderExists(s)) EnumSet.of(SMB2CreateOptions.FILE_DIRECTORY_FILE)
         else EnumSet.noneOf(SMB2CreateOptions::class.java)
         sh.open(s, EnumSet.of(AccessMask.DELETE), null, SMB2ShareAccess.ALL, SMB2CreateDisposition.FILE_OPEN, options)

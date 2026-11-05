@@ -57,21 +57,21 @@ internal fun PendingDialogs(p: Pending?, vm: FmViewModel, dismiss: () -> Unit) {
     when (p) {
         null -> {}
         is Pending.Delete -> ConfirmDialog(
-            title = if (p.toTrash) "ごみ箱へ移動" else "削除",
-            text = if (p.toTrash) "${p.count}件をごみ箱に移動します。ごみ箱から元に戻せます。"
-            else "${p.count}件を完全に削除します。この操作は元に戻せません。",
-            okLabel = if (p.toTrash) "移動" else "削除",
+            title = if (p.toTrash) Txt(R.string.dialogs_001) else Txt(R.string.dialogs_002),
+            text = if (p.toTrash) Txt.n(R.plurals.confirm_trash_text, p.count)
+            else Txt.n(R.plurals.confirm_delete_text, p.count),
+            okLabel = if (p.toTrash) Txt(R.string.dialogs_003) else Txt(R.string.dialogs_004),
             dismiss = dismiss,
         ) { vm.deleteSelected() }
-        is Pending.Rename -> TextInputDialog("名前の変更", p.item.name, "変更", dismiss) { vm.renameSelected(it) }
-        Pending.NewFolder -> TextInputDialog("新しいフォルダ", "", "作成", dismiss) { vm.newFolder(it) }
-        is Pending.Zip -> TextInputDialog("ZIPに圧縮", p.suggested, "圧縮", dismiss) { vm.zipSelected(it) }
+        is Pending.Rename -> TextInputDialog(Txt(R.string.dialogs_005), p.item.name, Txt(R.string.dialogs_006), dismiss) { vm.renameSelected(it) }
+        Pending.NewFolder -> TextInputDialog(Txt(R.string.dialogs_007), "", Txt(R.string.dialogs_008), dismiss) { vm.newFolder(it) }
+        is Pending.Zip -> TextInputDialog(Txt(R.string.dialogs_009), p.suggested, Txt(R.string.dialogs_010), dismiss) { vm.zipSelected(it) }
         Pending.Display -> DisplayDialog(vm, dismiss)
-        Pending.EmptyTrash -> ConfirmDialog("ごみ箱を空にする", "ごみ箱の中身をすべて完全に削除します。この操作は元に戻せません。", "空にする", dismiss) { vm.emptyTrash() }
+        Pending.EmptyTrash -> ConfirmDialog(Txt(R.string.dialogs_011), Txt(R.string.dialogs_012), Txt(R.string.dialogs_013), dismiss) { vm.emptyTrash() }
         is Pending.Details -> DetailsDialog(vm, p.items, dismiss)
         is Pending.EditRemote -> RemoteEditDialog(vm, p.existing, dismiss)
         is Pending.DeleteRemote -> ConfirmDialog(
-            "接続先を削除", "「${p.remote.name}」の接続情報を削除します(NAS内のファイルは消えません)", "削除", dismiss,
+            Txt(R.string.dialogs_014), Txt(R.string.confirm_remote_text, p.remote.name), Txt(R.string.dialogs_015), dismiss,
         ) { vm.deleteRemote(p.remote.id) }
     }
 }
@@ -81,19 +81,19 @@ internal fun PendingDialogs(p: Pending?, vm: FmViewModel, dismiss: () -> Unit) {
 internal fun ConflictDialog(vm: FmViewModel, p: FmViewModel.ConflictPrompt) {
     val c = p.conflicts.first()
     var all by remember(p.conflicts.size) { mutableStateOf(false) }
-    fun describe(i: FileItem) = (if (i.isDir) "フォルダ" else FileOps.formatSize(i.size)) + "・" + FileOps.formatDate(i.modified)
+    fun describe(i: FileItem) = (if (i.isDir) Txt(R.string.dialogs_016) else FileOps.formatSize(i.size)) + Txt(R.string.sep_dot) + FileOps.formatDate(i.modified)
     AlertDialog(
         onDismissRequest = vm::cancelConflict,
-        title = { Text("同じ名前のファイルがあります") },
+        title = { Text(Txt(R.string.dialogs_017)) },
         text = {
             Column {
-                Text("「${c.src.name}」は貼り付け先にすでにあります")
+                Text(Txt(R.string.conflict_exists, c.src.name))
                 Spacer(Modifier.height(10.dp))
-                Text("貼り付けるもの: ${describe(c.src)}", style = MaterialTheme.typography.bodySmall)
-                Text("すでにあるもの: ${describe(c.existing)}", style = MaterialTheme.typography.bodySmall)
+                Text(Txt(R.string.conflict_src, describe(c.src)), style = MaterialTheme.typography.bodySmall)
+                Text(Txt(R.string.conflict_existing, describe(c.existing)), style = MaterialTheme.typography.bodySmall)
                 if (c.src.isDir && c.existing.isDir) {
                     Spacer(Modifier.height(6.dp))
-                    Text("フォルダを上書きすると、中身がひとつにまとまります(同じ名前のファイルだけが置き換わります)", style = MaterialTheme.typography.bodySmall)
+                    Text(Txt(R.string.dialogs_018), style = MaterialTheme.typography.bodySmall)
                 }
                 if (p.conflicts.size > 1) {
                     Row(
@@ -102,17 +102,17 @@ internal fun ConflictDialog(vm: FmViewModel, p: FmViewModel.ConflictPrompt) {
                     ) {
                         androidx.compose.material3.Checkbox(checked = all, onCheckedChange = null)
                         Spacer(Modifier.width(8.dp))
-                        Text("残りの${p.conflicts.size}件すべてに同じ操作をする")
+                        Text(Txt.n(R.plurals.conflict_apply_all, p.conflicts.size))
                     }
                 }
                 Spacer(Modifier.height(4.dp))
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = androidx.compose.foundation.layout.Arrangement.End) {
-                    TextButton(onClick = { vm.answerConflict(ConflictAction.OVERWRITE, all) }) { Text("上書き") }
-                    TextButton(onClick = { vm.answerConflict(ConflictAction.SKIP, all) }) { Text("スキップ") }
-                    TextButton(onClick = { vm.answerConflict(ConflictAction.KEEP_BOTH, all) }) { Text("両方残す") }
+                    TextButton(onClick = { vm.answerConflict(ConflictAction.OVERWRITE, all) }) { Text(Txt(R.string.dialogs_019)) }
+                    TextButton(onClick = { vm.answerConflict(ConflictAction.SKIP, all) }) { Text(Txt(R.string.dialogs_020)) }
+                    TextButton(onClick = { vm.answerConflict(ConflictAction.KEEP_BOTH, all) }) { Text(Txt(R.string.dialogs_021)) }
                 }
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = androidx.compose.foundation.layout.Arrangement.End) {
-                    TextButton(onClick = vm::cancelConflict) { Text("キャンセル") }
+                    TextButton(onClick = vm::cancelConflict) { Text(Txt(R.string.dialogs_022)) }
                 }
             }
         },
@@ -128,7 +128,7 @@ private fun ConfirmDialog(title: String, text: String, okLabel: String, dismiss:
         title = { Text(title) },
         text = { Text(text) },
         confirmButton = { TextButton(onClick = { dismiss(); onOk() }) { Text(okLabel) } },
-        dismissButton = { TextButton(onClick = dismiss) { Text("キャンセル") } },
+        dismissButton = { TextButton(onClick = dismiss) { Text(Txt(R.string.dialogs_023)) } },
     )
 }
 
@@ -159,7 +159,7 @@ private fun TextInputDialog(title: String, initial: String, okLabel: String, onD
                 enabled = text.text.isNotBlank() && error == null,
             ) { Text(okLabel) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("キャンセル") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(Txt(R.string.dialogs_024)) } },
     )
 }
 
@@ -184,41 +184,41 @@ private fun SectionLabel(text: String) {
 private fun DisplayDialog(vm: FmViewModel, dismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = dismiss,
-        title = { Text("表示設定") },
+        title = { Text(Txt(R.string.dialogs_025)) },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState())) {
-                SectionLabel("並べ替え")
+                SectionLabel(Txt(R.string.dialogs_026))
                 SortKey.entries.forEach { k -> OptionRow(k.label, vm.sortKey == k) { vm.setSort(k, vm.sortAsc) } }
                 Row {
-                    Column(Modifier.weight(1f)) { OptionRow("昇順", vm.sortAsc) { vm.setSort(vm.sortKey, true) } }
-                    Column(Modifier.weight(1f)) { OptionRow("降順", !vm.sortAsc) { vm.setSort(vm.sortKey, false) } }
+                    Column(Modifier.weight(1f)) { OptionRow(Txt(R.string.dialogs_027), vm.sortAsc) { vm.setSort(vm.sortKey, true) } }
+                    Column(Modifier.weight(1f)) { OptionRow(Txt(R.string.dialogs_028), !vm.sortAsc) { vm.setSort(vm.sortKey, false) } }
                 }
                 HorizontalDivider(Modifier.padding(vertical = 8.dp))
                 Row(
                     Modifier.fillMaxWidth().clickable { vm.toggleHidden() },
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text("隠しファイルを表示", Modifier.weight(1f))
+                    Text(Txt(R.string.dialogs_029), Modifier.weight(1f))
                     Switch(checked = vm.showHidden, onCheckedChange = { vm.toggleHidden() })
                 }
                 Row(
                     Modifier.fillMaxWidth().clickable { vm.toggleNasThumbs() },
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text("NASのサムネイルを表示", Modifier.weight(1f))
+                    Text(Txt(R.string.dialogs_030), Modifier.weight(1f))
                     Switch(checked = vm.nasThumbs, onCheckedChange = { vm.toggleNasThumbs() })
                 }
                 HorizontalDivider(Modifier.padding(vertical = 8.dp))
-                SectionLabel("テーマ")
-                OptionRow("ライト", vm.themeMode == "light") { vm.changeTheme("light") }
-                OptionRow("ダーク", vm.themeMode == "dark") { vm.changeTheme("dark") }
-                OptionRow("端末の設定に合わせる", vm.themeMode == "system") { vm.changeTheme("system") }
+                SectionLabel(Txt(R.string.dialogs_031))
+                OptionRow(Txt(R.string.dialogs_032), vm.themeMode == "light") { vm.changeTheme("light") }
+                OptionRow(Txt(R.string.dialogs_033), vm.themeMode == "dark") { vm.changeTheme("dark") }
+                OptionRow(Txt(R.string.dialogs_034), vm.themeMode == "system") { vm.changeTheme("system") }
                 HorizontalDivider(Modifier.padding(vertical = 8.dp))
                 // ビューアの配色・マンガの向き・ライセンスなどは、別画面の「設定」にある
-                TextButton(onClick = { dismiss(); vm.openSettings() }) { Text("その他の設定…") }
+                TextButton(onClick = { dismiss(); vm.openSettings() }) { Text(Txt(R.string.dialogs_035)) }
             }
         },
-        confirmButton = { TextButton(onClick = dismiss) { Text("閉じる") } },
+        confirmButton = { TextButton(onClick = dismiss) { Text(Txt(R.string.dialogs_036)) } },
     )
 }
 
@@ -229,27 +229,27 @@ private fun DetailsDialog(vm: FmViewModel, items: List<FileItem>, dismiss: () ->
     }
     AlertDialog(
         onDismissRequest = dismiss,
-        title = { Text("詳細") },
+        title = { Text(Txt(R.string.dialogs_037)) },
         text = {
             Column {
                 if (items.size == 1) {
                     val f = items[0]
-                    DetailLine("名前", f.name)
-                    DetailLine("場所", f.path.substringBeforeLast('/').ifEmpty { "/" })
-                    DetailLine("更新日時", FileOps.formatDate(f.modified))
+                    DetailLine(Txt(R.string.dialogs_038), f.name)
+                    DetailLine(Txt(R.string.dialogs_039), f.path.substringBeforeLast('/').ifEmpty { "/" })
+                    DetailLine(Txt(R.string.dialogs_040), FileOps.formatDate(f.modified))
                 } else {
-                    DetailLine("選択", "${items.size}件")
+                    DetailLine(Txt(R.string.dialogs_041), Txt.n(R.plurals.detail_count, items.size))
                 }
                 val s = stats
                 if (s == null) {
-                    DetailLine("サイズ", "計算中…")
+                    DetailLine(Txt(R.string.dialogs_042), Txt(R.string.dialogs_043))
                 } else {
-                    DetailLine("サイズ", "${FileOps.formatSize(s.bytes)}(${s.bytes} B)")
-                    if (s.folders > 0) DetailLine("中身", "フォルダ ${s.folders}、ファイル ${s.files}")
+                    DetailLine(Txt(R.string.dialogs_044), "${FileOps.formatSize(s.bytes)}(${s.bytes} B)")
+                    if (s.folders > 0) DetailLine(Txt(R.string.dialogs_045), Txt(R.string.detail_contents, s.folders, s.files))
                 }
             }
         },
-        confirmButton = { TextButton(onClick = dismiss) { Text("閉じる") } },
+        confirmButton = { TextButton(onClick = dismiss) { Text(Txt(R.string.dialogs_046)) } },
     )
 }
 
@@ -282,34 +282,34 @@ private fun RemoteEditDialog(vm: FmViewModel, existing: RemoteConfig?, dismiss: 
 
     AlertDialog(
         onDismissRequest = dismiss,
-        title = { Text(if (existing == null) "NASを追加" else "接続先を編集") },
+        title = { Text(if (existing == null) Txt(R.string.dialogs_047) else Txt(R.string.dialogs_048)) },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState())) {
-                Field("表示名", name) { name = it; status = null }
-                Field("ホスト(IPアドレスか名前)", host, KeyboardType.Uri) { host = it; status = null }
-                Field("共有名", share) { share = it; status = null }
-                Field("最初に開くフォルダ(省略可)", start) { start = it }
-                Field("ユーザー名(空ならゲスト)", user) { user = it; status = null }
-                Field("パスワード", password, KeyboardType.Password, secret = true) { password = it; status = null }
+                Field(Txt(R.string.dialogs_049), name) { name = it; status = null }
+                Field(Txt(R.string.dialogs_050), host, KeyboardType.Uri) { host = it; status = null }
+                Field(Txt(R.string.dialogs_051), share) { share = it; status = null }
+                Field(Txt(R.string.dialogs_052), start) { start = it }
+                Field(Txt(R.string.dialogs_053), user) { user = it; status = null }
+                Field(Txt(R.string.dialogs_054), password, KeyboardType.Password, secret = true) { password = it; status = null }
                 Spacer(Modifier.height(8.dp))
                 TextButton(
                     enabled = !testing && host.isNotBlank() && share.isNotBlank(),
                     onClick = {
                         testing = true
-                        status = "接続中…"
+                        status = Txt(R.string.dialogs_055)
                         val cfg = build()
                         scope.launch {
                             status = withContext(Dispatchers.IO) {
                                 try {
-                                    "接続できました(直下に ${vm.testRemote(cfg)} 件)"
+                                    Txt.n(R.plurals.remote_test_ok, vm.testRemote(cfg))
                                 } catch (e: Exception) {
-                                    e.message ?: "接続できませんでした"
+                                    e.message ?: Txt(R.string.dialogs_056)
                                 }
                             }
                             testing = false
                         }
                     },
-                ) { Text("接続テスト") }
+                ) { Text(Txt(R.string.dialogs_057)) }
                 status?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
             }
         },
@@ -317,9 +317,9 @@ private fun RemoteEditDialog(vm: FmViewModel, existing: RemoteConfig?, dismiss: 
             TextButton(
                 enabled = name.isNotBlank() && host.isNotBlank() && share.isNotBlank(),
                 onClick = { vm.saveRemote(build()); dismiss() },
-            ) { Text("保存") }
+            ) { Text(Txt(R.string.dialogs_058)) }
         },
-        dismissButton = { TextButton(onClick = dismiss) { Text("キャンセル") } },
+        dismissButton = { TextButton(onClick = dismiss) { Text(Txt(R.string.dialogs_059)) } },
     )
 }
 

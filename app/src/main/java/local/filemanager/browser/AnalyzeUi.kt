@@ -61,7 +61,7 @@ private fun AnalyzeChooser(vm: FmViewModel) {
     val pal = LocalPal.current
     LazyColumn(Modifier.fillMaxSize()) {
         item {
-            Text("容量を調べる場所を選んでください", color = pal.subText, fontSize = 14.sp, modifier = Modifier.padding(16.dp))
+            Text(Txt(R.string.analyze_ui_001), color = pal.subText, fontSize = 14.sp, modifier = Modifier.padding(16.dp))
         }
         items(vm.volumes, key = { it.dir.path }) { v ->
             val used = (v.total - v.free).coerceAtLeast(0)
@@ -71,7 +71,7 @@ private fun AnalyzeChooser(vm: FmViewModel) {
                     Spacer(Modifier.width(14.dp))
                     Column(Modifier.weight(1f)) {
                         Text(v.label, fontSize = 16.sp, color = pal.text)
-                        Text("使用 ${FileOps.formatSize(used)} / 全体 ${FileOps.formatSize(v.total)}(空き ${FileOps.formatSize(v.free)})", fontSize = 13.sp, color = pal.subText)
+                        Text(Txt(R.string.analyze_volume, FileOps.formatSize(used), FileOps.formatSize(v.total), FileOps.formatSize(v.free)), fontSize = 13.sp, color = pal.subText)
                     }
                 }
                 Spacer(Modifier.height(8.dp))
@@ -88,7 +88,7 @@ private fun AnalyzeChooser(vm: FmViewModel) {
                 Spacer(Modifier.width(14.dp))
                 Column(Modifier.weight(1f)) {
                     Text(r.name, fontSize = 16.sp, color = pal.text)
-                    Text("${r.host} /${r.share}  ※NASは時間がかかります", fontSize = 13.sp, color = pal.subText)
+                    Text(Txt(R.string.analyze_nas_note, r.host, r.share), fontSize = 13.sp, color = pal.subText)
                 }
             }
             HorizontalDivider(color = pal.divider)
@@ -106,7 +106,7 @@ private fun AnalyzeResult(vm: FmViewModel) {
         vm.analyzing -> Scanning(vm)
         vm.analysisError != null -> Column(Modifier.fillMaxSize().padding(24.dp), verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
             Text(vm.analysisError ?: "", color = pal.text, textAlign = TextAlign.Center)
-            TextButton(onClick = vm::rescan) { Text("もう一度調べる") }
+            TextButton(onClick = vm::rescan) { Text(Txt(R.string.analyze_ui_002)) }
         }
         a != null -> ResultBody(vm, a)
     }
@@ -131,13 +131,13 @@ private fun Scanning(vm: FmViewModel) {
     ) {
         CircularProgressIndicator(color = pal.accent)
         Spacer(Modifier.height(20.dp))
-        Text("調べています…", fontSize = 18.sp, color = pal.text)
+        Text(Txt(R.string.analyze_ui_003), fontSize = 18.sp, color = pal.text)
         Spacer(Modifier.height(6.dp))
-        Text("${"%,d".format(p.files)} 個のファイル・${FileOps.formatSize(p.bytes)}", fontSize = 15.sp, color = pal.text)
+        Text(Txt.n(R.plurals.analyze_files_size, p.files, FileOps.formatSize(p.bytes)), fontSize = 15.sp, color = pal.text)
         Spacer(Modifier.height(6.dp))
         Text(p.current, fontSize = 12.sp, color = pal.subText, maxLines = 2, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.Center)
         Spacer(Modifier.height(16.dp))
-        TextButton(onClick = { vm.openAnalyze() }) { Text("キャンセル") }
+        TextButton(onClick = { vm.openAnalyze() }) { Text(Txt(R.string.analyze_ui_004)) }
     }
 }
 
@@ -156,18 +156,18 @@ private fun ResultBody(vm: FmViewModel, a: Analysis) {
         // 見出し: いまのフォルダの合計
         Column(Modifier.fillMaxWidth().background(pal.surface).padding(horizontal = 16.dp, vertical = 12.dp)) {
             Text(FileOps.formatSize(current.size), fontSize = 28.sp, fontWeight = FontWeight.Bold, color = pal.text)
-            Text("${"%,d".format(current.files)} 個のファイル", fontSize = 13.sp, color = pal.subText)
+            Text(Txt.n(R.plurals.analyze_files, current.files), fontSize = 13.sp, color = pal.subText)
             val space = vm.analysisSpace
             if (atRoot && space != null) {
                 val (total, free) = space
                 Spacer(Modifier.height(6.dp))
-                Text("この記憶領域: 使用 ${FileOps.formatSize((total - free).coerceAtLeast(0))} / 全体 ${FileOps.formatSize(total)}(空き ${FileOps.formatSize(free)})", fontSize = 13.sp, color = pal.text)
+                Text(Txt(R.string.analyze_storage_total, FileOps.formatSize((total - free).coerceAtLeast(0)), FileOps.formatSize(total), FileOps.formatSize(free)), fontSize = 13.sp, color = pal.text)
                 Spacer(Modifier.height(4.dp))
                 Bar(if (total > 0) (total - free).toFloat() / total else 0f)
             }
             if (atRoot && fsId == "local") {
                 Spacer(Modifier.height(4.dp))
-                Text("※ Android/data など、制限で見られない場所は含まれません", fontSize = 11.sp, color = pal.subText)
+                Text(Txt(R.string.analyze_ui_005), fontSize = 11.sp, color = pal.subText)
             }
         }
         // パンくず(分析した場所からいまのフォルダまで)
@@ -185,8 +185,8 @@ private fun ResultBody(vm: FmViewModel, a: Analysis) {
             }
         }
         TabRow(selectedTabIndex = tab, containerColor = pal.surface, contentColor = pal.accent) {
-            Tab(selected = tab == 0, onClick = { tab = 0 }, text = { Text("フォルダ別") })
-            Tab(selected = tab == 1, onClick = { tab = 1 }, text = { Text("大きいファイル") })
+            Tab(selected = tab == 0, onClick = { tab = 0 }, text = { Text(Txt(R.string.analyze_ui_006)) })
+            Tab(selected = tab == 1, onClick = { tab = 1 }, text = { Text(Txt(R.string.analyze_ui_007)) })
         }
         if (tab == 0) FolderTab(vm, a, current, currentPath) else BigFilesTab(vm, a, currentPath)
     }
@@ -198,13 +198,13 @@ private fun FolderTab(vm: FmViewModel, a: Analysis, current: DiskNode, currentPa
     val nodes = a.children[currentPath]
     if (nodes == null) {
         Column(Modifier.fillMaxSize().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("このフォルダは小さいため、中身の一覧は省略しています", color = pal.subText, textAlign = TextAlign.Center)
-            TextButton(onClick = { vm.openAnalyzed(current) }) { Text("フォルダを開く") }
+            Text(Txt(R.string.analyze_ui_008), color = pal.subText, textAlign = TextAlign.Center)
+            TextButton(onClick = { vm.openAnalyzed(current) }) { Text(Txt(R.string.analyze_ui_009)) }
         }
         return
     }
     if (nodes.isEmpty()) {
-        Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) { Text("空のフォルダ", color = pal.subText) }
+        Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) { Text(Txt(R.string.analyze_ui_010), color = pal.subText) }
         return
     }
     val total = current.size
@@ -213,7 +213,7 @@ private fun FolderTab(vm: FmViewModel, a: Analysis, current: DiskNode, currentPa
             NodeRow(
                 node = n,
                 fraction = if (total > 0) n.size.toFloat() / total else 0f,
-                subtitle = if (n.isDir) "${"%,d".format(n.files)} 個のファイル" else FileOps.formatSize(n.size),
+                subtitle = if (n.isDir) Txt.n(R.plurals.analyze_files, n.files) else FileOps.formatSize(n.size),
                 onClick = { if (n.isDir) vm.drillInto(n.path) else vm.openAnalyzed(n) },
                 onOpen = { vm.openAnalyzed(n) },
             )
@@ -221,7 +221,7 @@ private fun FolderTab(vm: FmViewModel, a: Analysis, current: DiskNode, currentPa
         a.omitted[currentPath]?.let { (count, bytes) ->
             item {
                 Text(
-                    "ほか $count 個(合計 ${FileOps.formatSize(bytes)})",
+                    Txt.n(R.plurals.analyze_others, count, FileOps.formatSize(bytes)),
                     fontSize = 13.sp, color = pal.subText, modifier = Modifier.fillMaxWidth().padding(16.dp),
                 )
             }
@@ -235,7 +235,7 @@ private fun BigFilesTab(vm: FmViewModel, a: Analysis, currentPath: String) {
     val list = a.biggestFiles.filter { Nav.isUnder(currentPath, it.path) }
     if (list.isEmpty()) {
         Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
-            Text("大きい上位 ${Analyzer.BIGGEST} 件に入るファイルはありません", color = pal.subText, textAlign = TextAlign.Center)
+            Text(Txt(R.string.analyze_no_big, Analyzer.BIGGEST), color = pal.subText, textAlign = TextAlign.Center)
         }
         return
     }
@@ -245,7 +245,7 @@ private fun BigFilesTab(vm: FmViewModel, a: Analysis, currentPath: String) {
             NodeRow(
                 node = n,
                 fraction = if (biggest > 0) n.size.toFloat() / biggest else 0f,
-                subtitle = FileOps.formatSize(n.size) + "・" + n.path.substringBeforeLast('/').removePrefix(currentPath.trimEnd('/')).ifEmpty { "/" },
+                subtitle = FileOps.formatSize(n.size) + Txt(R.string.sep_dot) + n.path.substringBeforeLast('/').removePrefix(currentPath.trimEnd('/')).ifEmpty { "/" },
                 onClick = { vm.openAnalyzed(n) },
                 onOpen = { vm.openAnalyzed(n) },
             )
@@ -269,7 +269,7 @@ private fun NodeRow(node: DiskNode, fraction: Float, subtitle: String, onClick: 
                 Text(FileOps.formatSize(node.size), fontSize = 14.sp, color = pal.text)
                 Text("%.1f%%".format(fraction * 100), fontSize = 11.sp, color = pal.subText)
             }
-            IconButton(onClick = onOpen) { Icon(Icons.AutoMirrored.Filled.OpenInNew, "ファイル一覧で開く", tint = pal.subText, modifier = Modifier.size(20.dp)) }
+            IconButton(onClick = onOpen) { Icon(Icons.AutoMirrored.Filled.OpenInNew, Txt(R.string.analyze_ui_011), tint = pal.subText, modifier = Modifier.size(20.dp)) }
         }
         Spacer(Modifier.height(6.dp))
         Box(Modifier.padding(end = 16.dp)) { Bar(fraction) }

@@ -43,7 +43,7 @@ fun isMidiName(name: String): Boolean = FileOps.extensionOf(name).let { it == "m
 
 private fun midiPath(ctx: android.content.Context, fs: Fs, item: FileItem, task: BgTask): String {
     if (fs.isLocal) return item.path
-    if (item.size > MIDI_LIMIT) throw OpException("大きすぎて開けません")
+    if (item.size > MIDI_LIMIT) throw OpException(Txt(R.string.midi_play_001))
     val dir = File(ctx.cacheDir, "midiview").also { it.mkdirs() }
     val f = File(dir, cacheKey(fs.id, item.path, item.size, item.modified) + ".mid")
     if (!(f.exists() && f.length() == item.size)) {
@@ -79,7 +79,7 @@ internal fun MidiScreen(vm: FmViewModel, req: FmViewModel.ViewerRequest, onClose
     LaunchedEffect(index) {
         val mp = MediaPlayer()
         player = mp
-        val task = BgTask("「${item.name}」を取り込んでいます", "「${item.name}」の取り込みが終わりました", "「${item.name}」を取り込めませんでした")
+        val task = BgTask(Txt(R.string.midi_play_002, item.name), Txt(R.string.midi_play_003, item.name), Txt(R.string.midi_play_004, item.name))
         try {
             val path = withContext(Dispatchers.IO) { midiPath(ctx, req.fs, item, task) }
             mp.setDataSource(path)
@@ -89,13 +89,13 @@ internal fun MidiScreen(vm: FmViewModel, req: FmViewModel.ViewerRequest, onClose
                 position = 0
                 if (index < last) index++
             }
-            mp.setOnErrorListener { _, _, _ -> error = "再生できません(MIDI)"; playing = false; true }
+            mp.setOnErrorListener { _, _, _ -> error = Txt(R.string.midi_play_005); playing = false; true }
             mp.prepareAsync()
             awaitCancellation()
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            error = e.message ?: "再生できません(MIDI)"
+            error = e.message ?: Txt(R.string.midi_play_006)
         } finally {
             task.cancel()
             runCatching { mp.release() }
@@ -136,8 +136,8 @@ internal fun MidiScreen(vm: FmViewModel, req: FmViewModel.ViewerRequest, onClose
         if (msg != null) {
             Column(Modifier.align(Alignment.Center).padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(msg, color = Color.White, textAlign = TextAlign.Center)
-                Text("この端末で再生できない形式かもしれません", color = Color(0xFFCCCCCC), fontSize = 12.sp, textAlign = TextAlign.Center)
-                TextButton(onClick = { vm.openItem(item, req.fs) }) { Text("他のアプリで開く") }
+                Text(Txt(R.string.midi_play_007), color = Color(0xFFCCCCCC), fontSize = 12.sp, textAlign = TextAlign.Center)
+                TextButton(onClick = { vm.openItem(item, req.fs) }) { Text(Txt(R.string.midi_play_008)) }
             }
         } else if (!ready) {
             CircularProgressIndicator(Modifier.align(Alignment.Center), color = Color.White)

@@ -68,31 +68,31 @@ internal fun ReportDialog(vm: FmViewModel, bug: Boolean, onDismiss: () -> Unit) 
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(if (bug) "不具合を報告" else "要望を送る") },
+        title = { Text(if (bug) Txt(R.string.report_ui_001) else Txt(R.string.report_ui_002)) },
         text = {
             Column(Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState())) {
                 Text(
-                    "GitHub の入力ページをブラウザで開きます。内容はそこで確かめてから、自分で投稿してください。この画面からは何も送りません。",
+                    Txt(R.string.report_ui_003),
                     fontSize = 13.sp, color = pal.subText,
                 )
                 Spacer(Modifier.height(10.dp))
-                Text("入れる情報", fontSize = 13.sp, color = pal.accent)
-                Text("アプリのバージョン: $version", fontSize = 14.sp)
-                if (bug) Text("端末: $device", fontSize = 14.sp)
+                Text(Txt(R.string.report_ui_004), fontSize = 13.sp, color = pal.accent)
+                Text(Txt(R.string.report_info_version, version), fontSize = 14.sp)
+                if (bug) Text(Txt(R.string.report_info_device, device), fontSize = 14.sp)
                 if (bug) {
                     Spacer(Modifier.height(8.dp))
                     if (crash.isEmpty()) {
-                        Text("異常終了の記録はありません", fontSize = 13.sp, color = pal.subText)
+                        Text(Txt(R.string.report_ui_005), fontSize = 13.sp, color = pal.subText)
                     } else {
                         Row(Modifier.fillMaxWidth().clickable { withLog = !withLog }, verticalAlignment = Alignment.CenterVertically) {
                             Checkbox(checked = withLog, onCheckedChange = { withLog = it })
-                            Text("異常終了の記録も入れる", fontSize = 14.sp)
+                            Text(Txt(R.string.report_ui_006), fontSize = 14.sp)
                         }
                         Text(
-                            "記録にファイルの名前などが入っていることがあります。内容を確かめてください",
+                            Txt(R.string.report_ui_007),
                             fontSize = 12.sp, color = pal.subText,
                         )
-                        TextButton(onClick = { showLog = !showLog }) { Text(if (showLog) "記録を隠す" else "記録を見る") }
+                        TextButton(onClick = { showLog = !showLog }) { Text(if (showLog) Txt(R.string.report_ui_008) else Txt(R.string.report_ui_009)) }
                         if (showLog) {
                             Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).background(pal.tileBg).padding(8.dp)) {
                                 Text(crash.take(1500) + if (crash.length > 1500) "\n…" else "", fontSize = 10.sp, lineHeight = 13.sp, fontFamily = FontFamily.Monospace)
@@ -102,7 +102,7 @@ internal fun ReportDialog(vm: FmViewModel, bug: Boolean, onDismiss: () -> Unit) 
                 }
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    "パスワード、NAS の名前や IP アドレス、個人のファイル名は、書かないでください(誰でも読めます)",
+                    Txt(R.string.report_ui_010),
                     fontSize = 12.sp, color = pal.subText,
                 )
             }
@@ -112,18 +112,18 @@ internal fun ReportDialog(vm: FmViewModel, bug: Boolean, onDismiss: () -> Unit) 
                 TextButton(onClick = {
                     vm.openUrl(ReportLogic.issueUrl(vm.updater.repoUrl, if (bug) "bug_report.yml" else "feature_request.yml", fields(), longKey = "log"))
                     onDismiss()
-                }) { Text("GitHubで報告する") }
+                }) { Text(Txt(R.string.report_ui_011)) }
                 TextButton(onClick = {
                     val f = fields()
                     val text = buildString {
-                        append("アプリのバージョン: ").append(f["version"]).append('\n')
-                        f["device"]?.let { append("端末: ").append(it).append('\n') }
-                        f["log"]?.let { append("\n異常終了の記録:\n").append(it).append('\n') }
+                        append(Txt(R.string.report_ui_012)).append(f["version"]).append('\n')
+                        f["device"]?.let { append(Txt(R.string.report_ui_013)).append(it).append('\n') }
+                        f["log"]?.let { append(Txt(R.string.report_ui_014)).append(it).append('\n') }
                     }
                     clip.setText(AnnotatedString(text))
                     onDismiss()
-                }) { Text("内容をコピー") }
-                TextButton(onClick = onDismiss) { Text("キャンセル") }
+                }) { Text(Txt(R.string.report_ui_015)) }
+                TextButton(onClick = onDismiss) { Text(Txt(R.string.report_ui_016)) }
             }
         },
     )

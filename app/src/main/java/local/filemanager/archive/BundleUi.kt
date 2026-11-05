@@ -58,7 +58,7 @@ private fun loadBundle(ctx: Context, fs: Fs, item: FileItem): BundleLoad {
         openSource(fs, item.path)
     } catch (e: Exception) {
         null
-    } ?: return BundleLoad.Fail("このファイルを開けません")
+    } ?: return BundleLoad.Fail(Txt(R.string.bundle_ui_001))
     return try {
         val r = ZipReader(src)
         val abis = Build.SUPPORTED_ABIS.toList()
@@ -78,7 +78,7 @@ private fun loadBundle(ctx: Context, fs: Fs, item: FileItem): BundleLoad {
         }
         BundleLoad.Ok(BundleView(meta, plan, icon, installed, plan.skipped.sumOf { it.entry.size }, abis))
     } catch (e: Exception) {
-        BundleLoad.Fail(e.message ?: "ZIPとして読めません")
+        BundleLoad.Fail(e.message ?: Txt(R.string.bundle_ui_002))
     } finally {
         src.close()
     }
@@ -118,21 +118,21 @@ private fun BundleDetail(v: BundleView, item: FileItem, onInstall: () -> Unit, o
     val statusColor: Color
     when {
         inst == null -> {
-            title = if (m.packageName == null) "いま入っているかは分かりません" else "新しくインストールします"
+            title = if (m.packageName == null) Txt(R.string.bundle_ui_003) else Txt(R.string.bundle_ui_004)
             detail = null; statusColor = Pv.neutral
         }
         cmp == ApkFormat.Compare.NEWER -> {
-            title = "更新できます"
-            detail = "いまのバージョン $instText" + (thisText?.let { " → このバージョン $it" } ?: "")
+            title = Txt(R.string.bundle_ui_005)
+            detail = Txt(R.string.bundle_ui_006, instText) + (thisText?.let { Txt(R.string.bundle_ui_007, it) } ?: "")
             statusColor = Pv.ok
         }
-        cmp == ApkFormat.Compare.SAME -> { title = "同じバージョンが入っています"; detail = "バージョン $instText"; statusColor = Pv.caution }
+        cmp == ApkFormat.Compare.SAME -> { title = Txt(R.string.bundle_ui_008); detail = Txt(R.string.bundle_ui_009, instText); statusColor = Pv.caution }
         cmp == ApkFormat.Compare.OLDER -> {
-            title = "新しいバージョンが入っています"
-            detail = "いまのバージョン $instText。古いバージョンにするには、先にアンインストールが必要です"
+            title = Txt(R.string.bundle_ui_010)
+            detail = Txt(R.string.bundle_ui_011, instText)
             statusColor = Pv.bad
         }
-        else -> { title = "すでに入っています"; detail = "バージョン $instText"; statusColor = Pv.caution }
+        else -> { title = Txt(R.string.bundle_ui_012); detail = Txt(R.string.bundle_ui_013, instText); statusColor = Pv.caution }
     }
     Box(Modifier.fillMaxSize()) {
         LazyColumn(
@@ -140,49 +140,49 @@ private fun BundleDetail(v: BundleView, item: FileItem, onInstall: () -> Unit, o
             contentPadding = androidx.compose.foundation.layout.PaddingValues(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 150.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            item { AppHeader(v.icon, m.name ?: item.name, m.versionName?.let { "バージョン $it" }, m.packageName) }
+            item { AppHeader(v.icon, m.name ?: item.name, m.versionName?.let { Txt(R.string.bundle_ui_014, it) }, m.packageName) }
             item { StatusBox(title, detail, statusColor) }
             item {
-                ApkCard("情報") {
-                    CardRow("形式", "${m.format}(本体と部品をまとめたAPK)")
-                    if (m.versionName != null) CardRow("バージョン", m.versionName + (m.versionCode?.let { "($it)" } ?: ""))
-                    if (m.minSdk != null) CardRow("対応する Android", "${ApkFormat.sdkText(m.minSdk)} 以上")
-                    CardRow("ファイル", "${FileOps.formatSize(item.size)}・${FileOps.formatDate(item.modified)}")
+                ApkCard(Txt(R.string.bundle_ui_015)) {
+                    CardRow(Txt(R.string.bundle_ui_016), Txt(R.string.bundle_ui_017, m.format))
+                    if (m.versionName != null) CardRow(Txt(R.string.bundle_ui_018), m.versionName + (m.versionCode?.let { "($it)" } ?: ""))
+                    if (m.minSdk != null) CardRow(Txt(R.string.bundle_ui_019), Txt(R.string.bundle_ui_020, ApkFormat.sdkText(m.minSdk)))
+                    CardRow(Txt(R.string.bundle_ui_021), Txt(R.string.bundle_ui_022, FileOps.formatSize(item.size), FileOps.formatDate(item.modified)))
                 }
             }
             item {
-                ApkCard("入れるもの") {
+                ApkCard(Txt(R.string.bundle_ui_023)) {
                     if (p.base == null) {
-                        Text("本体のAPKが見つかりません。このファイルはインストールできません", color = Pv.bad, fontSize = 13.sp, modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp))
+                        Text(Txt(R.string.bundle_ui_024), color = Pv.bad, fontSize = 13.sp, modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp))
                     } else {
-                        CardRow("本体", "1 本(${FileOps.formatSize(p.base.entry.size)})")
+                        CardRow(Txt(R.string.bundle_ui_025), Txt(R.string.bundle_ui_026, FileOps.formatSize(p.base.entry.size)))
                         val parts = listOfNotNull(
-                            p.count(SplitKind.DPI).takeIf { it > 0 }?.let { "画面用 $it 本" },
-                            p.count(SplitKind.LANG).takeIf { it > 0 }?.let { "言語用 $it 本" },
-                            p.count(SplitKind.OTHER).takeIf { it > 0 }?.let { "そのほか $it 本" },
+                            p.count(SplitKind.DPI).takeIf { it > 0 }?.let { Txt.n(R.plurals.bundle_part_dpi, it) },
+                            p.count(SplitKind.LANG).takeIf { it > 0 }?.let { Txt.n(R.plurals.bundle_part_lang, it) },
+                            p.count(SplitKind.OTHER).takeIf { it > 0 }?.let { Txt.n(R.plurals.bundle_part_other, it) },
                         )
-                        if (parts.isNotEmpty()) CardRow("部品", parts.joinToString("・"))
-                        CardRow("CPU用", p.abi?.let { "$it(この端末に合うもの)" } ?: if (p.abiMismatch) "この端末に合う部品がありません" else "なし(CPU共通)")
-                        CardRow("合計", "${p.chosen.size} 本・${FileOps.formatSize(p.totalBytes)}")
+                        if (parts.isNotEmpty()) CardRow(Txt(R.string.bundle_ui_027), parts.joinToString(Txt(R.string.sep_dot)))
+                        CardRow(Txt(R.string.bundle_ui_028), p.abi?.let { Txt(R.string.bundle_ui_029, it) } ?: if (p.abiMismatch) Txt(R.string.bundle_ui_030) else Txt(R.string.bundle_ui_031))
+                        CardRow(Txt(R.string.bundle_ui_032), Txt.n(R.plurals.bundle_total, p.chosen.size, FileOps.formatSize(p.totalBytes)))
                     }
                     if (p.skipped.isNotEmpty()) {
-                        val names = p.skipped.map { ApkBundle.abiDisplay(it.tag) }.distinct().joinToString("、")
-                        CardRow("入れないもの", "$names(この端末には要らない・${p.skipped.size} 本・${FileOps.formatSize(v.skippedBytes)})", rowDim)
+                        val names = p.skipped.map { ApkBundle.abiDisplay(it.tag) }.distinct().joinToString(Txt(R.string.bundle_ui_033))
+                        CardRow(Txt(R.string.bundle_ui_034), Txt.n(R.plurals.bundle_skipped, p.skipped.size, names, FileOps.formatSize(v.skippedBytes)), rowDim)
                     }
                     Spacer(Modifier.height(6.dp))
                 }
             }
             if (p.abiMismatch) {
-                item { StatusBox("インストールしても動きません", "この端末(${v.abis.joinToString("・")})に合う部品がありません", Pv.bad) }
+                item { StatusBox(Txt(R.string.bundle_ui_035), Txt(R.string.bundle_ui_036, v.abis.joinToString(Txt(R.string.sep_dot))), Pv.bad) }
             }
             if (m.hasObb) {
-                item { StatusBox("追加データ(OBB)は入りません", "必要なら、「中身の一覧を見る」から取り出してください", Pv.caution) }
+                item { StatusBox(Txt(R.string.bundle_ui_037), Txt(R.string.bundle_ui_038), Pv.caution) }
             }
         }
         InstallBar(
-            if (cmp == ApkFormat.Compare.NEWER) "更新する" else "インストール",
+            if (cmp == ApkFormat.Compare.NEWER) Txt(R.string.bundle_ui_039) else Txt(R.string.bundle_ui_040),
             p.base != null && !p.abiMismatch, onInstall, Modifier.align(Alignment.BottomCenter),
-            secondary = "中身の一覧を見る" to onList,
+            secondary = Txt(R.string.bundle_ui_041) to onList,
         )
     }
 }

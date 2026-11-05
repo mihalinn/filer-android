@@ -79,19 +79,19 @@ private sealed interface ZipLoad {
 private fun openZip(ctx: Context, fs: Fs, item: FileItem): ZipLoad = try {
     ZipLoad.Ok(ArchiveOpener.open(fs, item, ctx.cacheDir))
 } catch (e: OpException) {
-    ZipLoad.Fail(e.message ?: "書庫として読めません")
+    ZipLoad.Fail(e.message ?: Txt(R.string.archive_ui_001))
 } catch (e: Exception) {
-    ZipLoad.Fail(e.message ?: "書庫として読めません")
+    ZipLoad.Fail(e.message ?: Txt(R.string.archive_ui_002))
 } catch (e: OutOfMemoryError) {
-    ZipLoad.Fail("大きすぎて読み込めません")
+    ZipLoad.Fail(Txt(R.string.archive_ui_003))
 }
 
 private const val ZIP_OPEN_LIMIT = 256L * 1024 * 1024
 
 /** ZIP の中の 1 つを、端末の一時領域に取り出す(中のファイルをアプリの中で開くため)。 */
 private fun extractEntry(ctx: Context, zip: FileItem, reader: ArchiveSource, e: ZipReader.Entry): File {
-    if (e.encrypted) throw OpException("パスワード付きの書庫は未対応")
-    if (e.size > ZIP_OPEN_LIMIT) throw OpException("大きすぎて開けません(${ZIP_OPEN_LIMIT / 1024 / 1024} MB まで)。メニューの「ここに展開」を使ってください")
+    if (e.encrypted) throw OpException(Txt(R.string.archive_ui_004))
+    if (e.size > ZIP_OPEN_LIMIT) throw OpException(Txt(R.string.archive_ui_005, ZIP_OPEN_LIMIT / 1024 / 1024))
     val root = File(ctx.cacheDir, "zipview")
     val dir = File(root, cacheKey(zip.path, zip.size, zip.modified, e.name)).also { it.mkdirs() }
     val out = File(dir, FileOps.safeFileName(ZipTree.clean(e.name).substringAfterLast('/')))
@@ -99,7 +99,7 @@ private fun extractEntry(ctx: Context, zip: FileItem, reader: ArchiveSource, e: 
         val tmp = File(dir, out.name + ".part")
         reader.open(e).use { i -> tmp.outputStream().use { o -> i.copyTo(o) } }
         out.delete()
-        if (!tmp.renameTo(out)) throw IOException("一時ファイルを作れませんでした")
+        if (!tmp.renameTo(out)) throw IOException(Txt(R.string.archive_ui_006))
     }
     out.setLastModified(System.currentTimeMillis())
     trimCacheTree(root, out, 500L * 1024 * 1024, 24L * 3600 * 1000)
@@ -155,7 +155,7 @@ private fun ZipList(vm: FmViewModel, ctx: Context, item: FileItem, reader: Archi
             r.onSuccess { f ->
                 val fi = FileItem(f.path, f.name, false, f.length(), f.lastModified())
                 if (viewableInApp(fi)) onOpenInner(FmViewModel.ViewerRequest(LocalFs, listOf(fi), 0)) else vm.openRequests.tryEmit(f)
-            }.onFailure { message = it.message ?: "取り出せませんでした" }
+            }.onFailure { message = it.message ?: Txt(R.string.archive_ui_007) }
         }
     }
 
@@ -165,7 +165,7 @@ private fun ZipList(vm: FmViewModel, ctx: Context, item: FileItem, reader: Archi
                 Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
                     Text("/" + prefix, color = Pv.label, fontFamily = FontFamily.Monospace, fontSize = 13.sp)
                     Text(
-                        "${totals.first} 個のファイル・展開すると ${FileOps.formatSize(totals.second)}",
+                        Txt.n(R.plurals.archive_total, totals.first, FileOps.formatSize(totals.second)),
                         color = rowDim, fontSize = 12.sp,
                     )
                 }
@@ -177,7 +177,7 @@ private fun ZipList(vm: FmViewModel, ctx: Context, item: FileItem, reader: Archi
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Icon(Icons.Default.SubdirectoryArrowLeft, null, tint = rowDim, modifier = Modifier.size(28.dp))
-                        Text("上のフォルダへ", color = rowText, fontSize = 15.sp, modifier = Modifier.padding(start = 14.dp))
+                        Text(Txt(R.string.archive_ui_008), color = rowText, fontSize = 15.sp, modifier = Modifier.padding(start = 14.dp))
                     }
                 }
             }
@@ -195,10 +195,10 @@ private fun ZipList(vm: FmViewModel, ctx: Context, item: FileItem, reader: Archi
                     Column(Modifier.weight(1f).padding(start = 14.dp)) {
                         Text(r.name, color = rowText, fontSize = 15.sp, maxLines = 2)
                         val date = if (r.modified > 0) FileOps.formatDate(r.modified) else ""
-                        val sub = if (r.isDir) "${r.count} 個・${FileOps.formatSize(r.size)}" else FileOps.formatSize(r.size)
-                        Text(listOf(sub, date).filter { it.isNotEmpty() }.joinToString("・"), color = rowDim, fontSize = 12.sp)
+                        val sub = if (r.isDir) Txt.n(R.plurals.archive_dir_info, r.count, FileOps.formatSize(r.size)) else FileOps.formatSize(r.size)
+                        Text(listOf(sub, date).filter { it.isNotEmpty() }.joinToString(Txt(R.string.sep_dot)), color = rowDim, fontSize = 12.sp)
                     }
-                    if (r.entry?.encrypted == true) Icon(Icons.Default.Lock, "パスワード付き", tint = rowDim, modifier = Modifier.size(18.dp))
+                    if (r.entry?.encrypted == true) Icon(Icons.Default.Lock, Txt(R.string.archive_ui_009), tint = rowDim, modifier = Modifier.size(18.dp))
                 }
             }
         }
@@ -206,14 +206,14 @@ private fun ZipList(vm: FmViewModel, ctx: Context, item: FileItem, reader: Archi
             Box(Modifier.fillMaxSize().background(Color(0x88000000)).clickable(enabled = true) {}, contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     CircularProgressIndicator(color = Color.White)
-                    Text("取り出し中… $name", color = Color.White, fontSize = 13.sp, modifier = Modifier.padding(top = 12.dp))
+                    Text(Txt(R.string.archive_ui_010, name), color = Color.White, fontSize = 13.sp, modifier = Modifier.padding(top = 12.dp))
                 }
             }
         }
         message?.let { m ->
             AlertDialog(
                 onDismissRequest = { message = null },
-                confirmButton = { TextButton(onClick = { message = null }) { Text("閉じる") } },
+                confirmButton = { TextButton(onClick = { message = null }) { Text(Txt(R.string.archive_ui_011)) } },
                 text = { Text(m) },
             )
         }

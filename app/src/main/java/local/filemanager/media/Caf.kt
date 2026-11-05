@@ -85,7 +85,7 @@ object Caf {
     private fun readAll(src: RandomSource, pos: Long, len: Long): ByteArray {
         val b = ByteArray(len.toInt())
         val got = Shims.readFully(src, pos, b, b.size)
-        if (got < b.size) throw IOException("ファイルが途中までしか読めませんでした")
+        if (got < b.size) throw IOException(Txt(R.string.caf_001))
         return b
     }
 
@@ -110,7 +110,7 @@ object Caf {
         fun vlq(): Int {
             var v = 0L
             repeat(5) {
-                if (p >= pakt.size) throw IOException("パケット表が途中で切れています")
+                if (p >= pakt.size) throw IOException(Txt(R.string.caf_002))
                 val x = pakt[p++].toInt() and 0xFF
                 v = (v shl 7) or (x and 0x7F).toLong()
                 if (x < 0x80) return v.coerceAtMost(Int.MAX_VALUE.toLong()).toInt()

@@ -63,13 +63,13 @@ object Epub {
     }
 
     fun parse(read: (String) -> ByteArray?): EpubBook {
-        val container = read("META-INF/container.xml") ?: throw OpException("EPUBとして読めません(META-INF/container.xml がありません)")
+        val container = read("META-INF/container.xml") ?: throw OpException(Txt(R.string.epub_001))
         val rootfile = tree(container).let { c ->
             fun find(n: XNode): String? = if (n.name == "rootfile") n.a("full-path") else n.kids.firstNotNullOfOrNull { find(it) }
             find(c)
-        } ?: throw OpException("EPUBとして読めません(本の目録が見つかりません)")
+        } ?: throw OpException(Txt(R.string.epub_002))
         val opfPath = OfficeXml.resolve("", percentDecode(rootfile))
-        val opf = tree(read(opfPath) ?: throw OpException("EPUBとして読めません(目録 $opfPath がありません)"))
+        val opf = tree(read(opfPath) ?: throw OpException(Txt(R.string.epub_003, opfPath)))
         val base = dirOf(opfPath)
 
         val meta = opf.child("metadata")

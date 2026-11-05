@@ -22,6 +22,7 @@
   - iPhone 系(plist・pkpass・iWork・ipa)・SQLite・フォント・連絡先(vCard)
 - **編集**: 文字のファイルの編集(検索・置換、文字コード・改行の指定)。CSV・TSV は、Excel のような表でセルを選んで編集できます
 - **見た目**: ホーム画面の並べ替え、ライト/ダーク配色、テーマカラー(藍・ティール・ワイン赤)
+- **言語**: 日本語と英語(初期は端末の言語に合わせます。設定の「言語」で、アプリの中から選べます)。ほかの言語の追加は、翻訳のファイル(`app/src/main/res/values-xx/strings.xml`)を足すだけでできます。詳しくは [CODEMAP.md](CODEMAP.md) の「画面に出す文字」を見てください
 
 ## ビルド
 
@@ -60,5 +61,7 @@ Copyright (C) 2026 mihalin
 ## English (summary)
 
 **Filer** is an ad-free file manager for Android (arm64, Android 11+). It treats local storage and SMB shares (NAS) the same way, and previews many formats in-app (text, images, PDF, audio/video, Office, CAD/3D, archives, Apple formats, SQLite, fonts…).
+
+**Languages:** English and Japanese. The app follows the device language by default, and you can choose the language in the app under Settings → Language. Translations live in `app/src/main/res/values*/strings.xml`; to add a language, copy `values/strings.xml` to `values-xx/strings.xml`, translate it, and add the locale to `app/src/main/res/xml/locales_config.xml` and to `Languages.supported` in `app/Languages.kt` (see CODEMAP.md, in Japanese). Pull requests with translations are welcome.
 
 Build: JDK 17 and the Android SDK, then `./gradlew assembleRelease`. Licensed under GPL-3.0 (see `LICENSE` and `THIRD_PARTY.md`). No warranty.

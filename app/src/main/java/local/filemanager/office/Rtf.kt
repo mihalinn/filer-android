@@ -22,7 +22,7 @@ object Rtf {
     )
 
     fun parse(bytes: ByteArray): DocxDoc {
-        if (!looksLikeRtf(bytes)) throw OpException("RTFのファイルとして読めません")
+        if (!looksLikeRtf(bytes)) throw OpException(Txt(R.string.rtf_001))
         val s = String(bytes, Charsets.ISO_8859_1)
         val fonts = HashMap<Int, Pair<String, Int>>() // 番号 → (名前, 文字セット)
         val colors = ArrayList<Int>()

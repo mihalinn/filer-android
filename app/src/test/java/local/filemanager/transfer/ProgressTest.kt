@@ -23,7 +23,7 @@ class ProgressTest {
         bytes(d, "src/a.bin", 700_000)
         bytes(d, "src/sub/b.bin", 300_000)
         val dest = tmp.newFolder()
-        val p = Progress("コピー")
+        val p = Progress(OpKind.COPY)
         FileOps.copy(File(d, "src"), dest, progress = p)
         assertEquals(1_000_000L, p.doneBytes)
         assertTrue(p.to.startsWith(dest.path))
@@ -35,7 +35,7 @@ class ProgressTest {
         val d = tmp.newFolder()
         bytes(d, "src/a.bin", 123_456)
         bytes(d, "src/x/y/b.bin", 654_321)
-        val p = Progress("コピー")
+        val p = Progress(OpKind.COPY)
         p.totalBytes = FileOps.stats(listOf(File(d, "src"))).bytes
         FileOps.copy(File(d, "src"), tmp.newFolder(), progress = p)
         assertEquals(p.totalBytes, p.doneBytes)
@@ -47,10 +47,10 @@ class ProgressTest {
         bytes(d, "dir/a.bin", 400_000)
         bytes(d, "dir/b.bin", 100_000)
         val zip = File(d, "o.zip")
-        val pz = Progress("圧縮")
+        val pz = Progress(OpKind.ZIP)
         FileOps.zip(listOf(File(d, "dir")), zip, progress = pz)
         assertEquals(500_000L, pz.doneBytes)
-        val pu = Progress("展開")
+        val pu = Progress(OpKind.UNZIP)
         FileOps.unzip(zip, progress = pu)
         assertEquals(500_000L, pu.totalBytes) // 展開では ZIP の中身の合計を自分で数える
         assertEquals(500_000L, pu.doneBytes)
@@ -59,7 +59,7 @@ class ProgressTest {
     @Test
     fun 端末とNASの間の転送でも進捗が進む() {
         val f = bytes(tmp.newFolder(), "m.bin", 250_000)
-        val p = Progress("コピー")
+        val p = Progress(OpKind.COPY)
         val out = ByteArrayFs()
         Transfer.copy(LocalFs, FileOps.toItem(f), out, "/", progress = p)
         assertEquals(250_000L, p.doneBytes)
@@ -75,7 +75,7 @@ class ProgressTest {
 
     @Test
     fun 割合は全体が分かるときだけ出る() {
-        fun v(done: Long, total: Long) = ProgressView("コピー", "", "", done, total, 0, 0, 1, 0)
+        fun v(done: Long, total: Long) = ProgressView(OpKind.COPY, "", "", done, total, 0, 0, 1, 0)
         assertEquals(0.5f, v(50, 100).fraction)
         assertEquals(null, v(50, 0).fraction)
         assertEquals(1f, v(150, 100).fraction) // 見積もりより多く読んでも 100% を超えない

@@ -102,14 +102,14 @@ private fun loadApk(ctx: Context, fs: Fs, item: FileItem, task: BgTask): ApkLoad
         val file: File = if (fs.isLocal) {
             File(item.path)
         } else {
-            if (item.size > APK_REMOTE_LIMIT) return ApkLoad.Fail("大きすぎて調べられません(${APK_REMOTE_LIMIT / 1024 / 1024} MB まで)")
+            if (item.size > APK_REMOTE_LIMIT) return ApkLoad.Fail(Txt(R.string.apk_ui_001, APK_REMOTE_LIMIT / 1024 / 1024))
             val dest = apkCacheFile(ctx, fs, item)
             val root = dest.parentFile!!
             if (!dest.exists() || dest.length() != item.size) {
                 val tmp = File(root, dest.name + ".part")
                 BgTasks.run(task, item.size) { task.download(fs, item.path, tmp) }
                 dest.delete()
-                if (!tmp.renameTo(dest)) throw IOException("一時ファイルを作れませんでした")
+                if (!tmp.renameTo(dest)) throw IOException(Txt(R.string.apk_ui_002))
             }
             dest.setLastModified(System.currentTimeMillis())
             trimCacheTree(root, dest, 500L * 1024 * 1024, 24L * 3600 * 1000)
@@ -117,8 +117,8 @@ private fun loadApk(ctx: Context, fs: Fs, item: FileItem, task: BgTask): ApkLoad
         }
         val pm = ctx.packageManager
         val pi = pm.getPackageArchiveInfo(file.path, PackageManager.GET_PERMISSIONS or PackageManager.GET_SIGNING_CERTIFICATES)
-            ?: return ApkLoad.Fail("APKとして読めませんでした(壊れているか、途中までのファイルかもしれません)")
-        val ai = pi.applicationInfo ?: return ApkLoad.Fail("APKとして読めませんでした")
+            ?: return ApkLoad.Fail(Txt(R.string.apk_ui_003))
+        val ai = pi.applicationInfo ?: return ApkLoad.Fail(Txt(R.string.apk_ui_004))
         ai.sourceDir = file.path
         ai.publicSourceDir = file.path
         val perms = (pi.requestedPermissions ?: emptyArray()).map { name ->
@@ -144,7 +144,7 @@ private fun loadApk(ctx: Context, fs: Fs, item: FileItem, task: BgTask): ApkLoad
             ),
         )
     } catch (e: Exception) {
-        ApkLoad.Fail("APKを調べられません(${e.message ?: e.javaClass.simpleName})")
+        ApkLoad.Fail(Txt(R.string.apk_ui_005, e.message ?: e.javaClass.simpleName))
     }
 }
 
@@ -152,7 +152,7 @@ private fun loadApk(ctx: Context, fs: Fs, item: FileItem, task: BgTask): ApkLoad
 @Composable
 internal fun ApkPane(fs: Fs, item: FileItem, onInstall: () -> Unit) {
     val ctx = LocalContext.current
-    val task = rememberBgTask(item.path, "「${item.name}」を取り込んでいます", "「${item.name}」の取り込みが終わりました", "「${item.name}」を取り込めませんでした")
+    val task = rememberBgTask(item.path, Txt(R.string.apk_ui_006, item.name), Txt(R.string.apk_ui_007, item.name), Txt(R.string.apk_ui_008, item.name))
     val load = produceState<ApkLoad>(ApkLoad.Busy, item.path) {
         value = withContext(Dispatchers.IO) { loadApk(ctx, fs, item, task) }
     }.value
@@ -183,18 +183,18 @@ private fun ApkDetailView(d: ApkDetail, item: FileItem, onInstall: () -> Unit) {
     val detail: String?
     val statusColor: Color
     when {
-        inst == null -> { title = "新しくインストールします"; detail = null; statusColor = Pv.neutral }
+        inst == null -> { title = Txt(R.string.apk_ui_009); detail = null; statusColor = Pv.neutral }
         cmp == ApkFormat.Compare.NEWER -> {
-            title = "更新できます"; detail = "いまのバージョン ${inst.versionName}(${inst.versionCode}) → このバージョン ${d.versionName}(${d.versionCode})"; statusColor = Pv.ok
+            title = Txt(R.string.apk_ui_010); detail = Txt(R.string.apk_ui_011, inst.versionName, inst.versionCode, d.versionName, d.versionCode); statusColor = Pv.ok
         }
-        cmp == ApkFormat.Compare.SAME -> { title = "同じバージョンが入っています"; detail = "バージョン ${inst.versionName}(${inst.versionCode})"; statusColor = Pv.caution }
+        cmp == ApkFormat.Compare.SAME -> { title = Txt(R.string.apk_ui_012); detail = Txt(R.string.apk_ui_013, inst.versionName, inst.versionCode); statusColor = Pv.caution }
         else -> {
-            title = "新しいバージョンが入っています"
-            detail = "いまのバージョン ${inst.versionName}(${inst.versionCode})。古いバージョンにするには、先にアンインストールが必要です"
+            title = Txt(R.string.apk_ui_014)
+            detail = Txt(R.string.apk_ui_015, inst.versionName, inst.versionCode)
             statusColor = Pv.bad
         }
     }
-    val signNote = if (inst != null && same == false) "署名がいま入っているものと違うため、上書きできません。先にアンインストールが必要です" else null
+    val signNote = if (inst != null && same == false) Txt(R.string.apk_ui_016) else null
     val danger = d.perms.filter { it.dangerous }
     val other = d.perms.filter { !it.dangerous }
     var showOther by remember { mutableStateOf(other.size <= 5) }
@@ -204,29 +204,29 @@ private fun ApkDetailView(d: ApkDetail, item: FileItem, onInstall: () -> Unit) {
             contentPadding = PaddingValues(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 96.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            item { AppHeader(d.icon, d.label, "バージョン ${d.versionName}", d.pkg) }
+            item { AppHeader(d.icon, d.label, Txt(R.string.apk_ui_017, d.versionName), d.pkg) }
             item { StatusBox(title, detail, statusColor, signNote) }
             item {
-                ApkCard("情報") {
-                    CardRow("バージョン", "${d.versionName}(${d.versionCode})")
-                    CardRow("対応する Android", "${ApkFormat.sdkText(d.minSdk)} 以上")
-                    CardRow("対象の Android", ApkFormat.sdkText(d.targetSdk) + if (d.compileSdk > 0) "・コンパイル API ${d.compileSdk}" else "")
-                    CardRow("ファイル", "${FileOps.formatSize(item.size)}・${FileOps.formatDate(item.modified)}")
+                ApkCard(Txt(R.string.apk_ui_018)) {
+                    CardRow(Txt(R.string.apk_ui_019), "${d.versionName}(${d.versionCode})")
+                    CardRow(Txt(R.string.apk_ui_020), Txt(R.string.apk_ui_021, ApkFormat.sdkText(d.minSdk)))
+                    CardRow(Txt(R.string.apk_ui_022), ApkFormat.sdkText(d.targetSdk) + if (d.compileSdk > 0) Txt(R.string.apk_ui_023, d.compileSdk) else "")
+                    CardRow(Txt(R.string.apk_ui_024), Txt(R.string.apk_ui_025, FileOps.formatSize(item.size), FileOps.formatDate(item.modified)))
                     if (inst != null && same != null) {
-                        CardRow("署名", if (same) "いま入っているものと同じ" else "いま入っているものと違う", if (same) Pv.ok else Pv.bad)
+                        CardRow(Txt(R.string.apk_ui_026), if (same) Txt(R.string.apk_ui_027) else Txt(R.string.apk_ui_028), if (same) Pv.ok else Pv.bad)
                     }
                 }
             }
             item {
-                ApkCard("必要な権限(${d.perms.size})") {
-                    if (d.perms.isEmpty()) Text("なし", color = rowDim, fontSize = 13.sp, modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp))
+                ApkCard(Txt(R.string.apk_ui_029, d.perms.size)) {
+                    if (d.perms.isEmpty()) Text(Txt(R.string.apk_ui_030), color = rowDim, fontSize = 13.sp, modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp))
                     if (danger.isNotEmpty()) {
-                        Text("特に注意する権限", color = Pv.danger, fontSize = 12.sp, modifier = Modifier.padding(start = 12.dp, top = 4.dp))
+                        Text(Txt(R.string.apk_ui_031), color = Pv.danger, fontSize = 12.sp, modifier = Modifier.padding(start = 12.dp, top = 4.dp))
                         for (p in danger) PermLine(p, Pv.danger)
                     }
                     if (other.isNotEmpty()) {
                         Text(
-                            "そのほかの権限(${other.size})  " + if (showOther) "▲" else "▼", color = rowDim, fontSize = 12.sp,
+                            Txt(R.string.apk_ui_032, other.size) + if (showOther) "▲" else "▼", color = rowDim, fontSize = 12.sp,
                             modifier = Modifier.fillMaxWidth().clickable { showOther = !showOther }.padding(start = 12.dp, end = 12.dp, top = 10.dp, bottom = 6.dp),
                         )
                         if (showOther) for (p in other) PermLine(p, rowText)
@@ -235,8 +235,8 @@ private fun ApkDetailView(d: ApkDetail, item: FileItem, onInstall: () -> Unit) {
                 }
             }
             item {
-                ApkCard("署名(SHA-256)") {
-                    if (d.signers.isEmpty()) Text("署名を読めませんでした(署名されていないAPKかもしれません)", color = rowDim, fontSize = 13.sp, modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp))
+                ApkCard(Txt(R.string.apk_ui_033)) {
+                    if (d.signers.isEmpty()) Text(Txt(R.string.apk_ui_034), color = rowDim, fontSize = 13.sp, modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp))
                     SelectionContainer {
                         Column(Modifier.padding(horizontal = 12.dp)) {
                             for (s in d.signers) Text(s, color = rowText, fontSize = 11.sp, fontFamily = FontFamily.Monospace, modifier = Modifier.padding(bottom = 6.dp))
@@ -247,9 +247,9 @@ private fun ApkDetailView(d: ApkDetail, item: FileItem, onInstall: () -> Unit) {
         }
         InstallBar(
             when (cmp) {
-                ApkFormat.Compare.NEWER -> "更新する"
-                ApkFormat.Compare.SAME -> "再インストール"
-                else -> "インストール"
+                ApkFormat.Compare.NEWER -> Txt(R.string.apk_ui_035)
+                ApkFormat.Compare.SAME -> Txt(R.string.apk_ui_036)
+                else -> Txt(R.string.apk_ui_037)
             },
             true, onInstall, Modifier.align(Alignment.BottomCenter),
         )

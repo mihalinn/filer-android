@@ -198,7 +198,7 @@ private fun readDoc(fs: Fs, item: FileItem, kind: PreviewKind): DocLoad = try {
     val r = TextDecode.decode(bytes, truncated)
     DocLoad.Ok(r.text, r.charsetName, truncated, limit / 1024 / 1024)
 } catch (e: Exception) {
-    DocLoad.Fail(e.message ?: "読み込めません")
+    DocLoad.Fail(e.message ?: Txt(R.string.preview_ui_001))
 }
 
 private fun fenceExt(lang: String): String = when (val l = lang.lowercase()) {
@@ -229,13 +229,13 @@ private fun deriveView(text: String, name: String, kind: PreviewKind, raw: Boole
             PreviewKind.CSV -> return DocView.Grid(Csv.parse(text, Csv.detectDelimiter(text, ext)))
             PreviewKind.JSON -> {
                 val p = Pretty.json(text)
-                return if (p != null) DocView.Lines(highlightText(p, "json"), "整形済み")
-                else DocView.Lines(highlightText(text, "json"), "JSONとして読めないため、そのまま表示しています")
+                return if (p != null) DocView.Lines(highlightText(p, "json"), Txt(R.string.preview_ui_002))
+                else DocView.Lines(highlightText(text, "json"), Txt(R.string.preview_ui_003))
             }
             PreviewKind.XML -> {
                 val p = Pretty.xml(text)
-                return if (p != null) DocView.Lines(highlightText(p, "xml"), "整形済み")
-                else DocView.Lines(highlightText(text, "xml"), "XMLとして読めないため、そのまま表示しています")
+                return if (p != null) DocView.Lines(highlightText(p, "xml"), Txt(R.string.preview_ui_004))
+                else DocView.Lines(highlightText(text, "xml"), Txt(R.string.preview_ui_005))
             }
             else -> {}
         }
@@ -268,22 +268,22 @@ internal fun DocPane(
                 if (view == null) {
                     CircularProgressIndicator(Modifier.align(Alignment.Center), color = Pv.text)
                 } else {
-                    val banner = if (s.truncated) "先頭の ${s.limitMb} MB だけ表示しています" else null
+                    val banner = if (s.truncated) Txt(R.string.preview_ui_006, s.limitMb) else null
                     DisposableEffect(view, copy) {
                         val h = copy
                         if (h != null) when (view) {
-                            is DocView.Lines -> h.set("全文をコピー") { view.lines.joinToString("\n") { it.text } }
-                            is DocView.Md -> h.set("全文をコピー") { s.text }
-                            is DocView.Grid -> h.set("表全体をコピー") {
+                            is DocView.Lines -> h.set(Txt(R.string.preview_ui_007)) { view.lines.joinToString("\n") { it.text } }
+                            is DocView.Md -> h.set(Txt(R.string.preview_ui_008)) { s.text }
+                            is DocView.Grid -> h.set(Txt(R.string.preview_ui_009)) {
                                 CopyText.tsv(view.table.rows.size, view.table.columns) { r, c -> view.table.rows[r].getOrElse(c) { "" } }
                             }
                         }
                         onDispose { if (h != null) h.provider = null }
                     }
                     val status = when (view) {
-                        is DocView.Lines -> listOfNotNull(s.charset, "${view.lines.size}行", view.note).joinToString("・")
-                        is DocView.Md -> "Markdown・${s.charset}"
-                        is DocView.Grid -> "${view.table.rows.size}行×${view.table.columns}列・区切り「${delimiterName(view.table.delimiter)}」・${s.charset}"
+                        is DocView.Lines -> listOfNotNull(s.charset, Txt.n(R.plurals.preview_lines, view.lines.size), view.note).joinToString(Txt(R.string.sep_dot))
+                        is DocView.Md -> Txt(R.string.preview_ui_010, s.charset)
+                        is DocView.Grid -> Txt(R.string.preview_grid_info, view.table.rows.size, view.table.columns, delimiterName(view.table.delimiter), s.charset)
                     }
                     when (view) {
                         is DocView.Lines -> CopyableArea { LinesPane(view.lines, banner, fontSp, query, hit, onHits) }
@@ -304,10 +304,10 @@ internal fun DocPane(
 }
 
 private fun delimiterName(c: Char) = when (c) {
-    ',' -> "カンマ"
-    '\t' -> "タブ"
-    ';' -> "セミコロン"
-    '|' -> "縦線"
+    ',' -> Txt(R.string.preview_ui_011)
+    '\t' -> Txt(R.string.preview_ui_012)
+    ';' -> Txt(R.string.preview_ui_013)
+    '|' -> Txt(R.string.preview_ui_014)
     else -> c.toString()
 }
 
@@ -493,7 +493,7 @@ internal fun GridView(header: List<String>?, rows: List<List<String>>, fontSp: I
     detail?.let { text ->
         AlertDialog(
             onDismissRequest = { detail = null },
-            confirmButton = { TextButton(onClick = { detail = null }) { Text("閉じる") } },
+            confirmButton = { TextButton(onClick = { detail = null }) { Text(Txt(R.string.preview_ui_015)) } },
             text = {
                 SelectionContainer {
                     Text(text.take(20_000), modifier = Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState()))

@@ -58,7 +58,7 @@ internal object XmlTree {
                 }
             },
         )
-        return root.kids.firstOrNull() ?: throw OpException("XMLが空")
+        return root.kids.firstOrNull() ?: throw OpException(Txt(R.string.slide_style_001))
     }
 }
 

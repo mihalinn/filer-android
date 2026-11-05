@@ -34,11 +34,11 @@ internal object OdfPlain {
 
 /** OpenDocument の表計算(.ods)。Excel と同じ表示(SheetBook)で見せる。Android に依存しない。 */
 class OdsBook(private val read: (String) -> ByteArray?) : SheetBook {
-    private val content: XNode = Odf.xml(read, "content.xml") ?: throw OpException("OpenDocumentのファイルとして読めません")
+    private val content: XNode = Odf.xml(read, "content.xml") ?: throw OpException(Txt(R.string.ods_001))
     private val st = OdfStyles(Odf.xml(read, "styles.xml"), content)
     private val tables: List<XNode> = content.child("body")?.child("spreadsheet")?.children("table")?.takeIf { it.isNotEmpty() }
-        ?: throw OpException("表計算(.ods)として読めません")
-    override val sheetNames: List<String> = tables.mapIndexed { i, t -> t.a("table:name") ?: "シート${i + 1}" }
+        ?: throw OpException(Txt(R.string.ods_002))
+    override val sheetNames: List<String> = tables.mapIndexed { i, t -> t.a("table:name") ?: Txt(R.string.ods_003, i + 1) }
 
     private val styleList = ArrayList<XlsxStyle>().also { it.add(plainStyle()) }
     private val styleIndex = HashMap<String, Int>()

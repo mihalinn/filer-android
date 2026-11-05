@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- アプリごとの言語(Android 13 以上)で選べる言語。言語を足したら、ここにも足す -->
+<locale-config xmlns:android="http://schemas.android.com/apk/res/android">
+    <locale android:name="en" />
+    <locale android:name="ja" />
+</locale-config>

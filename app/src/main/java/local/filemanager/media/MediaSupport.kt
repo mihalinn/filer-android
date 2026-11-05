@@ -38,7 +38,7 @@ class ChunkedReader(
         if (bufPos >= bufLen) {
             if (fetchRemaining <= 0) return -1
             val n = src.readAt(pos, buf, 0, minOf(buf.size.toLong(), fetchRemaining).toInt())
-            if (n <= 0) throw IOException("ファイルが途中までしか読めませんでした")
+            if (n <= 0) throw IOException(Txt(R.string.media_support_001))
             pos += n
             fetchRemaining -= n
             bufPos = 0
@@ -62,8 +62,8 @@ class RandomSourceDataSource(private val opener: (String) -> RandomSource?) : Ba
     override fun open(dataSpec: DataSpec): Long {
         uri = dataSpec.uri
         transferInitializing(dataSpec)
-        val path = dataSpec.uri.path ?: throw IOException("場所が分かりません")
-        val s = opener(path) ?: throw IOException("ファイルを開けません")
+        val path = dataSpec.uri.path ?: throw IOException(Txt(R.string.media_support_002))
+        val s = opener(path) ?: throw IOException(Txt(R.string.media_support_003))
         src = s
         // .m2ts(192 バイト単位)や .aiff は、再生エンジンが読める形(188 バイトの TS / WAV)に見せかける
         val shim = if (Shims.needed(path)) Shims.detect(path, s) else null
@@ -119,17 +119,17 @@ fun isPlayable(kind: FileKind): Boolean = kind == FileKind.VIDEO || kind == File
 
 /** 音声・字幕の切り替えの一覧に出す名前。Android に依存しない。 */
 object TrackLabels {
-    /** 「ja」「jpn」→「日本語」。分からなければ(言語の指定が無い・不明)null。 */
-    fun languageName(tag: String?): String? {
+    /** 「ja」「jpn」→「日本語」(アプリの言語で書く)。分からなければ(言語の指定が無い・不明)null。 */
+    fun languageName(tag: String?, inLocale: java.util.Locale = java.util.Locale.getDefault()): String? {
         if (tag.isNullOrBlank() || tag == "und" || tag == "zxx") return null
-        val name = java.util.Locale.forLanguageTag(tag).getDisplayLanguage(java.util.Locale.JAPANESE)
+        val name = java.util.Locale.forLanguageTag(tag).getDisplayLanguage(inLocale)
         return name.takeIf { it.isNotBlank() && !it.equals(tag, ignoreCase = true) } ?: tag
     }
 
     fun channels(n: Int): String? = when {
         n <= 0 -> null
-        n == 1 -> "モノラル"
-        n == 2 -> "ステレオ"
+        n == 1 -> Txt(R.string.media_support_004)
+        n == 2 -> Txt(R.string.media_support_005)
         n == 6 -> "5.1ch"
         n == 8 -> "7.1ch"
         else -> "${n}ch"
@@ -152,24 +152,24 @@ object TrackLabels {
         "text/vtt" -> "WebVTT"
         "application/cea-608", "application/cea-708" -> "CC"
         "application/x-quicktime-tx3g", "text/3gpp-tt" -> "tx3g"
-        "application/dvbsubs", "application/pgs", "application/vobsub" -> "画像字幕"
+        "application/dvbsubs", "application/pgs", "application/vobsub" -> Txt(R.string.media_support_006)
         else -> null
     }
 
-    private fun join(vararg parts: String?) = parts.filterNotNull().filter { it.isNotBlank() }.joinToString("・")
+    private fun join(vararg parts: String?) = parts.filterNotNull().filter { it.isNotBlank() }.joinToString(Txt(R.string.sep_dot))
 
     /** 例: 「音声2: 日本語・ステレオ・AAC」。ordinal は 1 から。 */
     fun audio(ordinal: Int, language: String?, label: String?, channelCount: Int, mime: String?): String {
         val lang = languageName(language)
         val body = join(lang, label?.takeIf { it != lang }, channels(channelCount), codec(mime))
-        return "音声$ordinal" + if (body.isEmpty()) "" else ": $body"
+        return Txt(R.string.media_support_007, ordinal) + if (body.isEmpty()) "" else ": $body"
     }
 
     /** 例: 「字幕1: 日本語・ASS」。 */
     fun text(ordinal: Int, language: String?, label: String?, mime: String?): String {
         val lang = languageName(language)
         val body = join(lang, label?.takeIf { it != lang }, codec(mime))
-        return "字幕$ordinal" + if (body.isEmpty()) "" else ": $body"
+        return Txt(R.string.media_support_008, ordinal) + if (body.isEmpty()) "" else ": $body"
     }
 }
 

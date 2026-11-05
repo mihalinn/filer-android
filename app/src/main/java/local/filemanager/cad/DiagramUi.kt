@@ -59,17 +59,17 @@ private const val DRAWIO_MAX_BYTES = 16 * 1024 * 1024
 
 private fun loadDrawio(fs: Fs, item: FileItem): DrawioLoad = try {
     if (item.size > DRAWIO_MAX_BYTES) {
-        DrawioLoad.Fail("大きすぎて表示できません(${DRAWIO_MAX_BYTES / 1024 / 1024} MB まで)")
+        DrawioLoad.Fail(Txt(R.string.diagram_ui_001, DRAWIO_MAX_BYTES / 1024 / 1024))
     } else {
         val bytes = fs.open(item.path).use { it.readBytes() }
         val text = TextDecode.decode(bytes).text
         val pages = Drawio.parse(text)
-        if (pages == null) DrawioLoad.Fail("draw.io の図面として読めません") else DrawioLoad.Ok(pages)
+        if (pages == null) DrawioLoad.Fail(Txt(R.string.diagram_ui_002)) else DrawioLoad.Ok(pages)
     }
 } catch (e: Exception) {
-    DrawioLoad.Fail(e.message ?: "読み込めません")
+    DrawioLoad.Fail(e.message ?: Txt(R.string.diagram_ui_003))
 } catch (e: OutOfMemoryError) {
-    DrawioLoad.Fail("大きすぎて読み込めません")
+    DrawioLoad.Fail(Txt(R.string.diagram_ui_004))
 }
 
 /** draw.io の図面の表示。ピンチで拡大・縮小、ドラッグで移動、ダブルタップで全体表示。ページが複数あれば下で切り替える。 */

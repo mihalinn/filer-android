@@ -337,7 +337,7 @@ internal fun FastGrid(
     detail?.let { text ->
         AlertDialog(
             onDismissRequest = { detail = null },
-            confirmButton = { TextButton(onClick = { detail = null }) { Text("閉じる") } },
+            confirmButton = { TextButton(onClick = { detail = null }) { Text(Txt(R.string.sheet_grid_fast_001)) } },
             text = {
                 SelectionContainer {
                     Text(text.take(20_000), modifier = Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState()))

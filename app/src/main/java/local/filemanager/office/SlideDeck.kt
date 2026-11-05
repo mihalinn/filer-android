@@ -105,7 +105,7 @@ internal fun STable.plainText(): String =
 internal fun SlideDoc.plainText(): String =
     shapes.mapNotNull { sh -> sh.text?.takeIf { it.hasText }?.plainText() ?: sh.table?.plainText()?.takeIf { it.isNotBlank() } }.joinToString("\n")
 
-internal fun SlideDeck.plainText(): String = slides.joinToString("\n\n") { "スライド ${it.number}\n" + it.plainText() }
+internal fun SlideDeck.plainText(): String = slides.joinToString("\n\n") { Txt(R.string.slide_deck_001, it.number) + it.plainText() }
 
 internal class SlideDeck(val widthPt: Float, val heightPt: Float, val slides: List<SlideDoc>)
 
@@ -161,7 +161,7 @@ internal object SlideDeckParser {
     )
 
     fun parse(read: (String) -> ByteArray?): SlideDeck {
-        val presBytes = read("ppt/presentation.xml") ?: throw OpException("PowerPointのファイルとして読めません")
+        val presBytes = read("ppt/presentation.xml") ?: throw OpException(Txt(R.string.slide_deck_002))
         val pres = XmlTree.parse(presBytes)
         val presRels = OfficeXml.relationships(read("ppt/_rels/presentation.xml.rels"), "ppt")
         val sz = pres.child("sldSz")
@@ -562,9 +562,9 @@ internal object SlideDeckParser {
         }
         val uri = data?.a("uri") ?: ""
         val label = when {
-            uri.contains("chart") -> "グラフ(この表示では描けません)"
-            uri.contains("diagram") -> "図表(SmartArt。この表示では描けません)"
-            else -> "埋め込みの内容(この表示では描けません)"
+            uri.contains("chart") -> Txt(R.string.slide_deck_003)
+            uri.contains("diagram") -> Txt(R.string.slide_deck_004)
+            else -> Txt(R.string.slide_deck_005)
         }
         val run = SRun(label, 14f, 0xFF7F7F7F.toInt(), false, false, false, false, 0, null, null)
         val para = SPara(listOf(run), 0, 0f, 0f, 0f, 0f, null, null, null, null, 1f, 14f)

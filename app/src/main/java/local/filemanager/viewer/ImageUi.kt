@@ -90,30 +90,30 @@ private fun loadFull(fs: Fs, item: FileItem): ImageLoad {
     if (ext == "gif" || ext == "webp") loadAnimated(fs, item)?.let { return it }
     if (fs.isLocal) {
         return ImageDecode.decodeFile(item.path, VIEW_LIMIT)?.let { ImageLoad.Ok(it.asImageBitmap()) }
-            ?: ImageLoad.Fail("画像を表示できません")
+            ?: ImageLoad.Fail(Txt(R.string.image_ui_001))
     }
     if (item.size > ImageDecode.MAX_REMOTE_BYTES) {
-        return ImageLoad.Fail("大きすぎて表示できません。メニューの「他のアプリで開く」を使ってください")
+        return ImageLoad.Fail(Txt(R.string.image_ui_002))
     }
     val bytes = try {
         fs.open(item.path).use { it.readBytes() }
     } catch (e: Exception) {
-        return ImageLoad.Fail(e.message ?: "読み込めません")
+        return ImageLoad.Fail(e.message ?: Txt(R.string.image_ui_003))
     }
     return ImageDecode.decodeBytes(bytes, VIEW_LIMIT)?.let { ImageLoad.Ok(it.asImageBitmap()) }
-        ?: ImageLoad.Fail("画像を表示できません")
+        ?: ImageLoad.Fail(Txt(R.string.image_ui_004))
 }
 
 /** SVG を、白い背景の絵にして見せる。 */
 private fun loadSvg(fs: Fs, item: FileItem): ImageLoad {
-    if (item.size > SvgRender.MAX_BYTES) return ImageLoad.Fail("大きすぎて表示できません(${SvgRender.MAX_BYTES / 1024 / 1024} MB まで)。メニューの「他のアプリで開く」を使ってください")
+    if (item.size > SvgRender.MAX_BYTES) return ImageLoad.Fail(Txt(R.string.image_ui_005, SvgRender.MAX_BYTES / 1024 / 1024))
     val bytes = try {
         fs.open(item.path).use { it.readBytes() }
     } catch (e: Exception) {
-        return ImageLoad.Fail(e.message ?: "読み込めません")
+        return ImageLoad.Fail(e.message ?: Txt(R.string.image_ui_006))
     }
     val bmp = SvgRender.render(bytes, VIEW_LIMIT.coerceAtMost(2560))
-        ?: return ImageLoad.Fail("SVGを表示できません。メニューで「ソース(XML)」に切り替えると中身を見られます")
+        ?: return ImageLoad.Fail(Txt(R.string.image_ui_007))
     return ImageLoad.Ok(bmp.asImageBitmap())
 }
 

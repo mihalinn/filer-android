@@ -14,12 +14,12 @@ object Json {
             p.ws()
             val v = p.value(0)
             p.ws()
-            if (!p.atEnd()) throw Bad("末尾に余分な文字があります")
+            if (!p.atEnd()) throw Bad(Txt(R.string.json_001))
             return v
         } catch (e: Bad) {
-            throw OpException("JSONとして読めません(${e.message})")
+            throw OpException(Txt(R.string.json_002, e.message))
         } catch (e: StackOverflowError) {
-            throw OpException("JSONの入れ子が深すぎます")
+            throw OpException(Txt(R.string.json_003))
         }
     }
 
@@ -32,8 +32,8 @@ object Json {
         }
 
         fun value(depth: Int): Any? {
-            if (depth > 100) throw Bad("入れ子が深すぎます")
-            if (i >= s.length) throw Bad("途中で終わっています")
+            if (depth > 100) throw Bad(Txt(R.string.json_004))
+            if (i >= s.length) throw Bad(Txt(R.string.json_005))
             return when (val c = s[i]) {
                 '{' -> obj(depth)
                 '[' -> arr(depth)
@@ -41,12 +41,12 @@ object Json {
                 't' -> lit("true", true)
                 'f' -> lit("false", false)
                 'n' -> lit("null", null)
-                else -> if (c == '-' || c.isDigit()) num() else throw Bad("想定外の文字「$c」(${i}文字目)")
+                else -> if (c == '-' || c.isDigit()) num() else throw Bad(Txt(R.string.json_bad_char, c, i))
             }
         }
 
         private fun lit(word: String, v: Any?): Any? {
-            if (!s.startsWith(word, i)) throw Bad("想定外の語(${i}文字目)")
+            if (!s.startsWith(word, i)) throw Bad(Txt(R.string.json_bad_word, i))
             i += word.length
             return v
         }
@@ -58,18 +58,18 @@ object Json {
             if (i < s.length && s[i] == '}') { i++; return m }
             while (true) {
                 ws()
-                if (i >= s.length || s[i] != '"') throw Bad("キーの文字列がない(${i}文字目)")
+                if (i >= s.length || s[i] != '"') throw Bad(Txt(R.string.json_no_key, i))
                 val k = str()
                 ws()
-                if (i >= s.length || s[i] != ':') throw Bad("「:」がありません(${i}文字目)")
+                if (i >= s.length || s[i] != ':') throw Bad(Txt(R.string.json_no_colon, i))
                 i++
                 ws()
                 m[k] = value(depth + 1)
                 ws()
-                if (i >= s.length) throw Bad("途中で終わっています")
+                if (i >= s.length) throw Bad(Txt(R.string.json_006))
                 if (s[i] == ',') { i++; continue }
                 if (s[i] == '}') { i++; return m }
-                throw Bad("「,」か「}」がありません(${i}文字目)")
+                throw Bad(Txt(R.string.json_no_comma_or_brace, i))
             }
         }
 
@@ -82,10 +82,10 @@ object Json {
                 ws()
                 l.add(value(depth + 1))
                 ws()
-                if (i >= s.length) throw Bad("途中で終わっています")
+                if (i >= s.length) throw Bad(Txt(R.string.json_007))
                 if (s[i] == ',') { i++; continue }
                 if (s[i] == ']') { i++; return l }
-                throw Bad("「,」か「]」がありません(${i}文字目)")
+                throw Bad(Txt(R.string.json_no_comma_or_bracket, i))
             }
         }
 
@@ -97,7 +97,7 @@ object Json {
                 when {
                     c == '"' -> return sb.toString()
                     c == '\\' -> {
-                        if (i >= s.length) throw Bad("途中で終わっています")
+                        if (i >= s.length) throw Bad(Txt(R.string.json_008))
                         when (val e = s[i++]) {
                             '"', '\\', '/' -> sb.append(e)
                             'b' -> sb.append('\b')
@@ -106,17 +106,17 @@ object Json {
                             'r' -> sb.append('\r')
                             't' -> sb.append('\t')
                             'u' -> {
-                                if (i + 4 > s.length) throw Bad("\\u の後ろが足りません")
-                                sb.append(s.substring(i, i + 4).toIntOrNull(16)?.toChar() ?: throw Bad("\\u の数が読めません"))
+                                if (i + 4 > s.length) throw Bad(Txt(R.string.json_009))
+                                sb.append(s.substring(i, i + 4).toIntOrNull(16)?.toChar() ?: throw Bad(Txt(R.string.json_010)))
                                 i += 4
                             }
-                            else -> throw Bad("想定外のエスケープ「\\$e」")
+                            else -> throw Bad(Txt(R.string.json_011, e))
                         }
                     }
                     else -> sb.append(c)
                 }
             }
-            throw Bad("文字列が閉じていません")
+            throw Bad(Txt(R.string.json_012))
         }
 
         private fun num(): Any {
@@ -124,7 +124,7 @@ object Json {
             if (s[i] == '-') i++
             while (i < s.length && (s[i].isDigit() || s[i] in ".eE+-")) i++
             val t = s.substring(st, i)
-            return t.toLongOrNull() ?: t.toDoubleOrNull() ?: throw Bad("数が読めない「$t」")
+            return t.toLongOrNull() ?: t.toDoubleOrNull() ?: throw Bad(Txt(R.string.json_013, t))
         }
     }
 

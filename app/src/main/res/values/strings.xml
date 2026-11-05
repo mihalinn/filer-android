@@ -1,4 +1,2050 @@
 <resources>
-    <string name="app_name">ファイラー</string>
-    <string name="playback_channel_name">動画・音声の再生</string>
+    <string name="app_name">Filer</string>
+    <string name="playback_channel_name">Video and audio playback</string>
+    <!-- Separators between items. Changed per language (for example a comma or " · ") -->
+    <string name="sep_dot">" · "</string>
+    <string name="sep_comma">", "</string>
+    <string name="pkpass_voided">" (void)"</string>
+
+    <!-- app/FmViewModel.kt -->
+    <string name="fm_view_model_001">Added to Home</string>
+    <string name="fm_view_model_002">The saved connection could not be found</string>
+    <string name="fm_view_model_003">The location is unknown</string>
+    <string name="fm_view_model_004">Main storage</string>
+    <string name="fm_view_model_005">Downloads</string>
+    <string name="fm_view_model_006">System</string>
+    <string name="fm_view_model_007">Trash</string>
+    <string name="fm_view_model_008">Network</string>
+    <string name="fm_view_model_009">Storage analysis</string>
+    <string name="fm_view_model_010">Licenses</string>
+    <string name="fm_view_model_011">Supported file formats</string>
+    <string name="fm_view_model_012">Developer options</string>
+    <string name="fm_view_model_013">Settings</string>
+    <string name="fm_view_model_014">System</string>
+    <string name="fm_view_model_015">Could not analyze</string>
+    <string name="fm_view_model_016">This folder cannot be opened</string>
+    <string name="list_error_read">Could not read: %1$s</string>
+    <string name="fm_view_model_017">Could not search</string>
+    <string name="fm_view_model_018">Please wait until the other task finishes</string>
+    <string name="fm_view_model_019">Could not check for files with the same name. Items with the same name will be pasted as “Name (1)”</string>
+    <string name="fm_view_model_020">Skipped everything</string>
+    <string name="fm_view_model_021">Moving to Trash…</string>
+    <string name="fm_view_model_022">Deleting…</string>
+    <plurals name="op_trashed">
+        <item quantity="one">Moved %1$d item to Trash</item>
+        <item quantity="other">Moved %1$d items to Trash</item>
+    </plurals>
+    <plurals name="op_deleted">
+        <item quantity="one">Deleted %1$d item</item>
+        <item quantity="other">Deleted %1$d items</item>
+    </plurals>
+    <string name="fm_view_model_023">Restoring…</string>
+    <plurals name="op_restored">
+        <item quantity="one">Restored %1$d item</item>
+        <item quantity="other">Restored %1$d items</item>
+    </plurals>
+    <string name="fm_view_model_024">Emptying Trash…</string>
+    <string name="fm_view_model_025">Trash emptied</string>
+    <string name="fm_view_model_026">Renaming…</string>
+    <string name="fm_view_model_027">Renamed</string>
+    <string name="fm_view_model_028">Creating…</string>
+    <string name="fm_view_model_029">A file with the same name already exists</string>
+    <string name="fm_view_model_030">Folder created</string>
+    <string name="fm_view_model_032">Compressing…</string>
+    <string name="fm_view_model_033">ZIP created</string>
+    <string name="fm_view_model_035">Preparing to install…</string>
+    <string name="fm_view_model_037">Extracting…</string>
+    <string name="op_unzipped">Extracted to “%1$s”</string>
+    <string name="fm_view_model_038">Please open the folder to save into</string>
+    <string name="fm_view_model_039">Please wait until the other task finishes</string>
+    <string name="fm_view_model_041">Saving…</string>
+    <string name="incoming_open_failed">Could not open “%1$s”</string>
+    <plurals name="op_saved">
+        <item quantity="one">Saved %1$d item</item>
+        <item quantity="other">Saved %1$d items</item>
+    </plurals>
+    <plurals name="op_failed_first">
+        <item quantity="one">%1$d item failed: %2$s</item>
+        <item quantity="other">%1$d items failed: %2$s</item>
+    </plurals>
+    <string name="fm_view_model_043">Downloading…</string>
+    <string name="fm_view_model_044">Folders cannot be shared. Compress it to a ZIP first, then share</string>
+    <string name="fm_view_model_046">Downloading…</string>
+    <string name="fm_view_model_047">Could not create a temporary folder</string>
+    <string name="fm_view_model_048">Added to Bookmarks</string>
+    <string name="fm_view_model_049">Please wait until the other task finishes</string>
+    <string name="fm_view_model_050">Cancelled</string>
+    <string name="fm_view_model_051">Failed</string>
+    <string name="op_failed_reason">Failed: %1$s</string>
+
+    <!-- app/Screens.kt -->
+    <string name="screens_001">Access to all files is required</string>
+    <string name="screens_002">To show and manage files, turn on “Allow access to manage all files” in Settings</string>
+    <string name="screens_003">Open Settings</string>
+    <string name="screens_004">The app crashed last time. You can check the cause in Settings under “Crash log”</string>
+    <string name="screens_005">New folder</string>
+    <plurals name="selection_count">
+        <item quantity="one">%1$d selected</item>
+        <item quantity="other">%1$d selected</item>
+    </plurals>
+    <plurals name="selection_total">
+        <item quantity="one">%1$d in total</item>
+        <item quantity="other">%1$d in total</item>
+    </plurals>
+    <string name="screens_006">Clear selection</string>
+    <string name="screens_007">Select all</string>
+    <string name="screens_008">Invert selection</string>
+    <string name="screens_009">Search in this folder</string>
+    <string name="screens_010">Close search</string>
+    <string name="screens_011">Clear</string>
+    <string name="screens_012">Menu</string>
+    <string name="screens_013">Search</string>
+    <string name="screens_014">Show as list</string>
+    <string name="screens_015">Show as grid</string>
+    <string name="screens_016">Empty Trash</string>
+    <string name="screens_017">Add NAS</string>
+    <string name="screens_018">Edit Home</string>
+    <string name="screens_019">Display settings</string>
+    <string name="screens_020">Rescan</string>
+    <string name="screens_021">Display settings</string>
+    <string name="screens_022">Restore</string>
+    <string name="screens_023">Delete permanently</string>
+    <string name="screens_024">Copy</string>
+    <string name="screens_025">Move</string>
+    <string name="screens_026">Share</string>
+    <string name="screens_027">Delete</string>
+    <string name="screens_028">More</string>
+    <string name="screens_029">Cancel</string>
+    <string name="screens_030">Save here</string>
+    <string name="screens_031">Cancel</string>
+    <string name="screens_032">Paste</string>
+    <string name="screens_033">Rename</string>
+    <string name="screens_034">Compress to ZIP</string>
+    <string name="screens_035">Archive.zip</string>
+    <string name="screens_036">Extract ZIP</string>
+    <string name="screens_037">Extract</string>
+    <string name="screens_038">Add to Bookmarks</string>
+    <string name="screens_039">Add to Home</string>
+    <string name="screens_040">Analyze storage</string>
+    <string name="screens_041">Details</string>
+    <string name="screens_042">Stop</string>
+
+    <!-- app/Theme.kt -->
+    <string name="theme_color_indigo">Indigo</string>
+    <string name="theme_color_teal">Teal</string>
+    <string name="theme_color_wine">Wine red</string>
+
+    <!-- app/MainActivity.kt -->
+    <string name="main_activity_001">Shared text</string>
+    <string name="main_activity_002">Shared text</string>
+    <string name="main_activity_003">There is nothing to receive</string>
+    <string name="main_activity_004">No app can open this file</string>
+    <string name="main_activity_005">No browser was found</string>
+    <string name="main_activity_006">Folders cannot be shared. Compress it to a ZIP first, then share</string>
+    <string name="main_activity_007">Share</string>
+
+    <!-- Hand-named: copy, move and paste guidance -->
+    <plurals name="clip_selected_move">
+        <item quantity="one">%1$d item selected. Open the destination folder and tap “Paste”</item>
+        <item quantity="other">%1$d items selected. Open the destination folder and tap “Paste”</item>
+    </plurals>
+    <plurals name="clip_selected_copy">
+        <item quantity="one">%1$d item selected. Open the destination folder and tap “Paste”</item>
+        <item quantity="other">%1$d items selected. Open the destination folder and tap “Paste”</item>
+    </plurals>
+    <string name="op_moving">Moving…</string>
+    <string name="op_copying">Copying…</string>
+    <plurals name="op_moved">
+        <item quantity="one">Moved %1$d item</item>
+        <item quantity="other">Moved %1$d items</item>
+    </plurals>
+    <plurals name="op_moved_skipped">
+        <item quantity="one">Moved %1$d item (%2$d skipped)</item>
+        <item quantity="other">Moved %1$d items (%2$d skipped)</item>
+    </plurals>
+    <plurals name="op_copied">
+        <item quantity="one">Copied %1$d item</item>
+        <item quantity="other">Copied %1$d items</item>
+    </plurals>
+    <plurals name="op_copied_skipped">
+        <item quantity="one">Copied %1$d item (%2$d skipped)</item>
+        <item quantity="other">Copied %1$d items (%2$d skipped)</item>
+    </plurals>
+    <plurals name="hint_save_more">
+        <item quantity="one">Open the folder to save “%2$s” and %1$d other into, then tap “Save here”</item>
+        <item quantity="other">Open the folder to save “%2$s” and %1$d others into, then tap “Save here”</item>
+    </plurals>
+    <string name="hint_save_one">Open the folder to save “%1$s” into, then tap “Save here”</string>
+    <plurals name="hint_paste_move_more">
+        <item quantity="one">Open the folder to move “%2$s” and %1$d other into, then tap “Paste”</item>
+        <item quantity="other">Open the folder to move “%2$s” and %1$d others into, then tap “Paste”</item>
+    </plurals>
+    <string name="hint_paste_move_one">Open the folder to move “%1$s” into, then tap “Paste”</string>
+    <plurals name="hint_paste_copy_more">
+        <item quantity="one">Open the folder to copy “%2$s” and %1$d other into, then tap “Paste”</item>
+        <item quantity="other">Open the folder to copy “%2$s” and %1$d others into, then tap “Paste”</item>
+    </plurals>
+    <string name="hint_paste_copy_one">Open the folder to copy “%1$s” into, then tap “Paste”</string>
+
+    <!-- Hand-named: names of text encodings and line endings -->
+    <string name="enc_utf8_bom">UTF-8 with BOM</string>
+    <string name="enc_utf16le">UTF-16 LE with BOM</string>
+    <string name="enc_utf16be">UTF-16 BE with BOM</string>
+    <string name="eol_cr">CR (classic Mac)</string>
+
+    <!-- Hand-named: progress (copy, move, compress and so on) -->
+    <string name="progress_title_copy">Copying</string>
+    <string name="progress_title_move">Moving</string>
+    <string name="progress_title_zip">Compressing</string>
+    <string name="progress_title_unzip">Extracting</string>
+    <string name="progress_title_install">Preparing to install</string>
+    <string name="progress_title_save">Saving</string>
+    <string name="progress_title_download">Downloading</string>
+    <string name="progress_short_copy">Copying</string>
+    <string name="progress_short_move">Moving</string>
+    <string name="progress_short_zip">Compressing</string>
+    <string name="progress_short_unzip">Extracting</string>
+    <string name="progress_short_install">Preparing to install</string>
+    <string name="progress_short_save">Saving</string>
+    <string name="progress_short_download">Downloading</string>
+    <string name="progress_from_copy">Copy from</string>
+    <string name="progress_to_copy">Copy to</string>
+    <string name="progress_from_move">Move from</string>
+    <string name="progress_to_move">Move to</string>
+    <string name="progress_from">From</string>
+    <string name="progress_to">To</string>
+    <string name="progress_label_value">%1$s: %2$s</string>
+    <string name="progress_items">Items %1$d / %2$d</string>
+    <string name="progress_elapsed">Elapsed %1$s</string>
+
+    <!-- browser/Drawer.kt -->
+    <string name="drawer_001">Places</string>
+    <string name="drawer_002">Bookmarks</string>
+    <string name="drawer_003">History</string>
+    <string name="drawer_004">No bookmarks yet.\nTouch and hold a folder, then choose “More” to add one.</string>
+    <string name="drawer_005">Clear history</string>
+    <string name="drawer_006">No history</string>
+    <string name="drawer_007">Home</string>
+    <string name="storage_used_total">Used %1$s / %2$s</string>
+    <string name="drawer_008">System</string>
+    <string name="drawer_009">Trash</string>
+    <string name="drawer_010">Settings</string>
+    <string name="drawer_011">Update available</string>
+    <string name="drawer_012">Pinned places</string>
+    <string name="drawer_013">Unpin</string>
+    <string name="drawer_014">Recent places</string>
+    <string name="drawer_015">Menu</string>
+    <string name="drawer_016">Pin</string>
+    <string name="drawer_017">Remove from history</string>
+    <string name="drawer_018">Delete</string>
+    <string name="drawer_019">Menu</string>
+    <string name="drawer_020">Pin</string>
+    <string name="drawer_021">Remove from history</string>
+
+    <!-- browser/Dialogs.kt -->
+    <string name="dialogs_001">Move to Trash</string>
+    <string name="dialogs_002">Delete</string>
+    <plurals name="confirm_trash_text">
+        <item quantity="one">%1$d item will be moved to Trash. You can restore it from Trash.</item>
+        <item quantity="other">%1$d items will be moved to Trash. You can restore them from Trash.</item>
+    </plurals>
+    <plurals name="confirm_delete_text">
+        <item quantity="one">%1$d item will be deleted permanently. This cannot be undone.</item>
+        <item quantity="other">%1$d items will be deleted permanently. This cannot be undone.</item>
+    </plurals>
+    <string name="dialogs_003">Move</string>
+    <string name="dialogs_004">Delete</string>
+    <string name="dialogs_005">Rename</string>
+    <string name="dialogs_006">Rename</string>
+    <string name="dialogs_007">New folder</string>
+    <string name="dialogs_008">Create</string>
+    <string name="dialogs_009">Compress to ZIP</string>
+    <string name="dialogs_010">Compress</string>
+    <string name="dialogs_011">Empty Trash</string>
+    <string name="dialogs_012">Everything in Trash will be deleted permanently. This cannot be undone.</string>
+    <string name="dialogs_013">Empty</string>
+    <string name="confirm_remote_text">The connection details for “%1$s” will be deleted (files on the NAS are not deleted)</string>
+    <string name="dialogs_014">Delete connection</string>
+    <string name="dialogs_015">Delete</string>
+    <string name="dialogs_016">Folder</string>
+    <string name="dialogs_017">A file with the same name exists</string>
+    <string name="conflict_exists">“%1$s” already exists in the destination</string>
+    <string name="conflict_src">Item to paste: %1$s</string>
+    <string name="conflict_existing">Existing item: %1$s</string>
+    <string name="dialogs_018">If you overwrite a folder, the contents are merged (only files with the same name are replaced)</string>
+    <plurals name="conflict_apply_all">
+        <item quantity="one">Do the same for the remaining %1$d item</item>
+        <item quantity="other">Do the same for all %1$d remaining items</item>
+    </plurals>
+    <string name="dialogs_019">Overwrite</string>
+    <string name="dialogs_020">Skip</string>
+    <string name="dialogs_021">Keep both</string>
+    <string name="dialogs_022">Cancel</string>
+    <string name="dialogs_023">Cancel</string>
+    <string name="dialogs_024">Cancel</string>
+    <string name="dialogs_025">Display settings</string>
+    <string name="dialogs_026">Sort by</string>
+    <string name="dialogs_027">Ascending</string>
+    <string name="dialogs_028">Descending</string>
+    <string name="dialogs_029">Show hidden files</string>
+    <string name="dialogs_030">Show NAS thumbnails</string>
+    <string name="dialogs_031">Theme</string>
+    <string name="dialogs_032">Light</string>
+    <string name="dialogs_033">Dark</string>
+    <string name="dialogs_034">Follow device settings</string>
+    <string name="dialogs_035">More settings…</string>
+    <string name="dialogs_036">Close</string>
+    <string name="dialogs_037">Details</string>
+    <string name="dialogs_038">Name</string>
+    <string name="dialogs_039">Location</string>
+    <string name="dialogs_040">Modified</string>
+    <plurals name="detail_count">
+        <item quantity="one">%1$d item</item>
+        <item quantity="other">%1$d items</item>
+    </plurals>
+    <string name="dialogs_041">Selected</string>
+    <string name="dialogs_042">Size</string>
+    <string name="dialogs_043">Calculating…</string>
+    <string name="dialogs_044">Size</string>
+    <string name="detail_contents">Folders %1$d, files %2$d</string>
+    <string name="dialogs_045">Contents</string>
+    <string name="dialogs_046">Close</string>
+    <string name="dialogs_047">Add NAS</string>
+    <string name="dialogs_048">Edit connection</string>
+    <string name="dialogs_049">Display name</string>
+    <string name="dialogs_050">Host (IP address or name)</string>
+    <string name="dialogs_051">Share name</string>
+    <string name="dialogs_052">Folder to open first (optional)</string>
+    <string name="dialogs_053">User name (leave empty for guest)</string>
+    <string name="dialogs_054">Password</string>
+    <string name="dialogs_055">Connecting…</string>
+    <plurals name="remote_test_ok">
+        <item quantity="one">Connected (%1$d item at the top level)</item>
+        <item quantity="other">Connected (%1$d items at the top level)</item>
+    </plurals>
+    <string name="dialogs_056">Could not connect</string>
+    <string name="dialogs_057">Test connection</string>
+    <string name="dialogs_058">Save</string>
+    <string name="dialogs_059">Cancel</string>
+
+    <!-- browser/ListUi.kt -->
+    <string name="list_ui_001">Type part of a file name</string>
+    <string name="list_ui_002">Searching…</string>
+    <string name="list_ui_003">Nothing found</string>
+    <string name="list_ui_004">Loading…</string>
+    <string name="list_ui_005">Trash is empty</string>
+    <string name="list_ui_006">This folder is empty</string>
+    <string name="list_ui_007">Home</string>
+    <plurals name="item_count">
+        <item quantity="one">%1$d item</item>
+        <item quantity="other">%1$d items</item>
+    </plurals>
+
+    <!-- browser/ProgressUi.kt -->
+    <string name="progress_ui_001">Hide</string>
+    <string name="progress_ui_002">Cancel</string>
+    <string name="progress_ui_003">Tap to show</string>
+
+    <!-- browser/AnalyzeUi.kt -->
+    <string name="analyze_ui_001">Choose a location to analyze</string>
+    <string name="analyze_volume">Used %1$s / total %2$s (free %3$s)</string>
+    <string name="analyze_nas_note">"%1$s /%2$s  * A NAS takes time"</string>
+    <string name="analyze_ui_002">Analyze again</string>
+    <string name="analyze_ui_003">Analyzing…</string>
+    <plurals name="analyze_files_size">
+        <item quantity="one">%1$,d file · %2$s</item>
+        <item quantity="other">%1$,d files · %2$s</item>
+    </plurals>
+    <string name="analyze_ui_004">Cancel</string>
+    <plurals name="analyze_files">
+        <item quantity="one">%1$,d file</item>
+        <item quantity="other">%1$,d files</item>
+    </plurals>
+    <string name="analyze_storage_total">This storage: used %1$s / total %2$s (free %3$s)</string>
+    <string name="analyze_ui_005">* Places that cannot be viewed because of restrictions, such as Android/data, are not included</string>
+    <string name="analyze_ui_006">By folder</string>
+    <string name="analyze_ui_007">Large files</string>
+    <string name="analyze_ui_008">This folder is small, so the list of contents is omitted</string>
+    <string name="analyze_ui_009">Open folder</string>
+    <string name="analyze_ui_010">Empty folder</string>
+    <plurals name="analyze_others">
+        <item quantity="one">%1$d other (total %2$s)</item>
+        <item quantity="other">%1$d others (total %2$s)</item>
+    </plurals>
+    <string name="analyze_no_big">No files are in the top %1$d largest</string>
+    <string name="analyze_ui_011">Show in file list</string>
+
+    <!-- browser/ReportUi.kt -->
+    <string name="report_ui_001">Report a bug</string>
+    <string name="report_ui_002">Send a request</string>
+    <string name="report_ui_003">This opens the GitHub form in your browser. Check the content there, then post it yourself. Nothing is sent from this screen.</string>
+    <string name="report_ui_004">Information included</string>
+    <string name="report_info_version">App version: %1$s</string>
+    <string name="report_info_device">Device: %1$s</string>
+    <string name="report_ui_005">There is no crash log</string>
+    <string name="report_ui_006">Include the crash log</string>
+    <string name="report_ui_007">The log may contain file names. Please check the content</string>
+    <string name="report_ui_008">Hide log</string>
+    <string name="report_ui_009">Show log</string>
+    <string name="report_ui_010">Do not write passwords, NAS names, IP addresses or personal file names (anyone can read it)</string>
+    <string name="report_ui_011">Report on GitHub</string>
+    <string name="report_ui_012">"App version: "</string>
+    <string name="report_ui_013">"Device: "</string>
+    <string name="report_ui_014">\nCrash log:\n</string>
+    <string name="report_ui_015">Copy details</string>
+    <string name="report_ui_016">Cancel</string>
+
+    <!-- browser/PerfLogUi.kt -->
+    <string name="perf_log_ui_001">Activity log</string>
+    <string name="perf_log_ui_002">A record for finding the cause when the app becomes slow. It stays on this device and is never sent anywhere.</string>
+    <string name="perf_log_ui_003">If the app feels slow, open this and copy it before restarting.</string>
+    <string name="perf_log_ui_004">No records yet</string>
+    <string name="perf_log_ui_005">Close</string>
+    <string name="perf_log_ui_006">Refresh</string>
+    <string name="perf_log_ui_007">Copy</string>
+    <string name="perf_log_ui_008">Clear</string>
+    <string name="perf_log_ui_009">Clear log</string>
+    <string name="perf_log_ui_010">All activity records will be cleared. Cleared records cannot be restored</string>
+    <string name="perf_log_ui_011">Clear</string>
+    <string name="perf_log_ui_012">Cancel</string>
+
+    <!-- browser/Home.kt -->
+    <string name="home_free">Free %1$s</string>
+    <string name="home_free_total">Free %1$s / %2$s</string>
+    <string name="home_001">System</string>
+    <string name="home_002">Downloads</string>
+    <string name="home_009">Trash</string>
+    <string name="home_010">Empty</string>
+    <string name="home_011">Network</string>
+    <string name="home_012">Storage analysis</string>
+    <string name="home_013">Device</string>
+    <string name="home_014">Categories</string>
+    <string name="home_015">Manage</string>
+    <string name="home_016">Add NAS</string>
+    <string name="home_017">Add NAS</string>
+    <string name="home_018">Use an SMB share just like a folder on your device</string>
+    <string name="home_019">Folders</string>
+    <string name="home_020">Tools</string>
+    <string name="update_banner_available">Version %1$s is available</string>
+    <string name="update_banner_current_size">Current version %1$s · about %2$s. Tap to update</string>
+    <string name="update_banner_current">Current version %1$s. Tap to update</string>
+    <string name="update_banner_downloading">Downloading version %1$s</string>
+    <string name="update_banner_ready">Version %1$s is ready to install</string>
+    <string name="home_021">The download has finished. Tap to open the install screen</string>
+    <string name="home_022">Edit Home</string>
+    <string name="home_023">Use ▲▼ to reorder and the switches to show or hide</string>
+    <string name="home_024">Done</string>
+    <string name="home_025">Items per row</string>
+    <string name="home_026">Hidden</string>
+    <string name="home_027">Move up</string>
+    <string name="home_028">Move down</string>
+    <string name="home_029">Remove from Home</string>
+    <string name="home_030">Add a folder from Bookmarks</string>
+    <string name="home_031">You can also select a folder and choose “More” → “Add to Home”</string>
+    <string name="home_032">Reset order and visibility</string>
+    <string name="home_033">Folder to add</string>
+    <string name="home_034">There are no bookmarks to add. Select a folder and add it from “More”.</string>
+    <string name="home_035">(top of the share)</string>
+    <string name="home_036">Close</string>
+    <string name="home_037">Add a NAS (SMB share) to use its files just like folders on your device</string>
+    <string name="home_038">Add NAS</string>
+    <string name="home_039">Menu</string>
+    <string name="home_040">Edit</string>
+    <string name="home_041">Delete</string>
+
+    <!-- browser/SettingsUi.kt -->
+    <string name="settings_ui_001">On</string>
+    <string name="settings_ui_002">Off</string>
+    <string name="settings_ui_003">Debugging</string>
+    <string name="settings_ui_004">Activity log</string>
+    <string name="settings_ui_005">For finding the cause when the app becomes slow. While on, memory use and similar data are recorded on this device</string>
+    <string name="settings_ui_006">View activity log</string>
+    <plurals name="settings_log_summary_last">
+        <item quantity="one">%1$d line · last at %2$s</item>
+        <item quantity="other">%1$d lines · last at %2$s</item>
+    </plurals>
+    <plurals name="settings_log_summary">
+        <item quantity="one">%1$d line</item>
+        <item quantity="other">%1$d lines</item>
+    </plurals>
+    <string name="settings_ui_007">No records</string>
+    <string name="settings_ui_008">Test features</string>
+    <string name="settings_ui_009">None yet</string>
+    <string name="settings_ui_010">Display</string>
+    <string name="settings_ui_011">Sort by</string>
+    <string name="settings_ui_012">Order</string>
+    <string name="settings_ui_013">Ascending</string>
+    <string name="settings_ui_014">Descending</string>
+    <string name="settings_ui_015">Show hidden files</string>
+    <string name="settings_ui_016">Show NAS thumbnails</string>
+    <string name="settings_ui_017">App theme</string>
+    <string name="settings_ui_018">Light</string>
+    <string name="settings_ui_019">Dark</string>
+    <string name="settings_ui_020">Follow device</string>
+    <string name="settings_ui_021">Viewer (screen for opened files)</string>
+    <string name="settings_ui_022">Colors (images and videos stay black)</string>
+    <string name="settings_ui_023">Dark</string>
+    <string name="settings_ui_024">Light</string>
+    <string name="settings_ui_025">Same as the app</string>
+    <string name="settings_ui_026">Text size</string>
+    <string name="settings_ui_027">Size used when opening documents and e-books</string>
+    <string name="settings_ui_028">Page turning direction for comics (.cbz and others)</string>
+    <string name="settings_ui_029">Right to left</string>
+    <string name="settings_ui_030">Left to right</string>
+    <string name="settings_ui_031">Home screen</string>
+    <string name="settings_ui_032">Edit Home screen</string>
+    <string name="settings_ui_033">Reorder, show or hide, items per row, add</string>
+    <string name="settings_ui_034">Places</string>
+    <plurals name="settings_remotes_count">
+        <item quantity="one">%1$d connection</item>
+        <item quantity="other">%1$d connections</item>
+    </plurals>
+    <string name="settings_ui_035">NAS connections</string>
+    <string name="settings_ui_036">None yet</string>
+    <string name="settings_ui_037">Trash</string>
+    <string name="settings_ui_038">App updates</string>
+    <string name="settings_ui_039">Bugs, requests and logs</string>
+    <string name="settings_ui_040">Report a bug</string>
+    <string name="settings_ui_041">Something does not work or looks wrong. Reported on GitHub</string>
+    <string name="settings_ui_042">Send a request</string>
+    <string name="settings_ui_043">A feature you would like, for example</string>
+    <string name="settings_ui_044">View reports</string>
+    <string name="settings_ui_045">See past reports and how they were handled on GitHub</string>
+    <string name="settings_ui_046">Crash log</string>
+    <plurals name="settings_crash_last">
+        <item quantity="one">%1$d entry · last at %2$s</item>
+        <item quantity="other">%1$d entries · last at %2$s</item>
+    </plurals>
+    <plurals name="settings_crash_last_unseen">
+        <item quantity="one">%1$d entry · last at %2$s (not viewed yet)</item>
+        <item quantity="other">%1$d entries · last at %2$s (not viewed yet)</item>
+    </plurals>
+    <string name="settings_ui_047">No records</string>
+    <string name="settings_ui_048">About this app</string>
+    <string name="settings_ui_049">Developer options are already shown</string>
+    <string name="settings_ui_050">Developer options are now shown</string>
+    <plurals name="settings_dev_remaining">
+        <item quantity="one">Tap %1$d more time to show developer options</item>
+        <item quantity="other">Tap %1$d more times to show developer options</item>
+    </plurals>
+    <string name="settings_app_version">Filer %1$s</string>
+    <string name="settings_ui_051">A file manager with no ads</string>
+    <string name="settings_source_code">Source code: %1$s</string>
+    <string name="settings_ui_052">Supported file formats</string>
+    <string name="settings_ui_053">Formats that can be opened inside the app</string>
+    <plurals name="settings_licenses_count">
+        <item quantity="one">%1$d component used</item>
+        <item quantity="other">%1$d components used</item>
+    </plurals>
+    <string name="settings_ui_054">Licenses</string>
+    <string name="settings_ui_055">Developer options</string>
+    <string name="settings_ui_056">Debugging and test features</string>
+    <string name="settings_ui_057">The components this app uses and their licenses. Tap one to show the full text.</string>
+    <string name="settings_ui_058">Theme color</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_language_system">Follow device</string>
+
+    <!-- browser/AboutUi.kt -->
+    <string name="about_ui_001">Filer (this app)</string>
+    <string name="credits_app_note">%1$s. Because it uses NextLib (GPL v3), the whole app is also provided under GPL v3. No warranty.</string>
+    <string name="about_ui_002">NextLib 1.7.1-0.9.0 (video and audio extension)</string>
+    <string name="about_ui_003">libmedia3ext.so was rebuilt with deinterlacing added. The changes and the source are in the native folder. Original project: github.com/anilbeesetti/nextlib</string>
+    <string name="about_ui_004">FFmpeg 6.0 (bundled with NextLib)</string>
+    <string name="about_ui_005">GNU LGPL v3 or later</string>
+    <string name="about_ui_006">Bundled as a dynamic library (.so), so it can be replaced. Source: ffmpeg.org</string>
+    <string name="about_ui_007">libvpx 1.13.0 (for reading VP8 and VP9; built into FFmpeg)</string>
+    <string name="about_ui_008">BSD 3-Clause License</string>
+    <string name="about_ui_009">Copyright: The WebM Project authors. Built into libavcodec.so.</string>
+    <string name="about_ui_010">AndroidX Media3 1.7.1 (ExoPlayer and Session)</string>
+    <string name="about_ui_011">Jetpack Compose, Material 3 and AndroidX</string>
+    <string name="about_ui_012">Includes Activity, Core, Lifecycle and ExifInterface. The icons on screen are Material Icons (Google).</string>
+    <string name="about_ui_013">Kotlin standard library 1.9.22 and kotlinx.coroutines 1.7.1</string>
+    <string name="about_ui_014">Includes JetBrains annotations (Apache 2.0)</string>
+    <string name="about_ui_015">Guava 33.3.1 (for Android)</string>
+    <string name="about_ui_016">Used by Media3. Includes failureaccess 1.0.2, listenablefuture 1.0 and Error Prone annotations 2.38.0 (all Apache 2.0).</string>
+    <string name="about_ui_017">smbj 0.13.0 (connecting to a NAS)</string>
+    <string name="about_ui_018">Also uses asn-one 0.6.0 (Apache 2.0) by the same author</string>
+    <string name="about_ui_019">MIT License</string>
+    <string name="about_ui_020">Used by smbj. Author: Benjamin Diedrichsen.</string>
+    <string name="about_ui_021">Used to read 7z, tar and similar files. Also includes Commons Codec 1.17.1, IO 2.16.1 and Lang 3.16.0. Tap to show the copyright notice (NOTICE).</string>
+    <string name="about_ui_022">PDFium (PDF display and text selection) and PdfiumAndroidKt 1.0.35</string>
+    <string name="about_ui_023">Used to render PDFs and find the position of text. Tap to also show the copyright notices and licenses of FreeType, ICU, libjpeg-turbo, libpng, zlib, HarfBuzz and others used by PDFium</string>
+    <string name="about_ui_024">MIT License</string>
+    <string name="about_ui_025">SLF4J 2.0.17 (API) and 2.0.9 (nop)</string>
+    <string name="about_ui_026">MIT License</string>
+    <string name="about_ui_027">0BSD (almost public domain)</string>
+    <string name="about_ui_028">junrar 8.1.2 (reading RAR)</string>
+    <string name="about_ui_029">UnRAR License</string>
+    <string name="about_ui_030">Used only to read RAR. It cannot be used to develop RAR-compatible compression software.</string>
+    <string name="about_ui_031">ezjww (reference for the JW_CAD format)</string>
+    <string name="about_ui_032">MIT License</string>
+    <string name="about_ui_033">The structure of .jww follows a published analysis (github.com/monozukuri-ai/ezjww). The loading code is original.</string>
+    <string name="about_ui_034">Crash log</string>
+    <string name="about_ui_035">There is no crash log</string>
+    <string name="about_ui_036">A record of the cause when the app stopped. It helps when you report a bug.</string>
+    <string name="about_ui_037">Close</string>
+    <string name="about_ui_038">Copy</string>
+    <string name="about_ui_039">Clear</string>
+    <string name="about_ui_040">Clear log</string>
+    <string name="about_ui_041">All records will be cleared. Cleared records cannot be restored</string>
+    <string name="about_ui_042">Clear</string>
+    <string name="about_ui_043">Cancel</string>
+    <string name="about_ui_044">Loading…</string>
+    <string name="about_ui_045">Could not load the full license text</string>
+
+    <!-- browser/FormatsUi.kt -->
+    <string name="formats_ui_001">Images</string>
+    <string name="formats_ui_002">JPEG, PNG, GIF, WebP, BMP</string>
+    <string name="formats_ui_003">HEIC, HEIF, AVIF</string>
+    <string name="formats_ui_004">Shown when your device supports them</string>
+    <string name="formats_ui_005">No external files or network access are used</string>
+    <string name="formats_ui_006">Live Photos</string>
+    <string name="formats_ui_007">The contents are viewed as a zip</string>
+    <string name="formats_ui_008">Video and audio</string>
+    <string name="formats_ui_009">Video</string>
+    <string name="formats_ui_010">Whether a file plays depends on your device and the codec inside. Formats your device cannot play are tried with FFmpeg</string>
+    <string name="formats_ui_011">Audio</string>
+    <string name="formats_ui_012">Also shows information such as the title and cover art</string>
+    <string name="formats_ui_013">Played with your device\'s own feature</string>
+    <string name="formats_ui_014">Subtitles</string>
+    <string name="formats_ui_015">Can be shown with a video</string>
+    <string name="formats_ui_016">Documents</string>
+    <string name="formats_ui_017">Password-protected files cannot be opened</string>
+    <string name="formats_ui_018">Old format (doc) can be read too</string>
+    <string name="formats_ui_019">Old format (xls) can be read too</string>
+    <string name="formats_ui_020">Slides are shown as images</string>
+    <string name="formats_ui_021">Rich text</string>
+    <string name="formats_ui_022">E-books</string>
+    <string name="formats_ui_023">Comics</string>
+    <string name="formats_ui_024">You can read by turning pages</string>
+    <string name="formats_ui_025">Tables</string>
+    <string name="formats_ui_026">Contacts</string>
+    <string name="formats_ui_027">Web pages</string>
+    <string name="formats_ui_028">Shown with external network access blocked</string>
+    <string name="formats_ui_029">JSON, XML</string>
+    <string name="formats_ui_030">Formatted and color-coded</string>
+    <string name="formats_ui_031">Text and code</string>
+    <string name="formats_ui_032">Text files</string>
+    <string name="formats_ui_033">The text encoding is detected automatically. You can also edit and save</string>
+    <string name="formats_ui_034">Source code</string>
+    <string name="formats_ui_035">Keywords, strings and comments are color-coded</string>
+    <string name="formats_ui_036">Drawings and 3D</string>
+    <string name="formats_ui_037">CAD drawings</string>
+    <string name="formats_ui_038">DWG cannot be shown because its format is not public. Export it to DXF to view it</string>
+    <string name="formats_ui_039">3D models</string>
+    <string name="formats_ui_040">You can rotate them with your finger</string>
+    <string name="formats_ui_041">Archives and apps</string>
+    <string name="formats_ui_042">View the list of contents and extract items one by one. You can also compress</string>
+    <string name="formats_ui_043">7z, RAR</string>
+    <string name="formats_ui_044">Password-protected files may not open</string>
+    <string name="formats_ui_045">tar family</string>
+    <string name="formats_ui_046">Single-file compression</string>
+    <string name="formats_ui_047">Common methods such as -lh5- are supported. Some old methods cannot be extracted</string>
+    <string name="formats_ui_048">Android apps</string>
+    <string name="formats_ui_049">You can check the contents and install</string>
+    <string name="formats_ui_050">iPhone apps</string>
+    <string name="formats_ui_051">You can only look inside</string>
+    <string name="formats_ui_052">iPhone documents and data</string>
+    <string name="formats_ui_053">You can see the text and the preview image</string>
+    <string name="formats_ui_054">Wallet passes</string>
+    <string name="formats_ui_055">Settings files</string>
+    <string name="formats_ui_056">Databases</string>
+    <string name="formats_ui_057">You can view tables. Read-only queries (SELECT) are also possible</string>
+    <string name="formats_ui_058">Fonts</string>
+    <string name="formats_ui_059">Shown with sample text</string>
+    <string name="formats_ui_060">These formats can be opened inside the app. Even without an extension, text files and others are detected from their contents. Formats not listed here can be opened with “Open in another app”.</string>
+
+    <!-- storage/Fs.kt -->
+    <string name="fs_001">Cannot create the folder</string>
+
+    <!-- storage/SmbFs.kt -->
+    <string name="smb_fs_001">“%1$s” is not a file share</string>
+    <string name="smb_fs_002">The user name or password is wrong</string>
+    <string name="smb_fs_003">The share name “%1$s” was not found</string>
+    <string name="smb_fs_004">Access was denied</string>
+    <string name="smb_fs_005">Not found</string>
+    <string name="smb_fs_006">The same name already exists</string>
+    <string name="smb_fs_007">There is not enough free space on the NAS</string>
+    <string name="smb_fs_008">It is in use elsewhere, so the operation is not possible</string>
+    <string name="smb_fs_009">NAS error: %1$s</string>
+    <string name="smb_fs_010">Cannot connect to the NAS (%1$s): %2$s</string>
+    <string name="smb_fs_011">Cannot rename</string>
+    <string name="smb_fs_012">A file with the same name already exists</string>
+
+    <!-- storage/Trash.kt -->
+    <string name="trash_001">Cannot create the Trash</string>
+    <string name="trash_002">The Trash record is damaged</string>
+    <string name="trash_003">No record of the original location: %1$s</string>
+    <string name="trash_004">The original location is unknown</string>
+    <string name="trash_005">Cannot create the original folder</string>
+
+    <!-- storage/FileOps.kt -->
+    <string name="sort_name">Name</string>
+    <string name="sort_date">Modified</string>
+    <string name="sort_size">Size</string>
+    <string name="sort_type">Type</string>
+    <string name="file_ops_001">Cannot copy a folder into itself: %1$s</string>
+    <string name="file_ops_002">Cannot overwrite in the same location: %1$s</string>
+    <string name="file_ops_003">A file with the same name exists: %1$s</string>
+    <string name="file_ops_004">Cannot create the folder: %1$s</string>
+    <string name="file_ops_005">A folder with the same name exists: %1$s</string>
+    <string name="file_ops_006">Cannot overwrite: %1$s</string>
+    <string name="file_ops_007">Could not finish writing: %1$s</string>
+    <string name="file_ops_008">Cannot move into the same folder: %1$s</string>
+    <string name="file_ops_009">Cannot move a folder into itself: %1$s</string>
+    <string name="file_ops_010">An item of a different kind has the same name: %1$s</string>
+    <string name="file_ops_011">Cannot delete: %1$s</string>
+    <string name="file_ops_012">Shared file</string>
+    <string name="file_ops_013">Enter a name</string>
+    <string name="file_ops_014">This name cannot be used</string>
+    <string name="file_ops_015">“/” cannot be used in a name</string>
+    <string name="file_ops_016">The name is too long</string>
+    <string name="file_ops_017">A file with the same name already exists</string>
+    <string name="file_ops_018">Cannot rename</string>
+    <string name="file_ops_019">A file with the same name already exists</string>
+    <string name="file_ops_020">Cannot create the folder</string>
+    <string name="file_ops_021">A file with the same name already exists</string>
+    <string name="file_ops_022">The extraction destination was not found</string>
+    <string name="file_ops_023">Cannot create the folder</string>
+    <string name="file_ops_024">This ZIP contains an invalid path: %1$s</string>
+
+    <!-- storage/ReadAhead.kt -->
+    <string name="read_ahead_001">Interrupted</string>
+
+    <!-- storage/ReadProgress.kt -->
+    <string name="read_progress_001">%1$s loaded</string>
+    <string name="read_progress_002">%1$s/s</string>
+    <string name="eta_seconds">About %1$d sec left</string>
+    <string name="eta_minutes">About %1$d min %2$d sec left</string>
+    <string name="eta_hours">About %1$d h %2$d min left</string>
+    <string name="read_progress_003">Connecting to the NAS and starting to load…</string>
+    <string name="read_progress_004">Waiting for a reply from the NAS…</string>
+    <plurals name="read_progress_with_others">
+        <item quantity="one">Loading from the NAS (%1$d other)</item>
+        <item quantity="other">Loading from the NAS (%1$d others)</item>
+    </plurals>
+    <string name="read_progress_plain">Loading from the NAS</string>
+
+    <!-- storage/ResumeStreams.kt -->
+    <string name="resume_streams_001">Closed</string>
+    <string name="resume_streams_002">Closed</string>
+    <string name="resume_streams_003">Interrupted</string>
+
+    <!-- storage/WriteBehind.kt -->
+    <string name="write_behind_001">Closed</string>
+    <string name="write_behind_002">Writing has failed</string>
+    <string name="write_behind_003">Interrupted</string>
+
+    <!-- storage/Media.kt -->
+    <string name="category_image">Images</string>
+    <string name="category_video">Videos</string>
+    <string name="category_audio">Audio</string>
+    <string name="category_document">Documents</string>
+    <string name="category_apk">Apps</string>
+    <string name="category_recent">Recent files</string>
+
+    <!-- transfer/Transfer.kt -->
+    <string name="transfer_001">Cannot copy a folder into itself: %1$s</string>
+    <string name="transfer_002">Cannot overwrite in the same location: %1$s</string>
+    <string name="transfer_003">A file with the same name exists: %1$s</string>
+    <string name="transfer_004">Could not read the folder: %1$s</string>
+    <string name="transfer_005">A folder with the same name exists: %1$s</string>
+    <string name="transfer_006">Cannot move into the same folder: %1$s</string>
+    <string name="transfer_007">Cannot move a folder into itself: %1$s</string>
+    <string name="transfer_008">An item of a different kind has the same name: %1$s</string>
+    <string name="transfer_009">A file with the same name already exists</string>
+    <string name="transfer_010">A ZIP in this location cannot be extracted</string>
+    <string name="transfer_011">The extraction destination was not found</string>
+    <string name="transfer_012">This archive contains an invalid path: %1$s</string>
+
+    <!-- transfer/Ops.kt -->
+    <string name="ops_001">Working…</string>
+    <string name="ops_002">" · %1$s/s"</string>
+
+    <!-- transfer/TransferService.kt -->
+    <string name="transfer_service_001">Cancel</string>
+    <string name="transfer_service_002">Progress of copy, move and download</string>
+    <string name="transfer_service_003">Shows the progress of running copy, move, compress and download tasks</string>
+    <string name="transfer_service_004">Completion notices</string>
+    <string name="transfer_service_005">Tells you about tasks that finished while the app was closed</string>
+
+    <!-- transfer/BgTasks.kt -->
+    <string name="bg_tasks_001">Cancelled</string>
+    <string name="bg_tasks_002">%1$s. %2$s</string>
+    <string name="bg_tasks_003">Notifications are turned off, so download progress and completion will not appear. Turn on notifications for Filer in your device settings</string>
+    <string name="bg_tasks_004">" · %1$s/s"</string>
+    <string name="bg_tasks_005">\nElapsed %1$s</string>
+
+    <!-- update/UpdateUi.kt -->
+    <string name="update_ui_001">about %1$s</string>
+    <string name="update_ui_002">An app update is available</string>
+    <string name="update_ui_003">Filer %1$s</string>
+    <string name="update_ui_004">Current version %1$s</string>
+    <string name="update_ui_005">" · %1$s"</string>
+    <string name="update_ui_006">Update</string>
+    <string name="update_ui_007">Update later</string>
+    <string name="update_ui_008">Update from GitHub</string>
+    <string name="update_ui_009">Downloading</string>
+    <string name="update_ui_010">Cancel</string>
+    <string name="update_ui_011">Download finished</string>
+    <string name="update_ui_012">Tap “Update” on the install screen</string>
+    <string name="update_ui_013">Install</string>
+    <string name="update_ui_014">Close</string>
+    <string name="update_ui_015">Could not update</string>
+    <string name="update_ui_016">Try again</string>
+    <string name="update_ui_017">Update from GitHub</string>
+    <string name="update_ui_018">Close</string>
+    <string name="update_ui_019">Current version</string>
+    <string name="update_ui_020">Unknown</string>
+    <string name="update_ui_021">Checking</string>
+    <string name="update_ui_022">A new version is available</string>
+    <string name="update_ui_023">" · %1$s"</string>
+    <string name="update_ui_024">Install</string>
+    <string name="update_ui_025">Update</string>
+    <string name="update_ui_026">Update from GitHub</string>
+    <string name="update_ui_027">"Downloading  "</string>
+    <string name="update_ui_028">Cancel</string>
+    <string name="update_ui_029">Try again</string>
+    <string name="update_ui_030">Check again</string>
+    <string name="update_ui_031">Update from GitHub</string>
+    <string name="update_ui_032">Not checked yet</string>
+    <string name="update_ui_033">Last checked %1$s</string>
+    <string name="update_ui_034">You have the latest version</string>
+    <string name="update_ui_035">Check for updates</string>
+    <string name="update_ui_036">Open GitHub</string>
+    <string name="update_ui_037">Check for updates at startup</string>
+    <string name="update_ui_038">The app connects to GitHub (github.com) only when checking. No device information is sent</string>
+    <string name="update_ui_039">Show update notice on Home</string>
+    <string name="update_ui_040">When a new version is available, it appears at the top of Home</string>
+
+    <!-- update/UpdateNet.kt -->
+    <string name="update_net_001">Could not connect to GitHub. Please check your connection</string>
+    <string name="update_net_002">GitHub did not respond (%1$s). Please try again later</string>
+    <string name="update_net_003">Cancelled</string>
+    <string name="update_net_004">Cancelled</string>
+    <string name="update_net_005">The download stopped partway. Please try again</string>
+    <string name="update_net_006">The downloaded file does not match the published SHA-256. The installation was cancelled</string>
+    <string name="update_net_007">Could not save the downloaded file</string>
+    <string name="update_net_008">Could not download. Please check your connection</string>
+    <string name="update_net_009">Restarting the download</string>
+    <string name="update_net_010">Could not download (%1$s)</string>
+    <string name="update_net_011">Cancelled</string>
+    <string name="update_net_012">The download stopped partway</string>
+
+    <!-- update/UpdateManager.kt -->
+    <string name="update_manager_001">Could not check for updates</string>
+    <string name="update_manager_002">Downloading the app update</string>
+    <string name="update_manager_003">The update has been downloaded. Tap to install</string>
+    <string name="update_manager_004">Could not download the update</string>
+    <string name="update_manager_005">Could not update</string>
+    <string name="update_manager_006">Could not read the downloaded file</string>
+    <string name="update_manager_007">This file is not for this app. The installation was cancelled</string>
+    <string name="update_manager_008">This is not newer than the current version</string>
+    <string name="update_manager_009">The signature differs from the installed app, so it cannot be updated over it. To update from GitHub, you must uninstall the app first</string>
+
+    <!-- viewer/ContactUi.kt -->
+    <string name="contact_ui_001">Too large to show (up to %1$s MB)</string>
+    <string name="contact_ui_002">Cannot be read as contacts. You can switch to “Text” in the menu</string>
+    <string name="contact_ui_003">Cannot read</string>
+    <string name="contact_ui_004">Too large to load</string>
+    <!-- viewer/CsvEditorUi.kt -->
+    <string name="csv_editor_ui_001">There are too many rows to edit as a table (up to 50,000 rows). Please use “Edit as text”</string>
+    <string name="csv_editor_ui_002">Comma-separated</string>
+    <string name="csv_editor_ui_003">Tab-separated</string>
+    <string name="csv_editor_ui_004">Semicolon-separated</string>
+    <string name="csv_editor_ui_005">Vertical-bar-separated</string>
+    <string name="csv_editor_ui_006">Delimiter “%1$s”</string>
+    <string name="csv_editor_ui_007">Back</string>
+    <string name="csv_editor_ui_008">Could not save\n</string>
+    <string name="csv_editor_ui_009">Back</string>
+    <string name="csv_editor_ui_010">Unsaved changes</string>
+    <string name="csv_editor_ui_011">Editing as a table</string>
+    <string name="csv_editor_ui_012">Undo</string>
+    <string name="csv_editor_ui_013">Redo</string>
+    <string name="csv_editor_ui_014">Save</string>
+    <string name="csv_editor_ui_015">Select a cell</string>
+    <string name="csv_editor_ui_016">Apply</string>
+    <string name="csv_editor_ui_017">Add row above</string>
+    <string name="csv_editor_ui_018">Add row below</string>
+    <string name="csv_editor_ui_019">Add column left</string>
+    <string name="csv_editor_ui_020">Add column right</string>
+    <string name="csv_editor_ui_021">Delete row</string>
+    <string name="csv_editor_ui_022">Delete column</string>
+    <string name="csv_editor_status">%1$d rows × %2$d columns · %3$s · %4$s · %5$s</string>
+    <string name="csv_editor_ui_023">" · Mixed line endings were found (they will be unified on save)"</string>
+    <string name="csv_editor_ui_024">You have unsaved changes</string>
+    <string name="csv_editor_ui_025">Save and close</string>
+    <string name="csv_editor_ui_026">Don\'t save</string>
+    <string name="csv_editor_ui_027">Keep editing</string>
+    <string name="csv_editor_ui_028">The file has changed</string>
+    <string name="csv_editor_ui_029">This file was modified elsewhere after you opened it. If you overwrite it, those changes will be lost</string>
+    <string name="csv_editor_ui_030">Overwrite</string>
+    <string name="csv_editor_ui_031">Don\'t overwrite</string>
+    <string name="csv_editor_ui_032">Close</string>
+
+    <!-- viewer/EditorUi.kt -->
+    <string name="editor_ui_001">Too large to edit (up to %1$s MB)</string>
+    <string name="editor_ui_002">This is not a text file, so it cannot be edited</string>
+    <string name="editor_ui_003">Cannot read</string>
+    <string name="editor_ui_004">Back</string>
+    <string name="editor_ui_005">Not found</string>
+    <string name="editor_ui_006">Could not save\n</string>
+    <string name="editor_ui_007">Back</string>
+    <string name="editor_ui_008">Unsaved changes</string>
+    <string name="editor_ui_009">Editing</string>
+    <string name="editor_ui_010">Undo</string>
+    <string name="editor_ui_011">Redo</string>
+    <string name="editor_ui_012">Save</string>
+    <string name="editor_ui_013">Menu</string>
+    <string name="editor_ui_014">Edit</string>
+    <string name="editor_ui_015">Find and replace</string>
+    <string name="editor_ui_016">Encoding: %1$s</string>
+    <string name="editor_ui_017">Line endings</string>
+    <string name="editor_ui_018">View</string>
+    <string name="editor_ui_019">Text to find</string>
+    <string name="editor_ui_020">Previous</string>
+    <string name="editor_ui_021">Next</string>
+    <string name="editor_ui_022">Close</string>
+    <string name="editor_ui_023">Replace with</string>
+    <string name="editor_ui_024">Replace</string>
+    <string name="editor_ui_025">Not found</string>
+    <plurals name="editor_replaced">
+        <item quantity="one">Replaced %1$d match</item>
+        <item quantity="other">Replaced %1$d matches</item>
+    </plurals>
+    <string name="editor_ui_026">All</string>
+    <string name="editor_ui_027">" · Mixed line endings were found (they will be unified on save)"</string>
+    <string name="editor_ui_028">Line %1$s / %2$s · Column %3$s · %4$s · %5$s%6$s</string>
+    <string name="editor_ui_029">You have unsaved changes</string>
+    <string name="editor_ui_030">Save and close</string>
+    <string name="editor_ui_031">Don\'t save</string>
+    <string name="editor_ui_032">Keep editing</string>
+    <string name="editor_ui_033">Encoding to save with</string>
+    <string name="editor_ui_034">Close</string>
+    <string name="editor_ui_035">It was loaded as %1$s. If you change it and save, the file is rewritten in that encoding</string>
+    <string name="editor_ui_036">The file has changed</string>
+    <string name="editor_ui_037">This file was modified elsewhere after you opened it. If you overwrite it, those changes will be lost</string>
+    <string name="editor_ui_038">Overwrite</string>
+    <string name="editor_ui_039">Don\'t overwrite</string>
+    <string name="editor_ui_040">Close</string>
+
+    <!-- viewer/ExifFormat.kt -->
+    <string name="exif_shutter_fraction">1/%1$d s</string>
+    <string name="exif_shutter_seconds">%1$s s</string>
+    <string name="exif_format_001">(35mm equivalent %1$s mm)</string>
+    <string name="exif_format_002">Flipped horizontally</string>
+    <string name="exif_format_003">Rotated 180°</string>
+    <string name="exif_format_004">Flipped vertically</string>
+    <string name="exif_format_005">Transposed</string>
+    <string name="exif_format_006">Rotated 90° right (taken in portrait)</string>
+    <string name="exif_format_007">Transversed</string>
+    <string name="exif_format_008">Rotated 90° left (taken in portrait)</string>
+    <string name="exif_format_009">Flash fired</string>
+    <string name="exif_format_010">Flash did not fire</string>
+    <string name="exif_format_011" formatted="false">%.1f megapixels</string>
+    <string name="exif_format_012">"N "</string>
+    <string name="exif_format_013">"S "</string>
+    <string name="exif_format_014">"E "</string>
+    <string name="exif_format_015">"W "</string>
+
+    <!-- viewer/ImageUi.kt -->
+    <string name="image_ui_001">Cannot show the image</string>
+    <string name="image_ui_002">Too large to show. Use “Open in another app” in the menu</string>
+    <string name="image_ui_003">Cannot read</string>
+    <string name="image_ui_004">Cannot show the image</string>
+    <string name="image_ui_005">Too large to show (up to %1$s MB). Use “Open in another app” in the menu</string>
+    <string name="image_ui_006">Cannot read</string>
+    <string name="image_ui_007">Cannot show the SVG. Switch to “Source (XML)” in the menu to see its contents</string>
+
+    <!-- viewer/Json.kt -->
+    <string name="json_001">There are extra characters at the end</string>
+    <string name="json_002">Cannot read as JSON (%1$s)</string>
+    <string name="json_003">The JSON is nested too deeply</string>
+    <string name="json_004">Nested too deeply</string>
+    <string name="json_005">Ends unexpectedly</string>
+    <string name="json_bad_char">Unexpected character “%1$s” (at position %2$d)</string>
+    <string name="json_bad_word">Unexpected word (at position %1$d)</string>
+    <string name="json_no_key">Missing key string (at position %1$d)</string>
+    <string name="json_no_colon">Missing “:” (at position %1$d)</string>
+    <string name="json_006">Ends unexpectedly</string>
+    <string name="json_no_comma_or_brace">Missing “,” or “}” (at position %1$d)</string>
+    <string name="json_007">Ends unexpectedly</string>
+    <string name="json_no_comma_or_bracket">Missing “,” or “]” (at position %1$d)</string>
+    <string name="json_008">Ends unexpectedly</string>
+    <string name="json_009">Not enough characters after \\u</string>
+    <string name="json_010">Cannot read the number after \\u</string>
+    <string name="json_011">Unexpected escape “\\%1$s”</string>
+    <string name="json_012">The string is not closed</string>
+    <string name="json_013">Cannot read the number “%1$s”</string>
+
+    <!-- viewer/LoadingPanel.kt -->
+    <string name="loading_panel_001">Opening the file…</string>
+    <string name="loading_panel_002">Connecting to the NAS and starting to load…</string>
+    <string name="loading_panel_003">Waiting for a reply from the NAS…</string>
+    <string name="loading_panel_004">Loading from the NAS</string>
+    <string name="loading_panel_005">Loading continues even if you turn off the screen</string>
+    <string name="loading_panel_006">Cancel</string>
+
+    <!-- viewer/Markdown.kt -->
+    <string name="markdown_001">[Image: %1$s]</string>
+
+    <!-- viewer/PdfUi.kt -->
+    <string name="pdf_ui_001">Too large to show (up to %1$s MB). Use “Open in another app” in the menu</string>
+    <string name="pdf_ui_002">Cannot create a temporary file</string>
+    <string name="pdf_ui_003">Password-protected PDFs cannot be shown. Use “Open in another app” in the menu</string>
+    <string name="pdf_ui_004">Cannot open the PDF (%1$s)</string>
+    <string name="pdf_ui_005">Importing “%1$s”</string>
+    <string name="pdf_ui_006">Finished importing “%1$s”</string>
+    <string name="pdf_ui_007">Could not import “%1$s”</string>
+    <string name="pdf_ui_008">Copy text from all pages</string>
+    <string name="pdf_ui_009">Copy</string>
+    <string name="pdf_ui_010">Deselect</string>
+    <string name="pdf_ui_011">Go to page</string>
+    <string name="pdf_ui_012">1 – %1$s</string>
+    <string name="pdf_ui_013">Go</string>
+    <string name="pdf_ui_014">Cancel</string>
+    <string name="pdf_ui_015">Copy text from this page</string>
+    <string name="pdf_ui_016">Copy text from all pages</string>
+    <string name="pdf_ui_017">This page cannot be shown</string>
+    <string name="pdf_ui_018">Extracting text</string>
+    <string name="pdf_ui_019">There is no text (for example, a PDF made of scanned images)</string>
+    <string name="pdf_ui_020">Could not extract the text</string>
+
+    <!-- viewer/PhotoInfo.kt -->
+    <string name="photo_info_001">File</string>
+    <string name="photo_info_002">File size</string>
+    <string name="photo_info_003">Image size</string>
+    <string name="photo_info_004">Camera</string>
+    <string name="photo_info_005">Lens</string>
+    <string name="photo_info_006">Date taken</string>
+    <string name="photo_info_007">Shutter speed</string>
+    <string name="photo_info_008">Aperture</string>
+    <string name="photo_info_009">ISO</string>
+    <string name="photo_info_010">Focal length</string>
+    <string name="photo_info_011">Exposure bias</string>
+    <string name="photo_info_012">Flash</string>
+    <string name="photo_info_013">Orientation</string>
+    <string name="photo_info_014">Software</string>
+    <string name="photo_info_015">Location</string>
+    <string name="photo_info_016">Altitude</string>
+    <string name="photo_info_017">Photo info</string>
+    <string name="photo_info_018">This image has no camera information (EXIF)</string>
+    <string name="photo_info_019">Photo info</string>
+    <string name="photo_info_020">Cannot read</string>
+    <string name="photo_info_021">Close</string>
+    <string name="photo_info_022">Open in Maps</string>
+
+    <!-- viewer/PreviewCopy.kt -->
+    <string name="preview_copy_001">Copy all text</string>
+    <string name="preview_copy_cut">It is large, so only the first %2$,d characters were copied</string>
+    <string name="preview_copy_002">Copied</string>
+    <string name="preview_copy_003">Could not copy</string>
+    <string name="preview_copy_004">Copy cell</string>
+    <string name="preview_copy_005">Copy row</string>
+    <string name="preview_copy_006">Copy column</string>
+    <string name="preview_copy_007">Copy whole table</string>
+
+    <!-- viewer/PreviewUi.kt -->
+    <string name="preview_ui_001">Cannot read</string>
+    <string name="preview_ui_002">Formatted</string>
+    <string name="preview_ui_003">Cannot be read as JSON, so it is shown as is</string>
+    <string name="preview_ui_004">Formatted</string>
+    <string name="preview_ui_005">Cannot be read as XML, so it is shown as is</string>
+    <string name="preview_ui_006">Showing only the first %1$s MB</string>
+    <string name="preview_ui_007">Copy all text</string>
+    <string name="preview_ui_008">Copy all text</string>
+    <string name="preview_ui_009">Copy whole table</string>
+    <plurals name="preview_lines">
+        <item quantity="one">%1$d line</item>
+        <item quantity="other">%1$d lines</item>
+    </plurals>
+    <string name="preview_ui_010">Markdown · %1$s</string>
+    <string name="preview_grid_info">%1$d rows × %2$d columns · delimiter “%3$s” · %4$s</string>
+    <string name="preview_ui_011">Comma</string>
+    <string name="preview_ui_012">Tab</string>
+    <string name="preview_ui_013">Semicolon</string>
+    <string name="preview_ui_014">Vertical bar</string>
+    <string name="preview_ui_015">Close</string>
+
+    <!-- viewer/TextEdit.kt -->
+    <string name="text_edit_001">Too large to edit (up to %1$s MB)</string>
+    <string name="text_edit_002">This is not a text file, so it cannot be edited</string>
+    <string name="text_edit_003">The text encoding cannot be determined, so it cannot be edited</string>
+    <string name="text_edit_004">“%1$s” cannot be represented in %2$s. Set the encoding to UTF-8 and save</string>
+
+    <!-- viewer/UnknownUi.kt -->
+    <string name="unknown_ui_001">File type (guess): %1$s</string>
+    <string name="unknown_ui_002">Size %1$s</string>
+    <string name="unknown_ui_003">" · Possible extension: .%1$s"</string>
+    <string name="unknown_ui_004">Open in another app</string>
+
+    <!-- viewer/Vcard.kt -->
+    <string name="vcard_001">Mobile</string>
+    <string name="vcard_002">Home</string>
+    <string name="vcard_003">Work</string>
+    <string name="vcard_004">Pager</string>
+    <string name="vcard_005">Video</string>
+    <string name="vcard_006">Phone</string>
+    <string name="vcard_007">Email</string>
+    <string name="vcard_008">"%1$s "</string>
+    <string name="vcard_009">Address</string>
+    <string name="vcard_010">Birthday</string>
+    <string name="vcard_011">Notes</string>
+    <string name="vcard_012">Nickname</string>
+    <string name="vcard_013">Job title</string>
+    <string name="vcard_014">(No name)</string>
+
+    <!-- viewer/Viewer.kt -->
+    <string name="viewer_001">Close</string>
+    <string name="viewer_002">Edit</string>
+    <string name="viewer_003">Menu</string>
+    <string name="viewer_004">View as</string>
+    <string name="viewer_005">Image</string>
+    <string name="viewer_006">Source (XML)</string>
+    <string name="viewer_007">View as</string>
+    <string name="viewer_008">Drawing</string>
+    <string name="viewer_009">Text</string>
+    <string name="viewer_010">View as</string>
+    <string name="viewer_011">Comic</string>
+    <string name="viewer_012">File list</string>
+    <string name="viewer_013">Page direction</string>
+    <string name="viewer_014">Right to left (manga)</string>
+    <string name="viewer_015">Left to right</string>
+    <string name="viewer_016">View as</string>
+    <string name="viewer_017">Info</string>
+    <string name="viewer_018">File list</string>
+    <string name="viewer_019">View as</string>
+    <string name="viewer_020">Book</string>
+    <string name="viewer_021">File list</string>
+    <string name="viewer_022">View as</string>
+    <string name="viewer_023">Page</string>
+    <string name="viewer_024">Structure</string>
+    <string name="viewer_025">Source</string>
+    <string name="viewer_026">Allow JavaScript</string>
+    <string name="viewer_027">Allow loading external content</string>
+    <string name="viewer_028">Show at desktop width</string>
+    <string name="viewer_029">View as</string>
+    <string name="viewer_030">Contacts</string>
+    <string name="viewer_031">Text</string>
+    <string name="viewer_032">View as</string>
+    <string name="viewer_033">Formatted</string>
+    <string name="viewer_034">Text</string>
+    <string name="viewer_035">View as</string>
+    <string name="viewer_036">Table</string>
+    <string name="viewer_037">Text</string>
+    <string name="viewer_038">View as</string>
+    <string name="viewer_039">Image</string>
+    <string name="viewer_040">Source (XML)</string>
+    <string name="viewer_041">View as</string>
+    <string name="viewer_042">Formatted</string>
+    <string name="viewer_043">Text</string>
+    <string name="viewer_044">Use first row as header</string>
+    <string name="viewer_045">Colors</string>
+    <string name="viewer_046">Light</string>
+    <string name="viewer_047">Dark</string>
+    <string name="viewer_048">Show in original colors</string>
+    <string name="viewer_049">Edit as table</string>
+    <string name="viewer_050">Edit as text</string>
+    <string name="viewer_051">Edit</string>
+    <string name="viewer_052">Search</string>
+    <string name="viewer_053">Go to page…</string>
+    <string name="viewer_054">Layers…</string>
+    <string name="viewer_055">Photo info</string>
+    <string name="viewer_056">Extract here</string>
+    <string name="viewer_057">View</string>
+    <string name="viewer_058">File</string>
+    <string name="viewer_059">Text to find</string>
+    <string name="viewer_060">0 found</string>
+    <string name="viewer_061">Previous</string>
+    <string name="viewer_062">Next</string>
+    <string name="viewer_063">Close</string>
+
+    <!-- viewer/ViewerMenu.kt -->
+    <string name="viewer_menu_001">Open in another app</string>
+    <string name="viewer_menu_002">Share</string>
+    <string name="viewer_menu_003">Text size</string>
+    <string name="viewer_menu_004">Smaller</string>
+    <string name="viewer_menu_005">Larger</string>
+
+    <!-- viewer/Sniff.kt -->
+    <string name="sniff_001">Empty file</string>
+    <string name="sniff_002">PNG image</string>
+    <string name="sniff_003">JPEG image</string>
+    <string name="sniff_004">GIF image</string>
+    <string name="sniff_005">WebP image</string>
+    <string name="sniff_006">WAV audio</string>
+    <string name="sniff_007">AVI video</string>
+    <string name="sniff_008">ZIP format (zip, apk, docx, xlsx, jar and so on)</string>
+    <string name="sniff_009">7z archive</string>
+    <string name="sniff_010">RAR archive</string>
+    <string name="sniff_011">LZH archive</string>
+    <string name="sniff_012">gzip archive</string>
+    <string name="sniff_013">bzip2 archive</string>
+    <string name="sniff_014">xz archive</string>
+    <string name="sniff_015">Executable (ELF)</string>
+    <string name="sniff_016">Windows executable</string>
+    <string name="sniff_017">Java class file</string>
+    <string name="sniff_018">SQLite database</string>
+    <string name="sniff_019">MP3 audio</string>
+    <string name="sniff_020">FLAC audio</string>
+    <string name="sniff_021">Ogg (audio or video)</string>
+    <string name="sniff_022">Matroska / WebM video</string>
+    <string name="sniff_023">HEIC image</string>
+    <string name="sniff_024">AVIF image</string>
+    <string name="sniff_025">M4A audio</string>
+    <string name="sniff_026">QuickTime video</string>
+    <string name="sniff_027">MP4 video</string>
+    <string name="sniff_028">MPEG-TS (such as recordings)</string>
+    <string name="sniff_029">RTF document</string>
+    <string name="sniff_030">Script</string>
+    <string name="sniff_031">Key or certificate (PEM)</string>
+    <string name="sniff_032">Text</string>
+    <string name="sniff_033">Unknown data</string>
+
+    <!-- media/AudioUi.kt -->
+    <string name="audio_ui_001">Title</string>
+    <string name="audio_ui_002">Artist</string>
+    <string name="audio_ui_003">Album</string>
+    <string name="audio_ui_004">Album artist</string>
+    <string name="audio_ui_005">Composer</string>
+    <string name="audio_ui_006">Genre</string>
+    <string name="audio_ui_007">Year</string>
+    <string name="audio_ui_008">Track</string>
+    <string name="audio_ui_009">Disc</string>
+    <string name="audio_ui_010">Description</string>
+    <string name="audio_ui_011">Format</string>
+    <string name="audio_ui_012">Bitrate</string>
+    <string name="audio_ui_013">Sample rate</string>
+    <string name="audio_ui_014">Channels</string>
+    <string name="audio_ui_015">Length</string>
+    <string name="audio_ui_016">File</string>
+    <string name="audio_ui_017">File size</string>
+    <string name="audio_ui_018">Tags</string>
+    <string name="audio_ui_019">This track has no tags such as a title</string>
+    <string name="audio_ui_020">Track info</string>
+    <string name="audio_ui_021">Close</string>
+
+    <!-- media/Caf.kt -->
+    <string name="caf_001">Only part of the file could be read</string>
+    <string name="caf_002">The packet table is cut off</string>
+
+    <!-- media/MediaSupport.kt -->
+    <string name="media_support_001">Only part of the file could be read</string>
+    <string name="media_support_002">The location is unknown</string>
+    <string name="media_support_003">Cannot open the file</string>
+    <string name="media_support_004">Mono</string>
+    <string name="media_support_005">Stereo</string>
+    <string name="media_support_006">Image subtitles</string>
+    <string name="media_support_007">Audio %1$s</string>
+    <string name="media_support_008">Subtitles %1$s</string>
+
+    <!-- media/MidiPlay.kt -->
+    <string name="midi_play_001">Too large to open</string>
+    <string name="midi_play_002">Importing “%1$s”</string>
+    <string name="midi_play_003">Finished importing “%1$s”</string>
+    <string name="midi_play_004">Could not import “%1$s”</string>
+    <string name="midi_play_005">Cannot play (MIDI)</string>
+    <string name="midi_play_006">Cannot play (MIDI)</string>
+    <string name="midi_play_007">This format may not be playable on this device</string>
+    <string name="midi_play_008">Open in another app</string>
+
+    <!-- media/MusicInfo.kt -->
+    <string name="music_info_001">%1$s</string>
+    <string name="music_info_002">Track %1$s</string>
+    <string name="music_info_003">Disc %1$s</string>
+
+    <!-- media/Player.kt -->
+    <string name="player_001">Cannot play (%1$s)</string>
+    <string name="player_002">Playing audio only</string>
+    <string name="player_003">Open in another app</string>
+    <string name="player_004">This format may not be playable on this device</string>
+    <string name="player_005">Open in another app</string>
+    <string name="player_006">Playback speed (×)</string>
+    <string name="player_007">Switch audio</string>
+    <string name="player_008">Switch subtitles</string>
+    <string name="player_009">No subtitles</string>
+    <string name="player_010">Show in landscape</string>
+    <string name="player_011">Track info</string>
+    <string name="player_012">Playback</string>
+    <string name="player_013">View</string>
+    <string name="player_014">File</string>
+
+    <!-- media/PlayerChrome.kt -->
+    <string name="player_chrome_001">Close</string>
+    <string name="player_chrome_002">Menu</string>
+    <string name="player_chrome_003">Previous</string>
+    <string name="player_chrome_004">Back 10 seconds</string>
+    <string name="player_chrome_005">Pause</string>
+    <string name="player_chrome_006">Play</string>
+    <string name="player_chrome_007">Forward 10 seconds</string>
+    <string name="player_chrome_008">Next</string>
+
+    <!-- media/PlayerSetup.kt -->
+    <string name="player_setup_001">%1$s (up to %2$sx%3$s)</string>
+    <string name="player_setup_002">unknown</string>
+    <string name="player_setup_003">No decoder can play this format</string>
+    <string name="player_setup_004">It exceeds the decoder\'s limits (such as size)</string>
+    <string name="player_setup_005">This specific variant of the format is not supported</string>
+    <string name="player_setup_006">It is not in a playable state</string>
+    <string name="player_setup_007">"Cannot play the video (%1$s%2$s)\n%3$s\nDecoders on this device: "</string>
+    <string name="player_setup_008">none</string>
+
+    <!-- media/Shims.kt -->
+    <string name="shims_001">Only part of the file could be read</string>
+    <string name="shims_002">Only part of the file could be read</string>
+
+    <!-- media/Thumbs.kt -->
+    <string name="thumbs_001">The read limit for thumbnails was exceeded</string>
+
+    <!-- office/Doc.kt -->
+    <string name="doc_001">The Word document (WordDocument) was not found</string>
+    <string name="doc_002">Cannot read as a Word 97–2003 document</string>
+    <string name="doc_003">Password-protected documents cannot be opened</string>
+    <string name="doc_004">The document table (Table) was not found</string>
+    <string name="doc_005">Cannot read the text layout of the document (CLX)</string>
+    <string name="doc_006">Cannot read the text layout of the document (Pcdt)</string>
+    <string name="doc_007">The text layout of the document is empty</string>
+
+    <!-- office/Docx.kt -->
+    <string name="docx_001">Cannot read as a Word file</string>
+
+    <!-- office/Odp.kt -->
+    <string name="odp_001">Cannot read as an OpenDocument file</string>
+    <string name="odp_002">Cannot read as a presentation (.odp)</string>
+    <string name="odp_003">Embedded object (cannot be drawn in this view)</string>
+
+    <!-- office/Ods.kt -->
+    <string name="ods_001">Cannot read as an OpenDocument file</string>
+    <string name="ods_002">Cannot read as a spreadsheet (.ods)</string>
+    <string name="ods_003">Sheet%1$s</string>
+
+    <!-- office/Odt.kt -->
+    <string name="odt_001">Cannot read as an OpenDocument file</string>
+    <string name="odt_002">Cannot read as a document (.odt)</string>
+
+    <!-- office/Office.kt -->
+    <string name="office_001">Cannot read as a PowerPoint file</string>
+
+    <!-- office/OfficeUi.kt -->
+    <string name="office_ui_001">The contents look like XML (change the extension to .xml to open it)</string>
+    <string name="office_ui_002">The contents look like HTML (change the extension to .html to open it)</string>
+    <string name="office_ui_003">The contents look like a text file (change the extension to .txt or .csv to open it)</string>
+    <string name="office_ui_004">The extension may not match the contents</string>
+    <string name="office_ui_005">This is not an old-format %1$s file. %2$s</string>
+    <string name="office_ui_006">Too large to open (up to %1$s MB)</string>
+    <string name="office_ui_007">Cannot open this file</string>
+    <string name="office_ui_008">Cannot read</string>
+    <string name="office_ui_009">Cannot read as an Office document (%1$s)</string>
+    <string name="office_ui_010">Too large to load</string>
+    <string name="office_ui_011">Cannot read</string>
+    <string name="office_ui_012">This sheet is empty</string>
+    <string name="office_ui_013">Copy this sheet</string>
+    <string name="office_ui_014">It is large, so only the first part is shown</string>
+    <string name="office_sheet_info">%1$s · %2$d rows × %3$d columns</string>
+    <string name="office_ui_015">There is no text (it may be a document with only figures or tables)</string>
+    <string name="office_ui_016">Copy all text</string>
+    <string name="office_ui_017">There are no slides</string>
+    <string name="office_ui_018">Copy text from all slides</string>
+    <string name="office_ui_019">Slide %1$s\n</string>
+    <string name="office_ui_020">(no text)</string>
+
+    <!-- office/Ole2.kt -->
+    <string name="ole2_001">This is not an old-format Office file (OLE2)</string>
+    <string name="ole2_002">Cannot read the OLE2 format</string>
+    <string name="ole2_003">Cannot read the OLE2 directory</string>
+
+    <!-- office/Ppt.kt -->
+    <string name="ppt_001">The PowerPoint document (PowerPoint Document) was not found</string>
+    <string name="ppt_002">No slides were found</string>
+
+    <!-- office/PptDeck.kt -->
+    <string name="ppt_deck_001">The PowerPoint document (PowerPoint Document) was not found</string>
+    <string name="ppt_deck_002">Cannot read the structure of the PowerPoint document</string>
+    <string name="ppt_deck_003">No slides were found</string>
+
+    <!-- office/Rtf.kt -->
+    <string name="rtf_001">Cannot read as an RTF file</string>
+
+    <!-- office/SheetGridFast.kt -->
+    <string name="sheet_grid_fast_001">Close</string>
+
+    <!-- office/SlideDeck.kt -->
+    <string name="slide_deck_001">Slide %1$s\n</string>
+    <string name="slide_deck_002">Cannot read as a PowerPoint file</string>
+    <string name="slide_deck_003">Chart (cannot be drawn in this view)</string>
+    <string name="slide_deck_004">Diagram (SmartArt; cannot be drawn in this view)</string>
+    <string name="slide_deck_005">Embedded content (cannot be drawn in this view)</string>
+
+    <!-- office/SlideStyle.kt -->
+    <string name="slide_style_001">The XML is empty</string>
+
+    <!-- office/SlideUi.kt -->
+    <string name="slide_ui_001">There are no slides</string>
+    <string name="slide_ui_002">Copy text from all slides</string>
+    <string name="slide_ui_003">(hidden slide)</string>
+    <string name="slide_ui_004">Copy this text</string>
+    <string name="slide_ui_005">Copy text from this slide</string>
+    <string name="slide_ui_006">Copy text from all slides</string>
+
+    <!-- office/Xls.kt -->
+    <string name="xls_001">The Excel workbook (Workbook) was not found</string>
+    <string name="xls_002">Cannot read as an Excel workbook</string>
+    <string name="xls_003">Excel 5.0/95 and earlier formats are not supported (.xls from Excel 97 onward can be read)</string>
+    <string name="xls_004">No worksheets were found</string>
+
+    <!-- office/Xlsx.kt -->
+    <string name="xlsx_001">Cannot read as an Excel file</string>
+    <string name="xlsx_002">No sheets were found</string>
+    <string name="xlsx_003">Cannot read the sheet “%1$s”</string>
+
+    <!-- archive/ApkUi.kt -->
+    <string name="apk_ui_001">Too large to analyze (up to %1$s MB)</string>
+    <string name="apk_ui_002">Could not create a temporary file</string>
+    <string name="apk_ui_003">Cannot read as an APK (it may be damaged or incomplete)</string>
+    <string name="apk_ui_004">Cannot read as an APK</string>
+    <string name="apk_ui_005">Cannot analyze the APK (%1$s)</string>
+    <string name="apk_ui_006">Importing “%1$s”</string>
+    <string name="apk_ui_007">Finished importing “%1$s”</string>
+    <string name="apk_ui_008">Could not import “%1$s”</string>
+    <string name="apk_ui_009">This will be a new installation</string>
+    <string name="apk_ui_010">Can be updated</string>
+    <string name="apk_ui_011">Current version %1$s (%2$s) → this version %3$s (%4$s)</string>
+    <string name="apk_ui_012">The same version is installed</string>
+    <string name="apk_ui_013">Version %1$s (%2$s)</string>
+    <string name="apk_ui_014">A newer version is installed</string>
+    <string name="apk_ui_015">Current version %1$s (%2$s). To go back to an older version, uninstall the app first</string>
+    <string name="apk_ui_016">The signature differs from the installed app, so it cannot be installed over it. Uninstall the app first</string>
+    <string name="apk_ui_017">Version %1$s</string>
+    <string name="apk_ui_018">Info</string>
+    <string name="apk_ui_019">Version</string>
+    <string name="apk_ui_020">Supported Android</string>
+    <string name="apk_ui_021">%1$s or later</string>
+    <string name="apk_ui_022">Target Android</string>
+    <string name="apk_ui_023">" · compile API %1$s"</string>
+    <string name="apk_ui_024">File</string>
+    <string name="apk_ui_025">%1$s · %2$s</string>
+    <string name="apk_ui_026">Signature</string>
+    <string name="apk_ui_027">Same as the installed one</string>
+    <string name="apk_ui_028">Different from the installed one</string>
+    <string name="apk_ui_029">Required permissions (%1$s)</string>
+    <string name="apk_ui_030">None</string>
+    <string name="apk_ui_031">Permissions to be careful about</string>
+    <string name="apk_ui_032">"Other permissions (%1$s)  "</string>
+    <string name="apk_ui_033">Signature (SHA-256)</string>
+    <string name="apk_ui_034">Could not read the signature (the APK may be unsigned)</string>
+    <string name="apk_ui_035">Update</string>
+    <string name="apk_ui_036">Reinstall</string>
+    <string name="apk_ui_037">Install</string>
+
+    <!-- archive/Archives.kt -->
+    <string name="archives_001">Reading stopped partway</string>
+    <string name="archives_002">Negative position</string>
+    <string name="archives_003">Password-protected 7z is not supported</string>
+    <string name="archives_004">Cannot read as 7z (%1$s)</string>
+    <string name="archives_005">Password-protected 7z is not supported</string>
+    <string name="archives_006">Cannot read as an archive (%1$s)</string>
+    <string name="archives_007">Not found in the archive</string>
+    <string name="archives_008">Could not read as RAR. It may be password-protected or an unsupported format (%1$s)</string>
+    <string name="archives_009">Password-protected RAR is not supported</string>
+    <string name="archives_010">Unsupported archive</string>
+    <string name="archives_011">Cannot open this file</string>
+    <string name="archives_012">Too large to open (RAR up to %1$s MB)</string>
+    <string name="archives_013">Importing “%1$s”</string>
+    <string name="archives_014">Finished importing “%1$s”</string>
+    <string name="archives_015">Could not import “%1$s”</string>
+    <string name="archives_016">Reading stopped partway</string>
+    <string name="archives_017">Could not create a temporary file</string>
+
+    <!-- archive/ArchiveUi.kt -->
+    <string name="archive_ui_001">Cannot read as an archive</string>
+    <string name="archive_ui_002">Cannot read as an archive</string>
+    <string name="archive_ui_003">Too large to load</string>
+    <string name="archive_ui_004">Password-protected archives are not supported</string>
+    <string name="archive_ui_005">Too large to open (up to %1$s MB). Use “Extract here” in the menu</string>
+    <string name="archive_ui_006">Could not create a temporary file</string>
+    <string name="archive_ui_007">Could not extract</string>
+    <plurals name="archive_total">
+        <item quantity="one">%1$d file · %2$s when extracted</item>
+        <item quantity="other">%1$d files · %2$s when extracted</item>
+    </plurals>
+    <string name="archive_ui_008">Up one folder</string>
+    <plurals name="archive_dir_info">
+        <item quantity="one">%1$d item · %2$s</item>
+        <item quantity="other">%1$d items · %2$s</item>
+    </plurals>
+    <string name="archive_ui_009">Password-protected</string>
+    <string name="archive_ui_010">Extracting… %1$s</string>
+    <string name="archive_ui_011">Close</string>
+
+    <!-- archive/BundleInstall.kt -->
+    <string name="bundle_install_001">Installed</string>
+    <string name="bundle_install_002">Cancelled</string>
+    <string name="bundle_install_003">Blocked (by your device settings or another app)</string>
+    <string name="bundle_install_004">Conflicts with the installed app (for example a different signature; uninstalling it first may help)</string>
+    <string name="bundle_install_005">Not compatible with this device (CPU type or Android version)</string>
+    <string name="bundle_install_006">The APK is invalid (parts are missing or damaged)</string>
+    <string name="bundle_install_007">Not enough free space</string>
+    <string name="bundle_install_008">Failed</string>
+    <string name="bundle_install_009">Could not install: %1$s</string>
+    <string name="bundle_install_010">Allow installing from this app, then try again</string>
+    <string name="bundle_install_011">Cannot open this file</string>
+    <string name="bundle_install_012">The main APK was not found</string>
+    <string name="bundle_install_013">There are no parts for this device, so it would not run even if installed</string>
+    <plurals name="bundle_prepared">
+        <item quantity="one">%1$d part is ready. Tap “Install” on the confirmation screen</item>
+        <item quantity="other">%1$d parts are ready. Tap “Install” on the confirmation screen</item>
+    </plurals>
+    <string name="bundle_install_014">Could not open the confirmation screen</string>
+    <string name="bundle_install_015">Could not open the confirmation screen (%1$s)</string>
+
+    <!-- archive/BundleUi.kt -->
+    <string name="bundle_ui_001">Cannot open this file</string>
+    <string name="bundle_ui_002">Cannot read as a ZIP</string>
+    <string name="bundle_ui_003">It is not known whether it is installed</string>
+    <string name="bundle_ui_004">This will be a new installation</string>
+    <string name="bundle_ui_005">Can be updated</string>
+    <string name="bundle_ui_006">Current version %1$s</string>
+    <string name="bundle_ui_007">" → this version %1$s"</string>
+    <string name="bundle_ui_008">The same version is installed</string>
+    <string name="bundle_ui_009">Version %1$s</string>
+    <string name="bundle_ui_010">A newer version is installed</string>
+    <string name="bundle_ui_011">Current version %1$s. To go back to an older version, uninstall the app first</string>
+    <string name="bundle_ui_012">Already installed</string>
+    <string name="bundle_ui_013">Version %1$s</string>
+    <string name="bundle_ui_014">Version %1$s</string>
+    <string name="bundle_ui_015">Info</string>
+    <string name="bundle_ui_016">Format</string>
+    <string name="bundle_ui_017">%1$s (APK bundling the main app and its parts)</string>
+    <string name="bundle_ui_018">Version</string>
+    <string name="bundle_ui_019">Supported Android</string>
+    <string name="bundle_ui_020">%1$s or later</string>
+    <string name="bundle_ui_021">File</string>
+    <string name="bundle_ui_022">%1$s · %2$s</string>
+    <string name="bundle_ui_023">To be installed</string>
+    <string name="bundle_ui_024">The main APK was not found. This file cannot be installed</string>
+    <string name="bundle_ui_025">Main app</string>
+    <string name="bundle_ui_026">1 file (%1$s)</string>
+    <plurals name="bundle_part_dpi">
+        <item quantity="one">%1$d for screen density</item>
+        <item quantity="other">%1$d for screen density</item>
+    </plurals>
+    <plurals name="bundle_part_lang">
+        <item quantity="one">%1$d for language</item>
+        <item quantity="other">%1$d for language</item>
+    </plurals>
+    <plurals name="bundle_part_other">
+        <item quantity="one">%1$d other</item>
+        <item quantity="other">%1$d others</item>
+    </plurals>
+    <string name="bundle_ui_027">Parts</string>
+    <string name="bundle_ui_028">For CPU</string>
+    <string name="bundle_ui_029">%1$s (matches this device)</string>
+    <string name="bundle_ui_030">There are no parts for this device</string>
+    <string name="bundle_ui_031">None (common to all CPUs)</string>
+    <plurals name="bundle_total">
+        <item quantity="one">%1$d file · %2$s</item>
+        <item quantity="other">%1$d files · %2$s</item>
+    </plurals>
+    <string name="bundle_ui_032">Total</string>
+    <string name="bundle_ui_033">", "</string>
+    <plurals name="bundle_skipped">
+        <item quantity="one">%2$s (not needed on this device · %1$d file · %3$s)</item>
+        <item quantity="other">%2$s (not needed on this device · %1$d files · %3$s)</item>
+    </plurals>
+    <string name="bundle_ui_034">Not installed</string>
+    <string name="bundle_ui_035">It will not run even if installed</string>
+    <string name="bundle_ui_036">There are no parts for this device (%1$s)</string>
+    <string name="bundle_ui_037">Additional data (OBB) will not be installed</string>
+    <string name="bundle_ui_038">If you need it, extract it from “View contents”</string>
+    <string name="bundle_ui_039">Update</string>
+    <string name="bundle_ui_040">Install</string>
+    <string name="bundle_ui_041">View contents</string>
+
+    <!-- archive/Lzh.kt -->
+    <string name="lzh_001">The LZH is cut off or damaged</string>
+    <string name="lzh_002">The LZH is cut off or damaged</string>
+    <string name="lzh_003">Cannot read as LZH</string>
+    <string name="lzh_004">The LZH header is damaged</string>
+    <string name="lzh_005">The LZH header is damaged</string>
+    <string name="lzh_006">Cannot read as LZH</string>
+    <string name="lzh_007">Compression method %1$s is not supported</string>
+    <string name="lzh_008">The LZH is cut off</string>
+    <string name="lzh_009">The LZH is cut off</string>
+    <string name="lzh_010">The LZH contents are damaged (CRC mismatch)</string>
+    <string name="lzh_011">The LZH contents are damaged (CRC mismatch)</string>
+    <string name="lzh_012">The LZH codes are damaged</string>
+    <string name="lzh_013">The LZH codes are damaged</string>
+    <string name="lzh_014">The LZH codes are damaged</string>
+    <string name="lzh_015">The LZH codes are damaged</string>
+    <string name="lzh_016">The LZH codes are damaged</string>
+    <string name="lzh_017">The LZH codes are damaged</string>
+    <string name="lzh_018">The LZH codes are damaged</string>
+    <string name="lzh_019">The LZH codes are damaged</string>
+    <string name="lzh_020">The LZH codes are damaged</string>
+
+    <!-- archive/ZipReader.kt -->
+    <string name="zip_reader_001">The ZIP is cut off or damaged</string>
+    <string name="zip_reader_002">This is not a ZIP file</string>
+    <string name="zip_reader_003">This is not a ZIP file</string>
+    <string name="zip_reader_004">ZIPs over 4 GB (ZIP64) are not supported</string>
+    <string name="zip_reader_005">The ZIP is damaged</string>
+    <string name="zip_reader_006">The ZIP directory is damaged</string>
+    <string name="zip_reader_007">ZIPs over 4 GB (ZIP64) are not supported</string>
+    <string name="zip_reader_008">The ZIP directory is damaged</string>
+    <string name="zip_reader_009">Password-protected ZIP is not supported</string>
+    <string name="zip_reader_010">The ZIP is damaged: %1$s</string>
+    <string name="zip_reader_011">ZIP with an unsupported compression method (%1$s): %2$s</string>
+    <string name="zip_reader_012">The ZIP is cut off</string>
+
+    <!-- cad/Cad.kt -->
+    <string name="cad_001">Too many shapes to display</string>
+    <string name="cad_002">There are no shapes</string>
+
+    <!-- cad/CadUi.kt -->
+    <string name="cad_ui_001">DWG (AutoCAD drawing) cannot be shown because its format is not public.</string>
+    <string name="cad_ui_002">\nVersion: %1$s</string>
+    <string name="cad_ui_003">\nExport it to DXF to view it.</string>
+    <string name="cad_ui_004">Too large to show (up to %1$s MB)</string>
+    <string name="cad_ui_005">Cannot read as a drawing</string>
+    <string name="cad_ui_006">Cannot read</string>
+    <string name="cad_ui_007">Cannot read</string>
+    <string name="cad_ui_008">Too large to load</string>
+    <string name="cad_ui_009">R11 · R12</string>
+    <string name="cad_ui_010">Shapes %1$s · layers %2$s</string>
+    <string name="cad_ui_011">(shown %1$s)</string>
+    <string name="cad_ui_012">" · %1$s"</string>
+    <string name="cad_ui_013">Layers (%1$s)</string>
+    <string name="cad_ui_014">Close</string>
+    <string name="cad_ui_015">Show all</string>
+    <string name="cad_ui_016">Hide all</string>
+
+    <!-- cad/DiagramUi.kt -->
+    <string name="diagram_ui_001">Too large to show (up to %1$s MB)</string>
+    <string name="diagram_ui_002">Cannot read as a draw.io diagram</string>
+    <string name="diagram_ui_003">Cannot read</string>
+    <string name="diagram_ui_004">Too large to load</string>
+
+    <!-- cad/Drawio.kt -->
+    <string name="drawio_001">Page-%1$s</string>
+    <string name="drawio_002">Page-1</string>
+    <string name="drawio_003">Image</string>
+
+    <!-- cad/Dxf.kt -->
+    <string name="dxf_001">Binary DXF is not supported</string>
+    <plurals name="dxf_unsupported_all">
+        <item quantity="one">The shapes in this file are not supported (%1$d shape)</item>
+        <item quantity="other">The shapes in this file are not supported (%1$d shapes)</item>
+    </plurals>
+    <plurals name="dxf_unsupported_some">
+        <item quantity="one">%1$d unsupported shape was found</item>
+        <item quantity="other">%1$d unsupported shapes were found</item>
+    </plurals>
+
+    <!-- cad/Jwc.kt -->
+    <string name="jwc_001">The JW_CAD (old format) header is too short</string>
+    <string name="jwc_002">Cannot read as JW_CAD (old format .jwc)</string>
+    <string name="jwc_003">The JW_CAD (old format) header is too short</string>
+    <string name="jwc_004">Cannot read the JW_CAD (old format) header</string>
+    <string name="jwc_005">Cannot read the number of shapes in the JW_CAD (old format) file</string>
+    <string name="jwc_006">The JW_CAD (old format) file has too many shapes</string>
+    <string name="jwc_007">Cannot read the text area of the JW_CAD (old format) file</string>
+    <string name="jwc_008">Cannot read the text area of the JW_CAD (old format) file</string>
+    <string name="jwc_009">Cannot read the text area of the JW_CAD (old format) file</string>
+    <string name="jwc_010">The JW_CAD (old format) data ends unexpectedly</string>
+
+    <!-- cad/Jww.kt -->
+    <string name="jww_001">The JW_CAD data ends unexpectedly</string>
+    <string name="jww_002">Cannot read a JW_CAD string</string>
+    <string name="jww_003">Cannot read a JW_CAD shape type</string>
+    <string name="jww_004">Cannot read a JW_CAD shape type</string>
+    <string name="jww_005">Cannot read a JW_CAD shape reference</string>
+    <string name="jww_006">The JW_CAD shape (%1$s) is not supported</string>
+    <string name="jww_007">Cannot read as JW_CAD (.jww)</string>
+    <string name="jww_008">Cannot read the JW_CAD header</string>
+    <string name="jww_009">No JW_CAD shapes were found</string>
+    <string name="jww_010">There are no shapes</string>
+    <string name="jww_011">Only part of the file could be read</string>
+
+    <!-- cad/MeshFormats.kt -->
+    <string name="mesh_formats_001">Too large to show (too many vertices)</string>
+    <string name="mesh_formats_002">There are no points</string>
+    <string name="mesh_formats_003">There are no triangles</string>
+    <string name="mesh_formats_004">Cannot read as a 3D model</string>
+    <string name="mesh_formats_005">Too large to show (up to %1$s MB)</string>
+    <string name="mesh_formats_006">The OBJ has no faces</string>
+    <string name="mesh_formats_007">Cannot read as OFF</string>
+    <string name="mesh_formats_008">Cannot read as OFF</string>
+    <string name="mesh_formats_009">Cannot read as OFF</string>
+    <string name="mesh_formats_010">Cannot read as OFF</string>
+    <string name="mesh_formats_011">Cannot read as OFF</string>
+    <string name="mesh_formats_012">Cannot read as OFF</string>
+    <string name="mesh_formats_013">Cannot read as OFF</string>
+    <string name="mesh_formats_014">The OFF has too few vertices</string>
+    <string name="mesh_formats_015">Cannot read the OFF vertices</string>
+    <string name="mesh_formats_016">The OFF has no faces</string>
+    <string name="mesh_formats_017">The PLY data ends unexpectedly</string>
+    <string name="mesh_formats_018">The PLY data ends unexpectedly</string>
+    <string name="mesh_formats_019">Cannot read as PLY</string>
+    <string name="mesh_formats_020">Cannot read as PLY</string>
+    <string name="mesh_formats_021">The PLY header ends unexpectedly</string>
+    <string name="mesh_formats_022">Cannot read a PLY type</string>
+    <string name="mesh_formats_023">Cannot read a PLY type</string>
+    <string name="mesh_formats_024">Cannot read a PLY type</string>
+    <string name="mesh_formats_025">The PLY format (%1$s) is not supported</string>
+    <string name="mesh_formats_026">Too large to show</string>
+    <string name="mesh_formats_027">Cannot read the PLY data</string>
+    <string name="mesh_formats_028">The PLY has no coordinates</string>
+    <string name="mesh_formats_029">The PLY has no vertices</string>
+    <string name="mesh_formats_030">The 3MF has no model</string>
+    <string name="mesh_formats_031">Cannot read as 3MF</string>
+    <string name="mesh_formats_032">The 3MF has no triangles</string>
+
+    <!-- cad/ModelUi.kt -->
+    <string name="model_ui_001">Cannot read</string>
+    <string name="model_ui_002">Cannot read</string>
+    <string name="model_ui_003">Too large to load</string>
+    <plurals name="model_points">
+        <item quantity="one">%1$d point</item>
+        <item quantity="other">%1$d points</item>
+    </plurals>
+    <plurals name="model_triangles">
+        <item quantity="one">%1$d triangle</item>
+        <item quantity="other">%1$d triangles</item>
+    </plurals>
+    <string name="model_ui_004">" · width %1$s × depth %2$s × height %3$s"</string>
+
+    <!-- cad/Stl.kt -->
+    <string name="stl_001">Cannot read as STL</string>
+    <string name="stl_002">Too large to show (up to %1$s MB)</string>
+    <string name="stl_003">Too large to show (up to %1$s MB)</string>
+    <string name="stl_004">There are no triangles</string>
+    <string name="stl_005">There are no triangles</string>
+    <string name="stl_006">Cannot read as STL</string>
+    <string name="stl_007">There are no triangles</string>
+
+    <!-- web/ComicUi.kt -->
+    <string name="comic_ui_001">No image pages were found. Switch to “File list” in the menu to see the contents</string>
+    <string name="comic_ui_002">Cannot read</string>
+    <string name="comic_ui_003">Cannot read</string>
+    <string name="comic_ui_004">Too large to load</string>
+    <string name="comic_ui_005">This page is too large to show</string>
+    <string name="comic_ui_006">Cannot read</string>
+    <string name="comic_ui_007">This page cannot be shown</string>
+    <string name="comic_ui_008">(right to left)</string>
+    <string name="comic_ui_009">(left to right)</string>
+
+    <!-- web/Epub.kt -->
+    <string name="epub_001">Cannot read as EPUB (META-INF/container.xml is missing)</string>
+    <string name="epub_002">Cannot read as EPUB (the book\'s package file was not found)</string>
+    <string name="epub_003">Cannot read as EPUB (the package file %1$s is missing)</string>
+
+    <!-- web/EpubUi.kt -->
+    <string name="epub_ui_001">Cannot read</string>
+    <string name="epub_ui_002">The body text was not found. Switch to “File list” in the menu to see the contents</string>
+    <string name="epub_ui_003">Cannot read as EPUB</string>
+    <string name="epub_ui_004">Cannot read as EPUB (%1$s)</string>
+    <string name="epub_ui_005">Too large to load</string>
+    <string name="epub_ui_006">Previous chapter</string>
+    <string name="epub_ui_007">Contents</string>
+    <string name="epub_ui_008">Book info</string>
+    <string name="epub_ui_009">Next chapter</string>
+    <string name="epub_ui_010">Contents</string>
+    <string name="epub_ui_011">Close</string>
+    <string name="epub_ui_012">Title</string>
+    <string name="epub_ui_013">Author</string>
+    <string name="epub_ui_014">", "</string>
+    <string name="epub_ui_015">Publisher</string>
+    <string name="epub_ui_016">Language</string>
+    <string name="epub_ui_017">Date</string>
+    <string name="epub_ui_018">Identifier</string>
+    <string name="epub_ui_019">Number of chapters</string>
+    <string name="epub_ui_020">Reading direction</string>
+    <string name="epub_ui_021">Right to left (such as vertical-writing books)</string>
+    <string name="epub_ui_022">Left to right</string>
+    <string name="epub_ui_023">File</string>
+    <string name="epub_ui_024">File size</string>
+    <string name="epub_ui_025">Book info</string>
+    <string name="epub_ui_026">Close</string>
+    <string name="epub_ui_027">Open the link?</string>
+    <string name="epub_ui_028">Open</string>
+    <string name="epub_ui_029">Cancel</string>
+
+    <!-- web/HtmlUi.kt -->
+    <string name="html_ui_001">Cannot read</string>
+    <string name="html_ui_002">Too large to load</string>
+    <string name="html_ui_003">Open the link?</string>
+    <string name="html_ui_004">Open</string>
+    <string name="html_ui_005">Cancel</string>
+
+    <!-- web/MhtmlUi.kt -->
+    <string name="mhtml_ui_001">Too large to open (up to %1$s MB). Switch to “Source” in the menu</string>
+    <string name="mhtml_ui_002">Cannot read as a web archive (Safari\'s save format)</string>
+    <string name="mhtml_ui_003">Cannot read as MHTML (a web page save format)</string>
+    <string name="mhtml_ui_004">The body HTML was not found. Switch to “Source” in the menu to see the contents</string>
+    <string name="mhtml_ui_005">Cannot read</string>
+    <string name="mhtml_ui_006">Too large to load</string>
+    <string name="mhtml_ui_007">Open the link?</string>
+    <string name="mhtml_ui_008">Open</string>
+    <string name="mhtml_ui_009">Cancel</string>
+
+    <!-- apple/AppleUi.kt -->
+    <string name="apple_ui_001">Cannot open this file</string>
+    <string name="apple_ui_002">Cannot read</string>
+    <string name="apple_ui_003">Cannot read as an iWork document (zip). The contents may be in another format</string>
+    <string name="apple_ui_004">Cannot read</string>
+    <string name="apple_ui_005">Cannot read as an iWork document (%1$s)</string>
+    <string name="apple_ui_006">Too large to load</string>
+    <string name="apple_ui_007">%1$s document</string>
+    <string name="apple_ui_008">Old format (iWork \'09 or earlier)</string>
+    <string name="apple_ui_009">iWork \'13 or later format</string>
+    <string name="apple_ui_010">Preview</string>
+    <string name="apple_ui_011">The preview image saved in the document (page 1)</string>
+    <string name="apple_ui_012">The document has no preview image</string>
+    <string name="apple_ui_013">Open the full PDF (the preview in the document)</string>
+    <string name="apple_ui_014">View the list of files inside</string>
+    <string name="apple_ui_015">Info</string>
+    <string name="apple_ui_016">File</string>
+    <string name="apple_ui_017">%1$s · %2$s</string>
+    <plurals name="apple_media_info">
+        <item quantity="one">%1$d item · %2$s</item>
+        <item quantity="other">%1$d items · %2$s</item>
+    </plurals>
+    <string name="apple_ui_018">Assets such as images</string>
+    <string name="apple_ui_019">Version history</string>
+    <plurals name="apple_texts_heading">
+        <item quantity="one">Text in the document (%1$d line)</item>
+        <item quantity="other">Text in the document (%1$d lines)</item>
+    </plurals>
+    <string name="apple_ui_020">None</string>
+    <string name="apple_ui_021">The order may differ from how the document looks</string>
+    <plurals name="apple_texts_more">
+        <item quantity="one">…and %1$d more line</item>
+        <item quantity="other">…and %1$d more lines</item>
+    </plurals>
+    <string name="apple_ui_022">Cannot extract the PDF</string>
+    <string name="apple_ui_023">Cannot read</string>
+    <string name="apple_ui_024">Cannot read as ipa (zip)</string>
+    <string name="apple_ui_025">Cannot read</string>
+    <string name="apple_ui_026">Cannot read as an iPhone app (%1$s)</string>
+    <string name="apple_ui_027">This is an iPhone / iPad app. It cannot be installed on Android (you can only look inside).</string>
+    <string name="apple_ui_028">Version</string>
+    <string name="apple_ui_029">Required iOS</string>
+    <string name="apple_ui_030">%1$s or later</string>
+    <string name="apple_ui_031">Unknown</string>
+    <string name="apple_ui_032">Target devices</string>
+    <string name="apple_ui_033">Unknown</string>
+    <string name="apple_ui_034">Executable</string>
+    <string name="apple_ui_035">Unknown</string>
+    <string name="apple_ui_036">Signature</string>
+    <string name="apple_ui_037">A signature record (_CodeSignature) is present</string>
+    <string name="apple_ui_038">There is no signature record</string>
+    <string name="apple_ui_039">Profile</string>
+    <plurals name="apple_ipa_file">
+        <item quantity="one">%2$s · %1$d file</item>
+        <item quantity="other">%2$s · %1$d files</item>
+    </plurals>
+    <string name="apple_ui_040">File</string>
+    <string name="apple_ui_041">Background activity</string>
+    <string name="apple_ui_042">URL schemes</string>
+    <string name="apple_ui_043">View the list of files inside</string>
+    <string name="apple_ui_044">Permissions used (%1$s)</string>
+    <string name="apple_ui_045">None</string>
+
+    <!-- apple/Iwork.kt -->
+    <string name="iwork_001">Cannot read the start of the Snappy data</string>
+    <string name="iwork_002">The data is too large once extracted</string>
+    <string name="iwork_003">The Snappy length is insufficient</string>
+    <string name="iwork_004">The Snappy data is insufficient</string>
+    <string name="iwork_005">The Snappy data is cut off</string>
+    <string name="iwork_006">The Snappy data is cut off</string>
+    <string name="iwork_007">The Snappy data is cut off</string>
+    <string name="iwork_008">A Snappy reference is damaged</string>
+    <string name="iwork_009">The extracted size of the Snappy data does not match</string>
+    <string name="iwork_010">Cannot read as an iWork document (no Index/*.iwa, index.xml or preview)</string>
+    <string name="iwork_011">File format version: %1$s</string>
+    <string name="iwork_012">The body XML is too large, so the text was not extracted</string>
+    <string name="iwork_013">Could not extract the text (%1$s)</string>
+    <string name="iwork_014">No text was found</string>
+    <string name="iwork_015">Camera</string>
+    <string name="iwork_016">Microphone</string>
+    <string name="iwork_017">Photos</string>
+    <string name="iwork_018">Adding photos</string>
+    <string name="iwork_019">Location (while in use)</string>
+    <string name="iwork_020">Location (always)</string>
+    <string name="iwork_021">Location (always and while in use)</string>
+    <string name="iwork_022">Contacts</string>
+    <string name="iwork_023">Calendars</string>
+    <string name="iwork_024">Reminders</string>
+    <string name="iwork_025">Bluetooth (peripherals)</string>
+    <string name="iwork_026">Motion</string>
+    <string name="iwork_027">Health (read)</string>
+    <string name="iwork_028">Health (write)</string>
+    <string name="iwork_029">Speech recognition</string>
+    <string name="iwork_030">Local network</string>
+    <string name="iwork_031">Tracking</string>
+    <string name="iwork_032">Music</string>
+    <string name="iwork_033">The iPhone app (Payload/…app/Info.plist) was not found</string>
+    <string name="iwork_034">Cannot read Info.plist</string>
+    <string name="iwork_035">Type %1$s</string>
+    <string name="iwork_036">Team: %1$s</string>
+    <string name="iwork_037">Expires: %1$s</string>
+
+    <!-- apple/Pkpass.kt -->
+    <string name="pkpass_001">QR code</string>
+    <string name="pkpass_002">Aztec code</string>
+    <string name="pkpass_003">Ticket</string>
+    <string name="pkpass_004">Boarding pass or transit ticket</string>
+    <string name="pkpass_005">Coupon</string>
+    <string name="pkpass_006">Store card</string>
+    <string name="pkpass_007">Pass</string>
+    <string name="pkpass_008">The pass (pass.json) was not found</string>
+    <string name="pkpass_009">pass.json has the wrong structure</string>
+
+    <!-- apple/PkpassUi.kt -->
+    <string name="pkpass_ui_001">Cannot open this file</string>
+    <string name="pkpass_ui_002">Cannot read</string>
+    <string name="pkpass_ui_003">Cannot read as a pass (%1$s)</string>
+    <string name="pkpass_ui_004">%1$s (the image is not shown; text for reading is shown instead)</string>
+    <string name="pkpass_ui_005">%1$s%2$s</string>
+    <string name="pkpass_ui_006">Description</string>
+    <string name="pkpass_ui_007">Issuer</string>
+    <string name="pkpass_ui_008">Transit type</string>
+    <string name="pkpass_ui_009">Serial number</string>
+    <string name="pkpass_ui_010">Relevant date</string>
+    <string name="pkpass_ui_011">Expiration</string>
+    <string name="pkpass_ui_012">Locations</string>
+    <string name="pkpass_ui_013">Back of the pass</string>
+
+    <!-- apple/Plist.kt -->
+    <string name="plist_001">Cannot read as a binary plist</string>
+    <string name="plist_002">Cannot read the trailer of the binary plist</string>
+    <string name="plist_003">The binary plist is nested too deeply or damaged</string>
+    <string name="plist_004">A position in the binary plist is damaged</string>
+    <string name="plist_005">The data in the binary plist is damaged</string>
+    <string name="plist_006">A string in the binary plist is damaged</string>
+    <string name="plist_007">A string in the binary plist is damaged</string>
+    <string name="plist_008">An array in the binary plist is damaged</string>
+    <string name="plist_009">A dictionary in the binary plist is damaged</string>
+    <string name="plist_010">The binary plist has an unknown type (0x%1$s)</string>
+    <string name="plist_011">Cannot read as a plist (XML)</string>
+    <string name="plist_012">The plist is empty</string>
+    <string name="plist_013">The plist is nested too deeply</string>
+    <string name="plist_014">"… (total "</string>
+    <string name="plist_015">" bytes)"</string>
+    <string name="plist_016">Binary plist → XML</string>
+    <string name="plist_017">Contents of the signed plist</string>
+    <string name="plist_018">Contents of the signed plist</string>
+
+    <!-- data/FontInfo.kt -->
+    <string name="font_info_001">Latin letters and digits (ABC abc 123)</string>
+    <string name="font_info_002">Hiragana</string>
+    <string name="font_info_003">Katakana</string>
+    <string name="font_cover_kanji">Kanji (common use)</string>
+    <string name="font_cover_symbols">Full-width symbols (。、「」)</string>
+    <string name="font_info_004">Hangul</string>
+    <string name="font_info_005">Cyrillic</string>
+    <string name="font_info_006">Greek</string>
+    <string name="font_info_007">Accented Latin letters (é ü ñ)</string>
+
+    <!-- data/FontUi.kt -->
+    <string name="font_ui_001">Too large to open (up to %1$s MB)</string>
+    <string name="font_ui_002">Cannot create a temporary file</string>
+    <string name="font_ui_003">Cannot read as a font file</string>
+    <string name="font_ui_004">Cannot open</string>
+    <string name="font_ui_005">Cannot open (%1$s)</string>
+    <string name="font_ui_006">Too large to load</string>
+    <string name="font_ui_007">Importing “%1$s”</string>
+    <string name="font_ui_008">Finished importing “%1$s”</string>
+    <string name="font_ui_009">Could not import “%1$s”</string>
+    <string name="font_ui_010">Sample text (editable)</string>
+    <string name="font_ui_011">Character samples</string>
+    <string name="font_ui_012">Info</string>
+    <string name="font_ui_013">Family</string>
+    <string name="font_ui_014">Style</string>
+    <string name="font_ui_015">Full name</string>
+    <string name="font_ui_016">Japanese name</string>
+    <string name="font_ui_017">Version</string>
+    <string name="font_ui_018">Number of glyphs</string>
+    <string name="font_ui_019">Weight</string>
+    <string name="font_ui_020">Unknown</string>
+    <string name="font_ui_021">Format</string>
+    <string name="font_ui_022">OpenType (CFF outlines)</string>
+    <string name="font_ui_023">TrueType (glyf outlines)</string>
+    <string name="font_ui_024">" · variable font (shown at the default weight)"</string>
+    <string name="font_ui_025">Character width</string>
+    <string name="font_ui_026">Monospaced</string>
+    <string name="font_ui_027">Proportional</string>
+    <string name="font_ui_028">File</string>
+    <string name="font_ui_029">File size</string>
+    <string name="font_ui_030">Designer</string>
+    <string name="font_ui_031">License</string>
+    <string name="font_ui_032">Copyright</string>
+    <plurals name="font_collection">
+        <item quantity="one">%1$d font in the file (only the first is shown)</item>
+        <item quantity="other">%1$d fonts in the file (only the first is shown)</item>
+    </plurals>
+    <string name="font_ui_033">Number of fonts</string>
+    <string name="font_ui_034">Supported characters</string>
+
+    <!-- data/SqlFormat.kt -->
+    <plurals name="blob_size">
+        <item quantity="one">BLOB %1$,d byte</item>
+        <item quantity="other">BLOB %1$,d bytes</item>
+    </plurals>
+
+    <!-- data/SqliteUi.kt -->
+    <string name="sqlite_ui_001">Too large to open (up to %1$s MB)</string>
+    <string name="sqlite_ui_002">Cannot create a temporary file</string>
+    <string name="sqlite_ui_003">This is not a SQLite database (it may be another format or encrypted)</string>
+    <string name="sqlite_ui_004">Cannot open</string>
+    <string name="sqlite_ui_005">Cannot open (%1$s)</string>
+    <string name="sqlite_ui_006">Too large to load</string>
+    <string name="sqlite_ui_007">Importing “%1$s”</string>
+    <string name="sqlite_ui_008">Finished importing “%1$s”</string>
+    <string name="sqlite_ui_009">Could not import “%1$s”</string>
+    <plurals name="sqlite_schema_title">
+        <item quantity="one">Schema (how it is created) · %1$d object</item>
+        <item quantity="other">Schema (how it is created) · %1$d objects</item>
+    </plurals>
+    <plurals name="sqlite_rows_limited">
+        <item quantity="one">" · %1$d row (up to the first %2$d rows)"</item>
+        <item quantity="other">" · %1$d rows (up to the first %2$d rows)"</item>
+    </plurals>
+    <plurals name="sqlite_rows_plain">
+        <item quantity="one">" · %1$d row"</item>
+        <item quantity="other">" · %1$d rows"</item>
+    </plurals>
+    <string name="sqlite_ui_010">Query result</string>
+    <string name="sqlite_table_title">Table %1$s</string>
+    <string name="sqlite_view_title">View %1$s</string>
+    <plurals name="sqlite_rows_suffix">
+        <item quantity="one">" · %1$,d row"</item>
+        <item quantity="other">" · %1$,d rows"</item>
+    </plurals>
+    <plurals name="sqlite_cols_suffix">
+        <item quantity="one">" · %1$d column"</item>
+        <item quantity="other">" · %1$d columns"</item>
+    </plurals>
+    <string name="sqlite_ui_011">No results</string>
+    <string name="sqlite_ui_012">There are no rows (columns: %1$s)</string>
+    <plurals name="sqlite_prev_rows">
+        <item quantity="one">Previous %1$d row</item>
+        <item quantity="other">Previous %1$d rows</item>
+    </plurals>
+    <plurals name="sqlite_page_range">
+        <item quantity="one">%2$d–%3$d / %1$,d row</item>
+        <item quantity="other">%2$d–%3$d / %1$,d rows</item>
+    </plurals>
+    <plurals name="sqlite_next_rows">
+        <item quantity="one">Next %1$d row</item>
+        <item quantity="other">Next %1$d rows</item>
+    </plurals>
+    <string name="sqlite_ui_013">Schema</string>
+    <string name="sqlite_ui_014">SQL query…</string>
+    <string name="sqlite_ui_015">Search with SQL</string>
+    <string name="sqlite_ui_016">You can run one read-only query (such as SELECT). The data does not change.</string>
+    <string name="sqlite_ui_017">Write one read-only query (such as SELECT)</string>
+    <string name="sqlite_ui_018">Run</string>
+    <string name="sqlite_ui_019">Close</string>
+    <string name="sqlite_ui_020">(created automatically)</string>
 </resources>

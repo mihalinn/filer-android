@@ -60,13 +60,13 @@ object Drawio {
                 "mxfile" -> {
                     val diagrams = children(root, "diagram")
                     for ((i, d) in diagrams.withIndex()) {
-                        val name = d.getAttribute("name").ifBlank { "ページ-${i + 1}" }
+                        val name = d.getAttribute("name").ifBlank { Txt(R.string.drawio_001, i + 1) }
                         val model = children(d, "mxGraphModel").firstOrNull()
                             ?: decompress(d.textContent)?.let { documentOf(it) }?.takeIf { it.tagName == "mxGraphModel" }
                         if (model != null) models.add(name to model)
                     }
                 }
-                "mxGraphModel" -> models.add("ページ-1" to root)
+                "mxGraphModel" -> models.add(Txt(R.string.drawio_002) to root)
                 else -> return null
             }
             if (models.isEmpty()) return null
@@ -360,7 +360,7 @@ object Drawio {
             raw == "swimlane" -> "swimlane"
             raw == "text" -> "text"
             raw == "image" || st.containsKey("image") -> {
-                note = "画像"
+                note = Txt(R.string.drawio_003)
                 "image"
             }
             raw.startsWith("mxgraph.") -> {

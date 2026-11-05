@@ -32,12 +32,12 @@ class LzhReader(private val src: RandomSource) {
     val entries: List<Entry> = readEntries()
 
     private fun readAt(pos: Long, len: Int): ByteArray {
-        if (len < 0 || pos < 0 || pos + len > src.size) throw OpException("LZHが途中で切れているか、壊れています")
+        if (len < 0 || pos < 0 || pos + len > src.size) throw OpException(Txt(R.string.lzh_001))
         val b = ByteArray(len)
         var got = 0
         while (got < len) {
             val n = src.readAt(pos + got, b, got, len - got)
-            if (n <= 0) throw OpException("LZHが途中で切れているか、壊れています")
+            if (n <= 0) throw OpException(Txt(R.string.lzh_002))
             got += n
         }
         return b
@@ -58,7 +58,7 @@ class LzhReader(private val src: RandomSource) {
             }
             val methodOk = isMethod(head)
             if (total < 24 || total > MAX_HEADER || !methodOk || pos + total > src.size) {
-                if (out.isEmpty()) throw OpException("LZHとして読めません")
+                if (out.isEmpty()) throw OpException(Txt(R.string.lzh_003))
                 break
             }
             val h = if (total <= head.size) head.copyOf(total) else readAt(pos, total)
@@ -66,19 +66,19 @@ class LzhReader(private val src: RandomSource) {
                 var sum = 0
                 for (i in 2 until total) sum += h[i].toInt() and 0xFF
                 if ((sum and 0xFF) != (h[1].toInt() and 0xFF)) {
-                    if (out.isEmpty()) throw OpException("LZHの見出しが壊れています")
+                    if (out.isEmpty()) throw OpException(Txt(R.string.lzh_004))
                     break
                 }
             }
             val e = parse(h, level, total, pos)
             if (e.second < 0) {
-                if (out.isEmpty()) throw OpException("LZHの見出しが壊れています")
+                if (out.isEmpty()) throw OpException(Txt(R.string.lzh_005))
                 break
             }
             e.first?.let { out.add(it) }
             pos = e.second
         }
-        if (out.isEmpty() && src.size > 1) throw OpException("LZHとして読めません")
+        if (out.isEmpty() && src.size > 1) throw OpException(Txt(R.string.lzh_006))
         return out
     }
 
@@ -169,7 +169,7 @@ class LzhReader(private val src: RandomSource) {
             "-lh5-" -> LhDecoder(packed, 13, e.size, e.crc)
             "-lh6-" -> LhDecoder(packed, 15, e.size, e.crc)
             "-lh7-" -> LhDecoder(packed, 16, e.size, e.crc)
-            else -> throw OpException("圧縮方式 ${e.method} は未対応")
+            else -> throw OpException(Txt(R.string.lzh_007, e.method))
         }
     }
 
@@ -236,7 +236,7 @@ internal class PackedBytes(private val src: RandomSource, private var pos: Long,
             var got = 0
             while (got < want) {
                 val n = src.readAt(pos + got, buf, got, want - got)
-                if (n <= 0) throw IOException("LZHが途中で切れています")
+                if (n <= 0) throw IOException(Txt(R.string.lzh_008))
                 got += n
             }
             bufStart = pos
@@ -275,12 +275,12 @@ private class StoredInput(private val packed: PackedBytes, private val total: Lo
         var n = 0
         while (n < want) {
             val c = packed.next()
-            if (c < 0) throw IOException("LZHが途中で切れています")
+            if (c < 0) throw IOException(Txt(R.string.lzh_009))
             b[off + n++] = c.toByte()
             crc = Crc16.update(crc, c)
         }
         done += n
-        if (done >= total && crc != expectedCrc) throw IOException("LZHの中身が壊れています(CRCが合いません)")
+        if (done >= total && crc != expectedCrc) throw IOException(Txt(R.string.lzh_010))
         return n
     }
 }
@@ -356,7 +356,7 @@ private class LhDecoder(
             crc = Crc16.update(crc, v.toInt() and 0xFF)
         }
         produced += n
-        if (produced >= total && crc != expectedCrc) throw IOException("LZHの中身が壊れています(CRCが合いません)")
+        if (produced >= total && crc != expectedCrc) throw IOException(Txt(R.string.lzh_011))
         return n
     }
 
@@ -385,7 +385,7 @@ private class LhDecoder(
         if (j >= nchar) {
             var mask = 1 shl (15 - bits)
             do {
-                if (mask == 0) throw IOException("LZHの符号が壊れています")
+                if (mask == 0) throw IOException(Txt(R.string.lzh_012))
                 j = if (bitbuf and mask != 0) right[j] else left[j]
                 mask = mask ushr 1
             } while (j >= nchar)
@@ -401,7 +401,7 @@ private class LhDecoder(
             java.util.Arrays.fill(ptTable, c)
             return
         }
-        if (n > nn) throw IOException("LZHの符号が壊れています")
+        if (n > nn) throw IOException(Txt(R.string.lzh_013))
         var i = 0
         while (i < n) {
             var c = bitbuf ushr 13
@@ -410,7 +410,7 @@ private class LhDecoder(
                 while (bitbuf and mask != 0) {
                     mask = mask ushr 1
                     c++
-                    if (mask == 0) throw IOException("LZHの符号が壊れています")
+                    if (mask == 0) throw IOException(Txt(R.string.lzh_014))
                 }
             }
             fillBuf(if (c < 7) 3 else c - 3)
@@ -432,7 +432,7 @@ private class LhDecoder(
             java.util.Arrays.fill(cTable, c)
             return
         }
-        if (n > NC) throw IOException("LZHの符号が壊れています")
+        if (n > NC) throw IOException(Txt(R.string.lzh_015))
         var i = 0
         while (i < n) {
             var c = huff(ptTable, pLeft, pRight, 8, NT)
@@ -443,7 +443,7 @@ private class LhDecoder(
                     1 -> getBits(4) + 3
                     else -> getBits(9) + 20
                 }
-                if (i + c > NC) throw IOException("LZHの符号が壊れています")
+                if (i + c > NC) throw IOException(Txt(R.string.lzh_016))
                 while (--c >= 0) cLen[i++] = 0
             } else {
                 cLen[i++] = (c - 2).toByte()
@@ -481,11 +481,11 @@ private class LhDecoder(
         val start = IntArray(18)
         for (i in 0 until nchar) {
             val bl = bitlen[i].toInt()
-            if (bl < 0 || bl > 16) throw IOException("LZHの符号が壊れています")
+            if (bl < 0 || bl > 16) throw IOException(Txt(R.string.lzh_017))
             count[bl]++
         }
         for (i in 1..16) start[i + 1] = start[i] + (count[i] shl (16 - i))
-        if ((start[17] and 0xFFFF) != 0) throw IOException("LZHの符号が壊れています")
+        if ((start[17] and 0xFFFF) != 0) throw IOException(Txt(R.string.lzh_018))
         val jutbits = 16 - tableBits
         for (i in 1..tableBits) {
             start[i] = start[i] ushr jutbits
@@ -505,7 +505,7 @@ private class LhDecoder(
             var k = start[len]
             val next = k + weight[len]
             if (len <= tableBits) {
-                if (next > table.size) throw IOException("LZHの符号が壊れています")
+                if (next > table.size) throw IOException(Txt(R.string.lzh_019))
                 for (x in k until next) table[x] = ch
             } else {
                 var arr = table
@@ -513,7 +513,7 @@ private class LhDecoder(
                 var n = len - tableBits
                 while (n != 0) {
                     if (arr[idx] == 0) {
-                        if (avail >= left.size) throw IOException("LZHの符号が壊れています")
+                        if (avail >= left.size) throw IOException(Txt(R.string.lzh_020))
                         left[avail] = 0
                         right[avail] = 0
                         arr[idx] = avail++

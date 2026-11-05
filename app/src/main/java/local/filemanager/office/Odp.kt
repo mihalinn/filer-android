@@ -6,10 +6,10 @@ internal object Odp {
     private const val DEFAULT_H = 405f
 
     fun parse(read: (String) -> ByteArray?): SlideDeck {
-        val content = Odf.xml(read, "content.xml") ?: throw OpException("OpenDocumentのファイルとして読めません")
+        val content = Odf.xml(read, "content.xml") ?: throw OpException(Txt(R.string.odp_001))
         val styles = Odf.xml(read, "styles.xml")
         val st = OdfStyles(styles, content)
-        val pres = content.child("body")?.child("presentation") ?: throw OpException("プレゼンテーション(.odp)として読めません")
+        val pres = content.child("body")?.child("presentation") ?: throw OpException(Txt(R.string.odp_002))
 
         // ページの大きさ: マスターページ → ページレイアウト
         val layouts = HashMap<String, Pair<Float, Float>>()
@@ -121,7 +121,7 @@ internal object Odp {
                 return
             }
             if (n.child("object") != null || n.child("object-ole") != null || n.child("plugin") != null) {
-                out.add(placeholder(b, "埋め込みオブジェクト(この表示では描けません)"))
+                out.add(placeholder(b, Txt(R.string.odp_003)))
             }
         }
 

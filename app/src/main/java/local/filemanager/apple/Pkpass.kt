@@ -11,9 +11,9 @@ class PassBarcode(val format: String, val message: String, val altText: String?)
     /** 「QR コード」「PDF417」など、人に見せる名前 */
     val formatName: String
         get() = when {
-            format.contains("QR", ignoreCase = true) -> "QRコード"
+            format.contains("QR", ignoreCase = true) -> Txt(R.string.pkpass_001)
             format.contains("PDF417", ignoreCase = true) -> "PDF417"
-            format.contains("Aztec", ignoreCase = true) -> "Aztecコード"
+            format.contains("Aztec", ignoreCase = true) -> Txt(R.string.pkpass_002)
             format.contains("Code128", ignoreCase = true) -> "Code 128"
             else -> format
         }
@@ -46,11 +46,11 @@ class Pass(
 ) {
     val styleName: String
         get() = when (style) {
-            "eventTicket" -> "チケット"
-            "boardingPass" -> "搭乗券・乗車券"
-            "coupon" -> "クーポン"
-            "storeCard" -> "ストアカード"
-            else -> "パス"
+            "eventTicket" -> Txt(R.string.pkpass_003)
+            "boardingPass" -> Txt(R.string.pkpass_004)
+            "coupon" -> Txt(R.string.pkpass_005)
+            "storeCard" -> Txt(R.string.pkpass_006)
+            else -> Txt(R.string.pkpass_007)
         }
 
     val fieldCount: Int get() = header.size + primary.size + secondary.size + auxiliary.size + back.size
@@ -147,8 +147,8 @@ object Pkpass {
      * names: zip の中の名前の一覧。read: 名前 → 中身。locales: 優先する言語(「ja」「en」)。
      */
     fun parse(names: Collection<String>, read: (String) -> ByteArray?, locales: List<String> = listOf("ja", "en")): Pass {
-        val bytes = read("pass.json") ?: throw OpException("パス(pass.json)が見つかりません")
-        val root = Json.obj(Json.parse(String(bytes, Charsets.UTF_8))) ?: throw OpException("pass.json の形が違う")
+        val bytes = read("pass.json") ?: throw OpException(Txt(R.string.pkpass_008))
+        val root = Json.obj(Json.parse(String(bytes, Charsets.UTF_8))) ?: throw OpException(Txt(R.string.pkpass_009))
         // 言語ごとの文字(ja.lproj/pass.strings など)
         var tr: Map<String, String> = emptyMap()
         for (loc in locales) {

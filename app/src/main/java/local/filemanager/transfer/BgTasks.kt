@@ -16,7 +16,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicInteger
 
 /** 取り込みや更新を、利用者か通知の「キャンセル」で止めたときの例外。 */
-class FetchCancelled : IOException("中止しました")
+class FetchCancelled : IOException(Txt(R.string.bg_tasks_001))
 
 /**
  * コピー・移動([Ops])以外の、時間のかかるダウンロード 1 件分(アプリの更新・プレビューのための取り込み)。
@@ -151,7 +151,7 @@ object BgTasks {
     private fun finished(task: BgTask, error: Throwable?) {
         val ctx = app ?: return
         if (!task.tracked || Ops.appVisible || task.cancelled || error is FetchCancelled) return
-        val text = if (error == null) task.doneText else task.failText?.let { f -> error.message?.takeIf { it.isNotBlank() }?.let { "$f。$it" } ?: f }
+        val text = if (error == null) task.doneText else task.failText?.let { f -> error.message?.takeIf { it.isNotBlank() }?.let { Txt(R.string.bg_tasks_002, f, it) } ?: f }
         if (text != null) TransferService.postResult(ctx, TransferService.ID_TASK_RESULT + task.id % 500, text, task.installUpdate && error == null)
     }
 
@@ -160,7 +160,7 @@ object BgTasks {
         if (warned) return
         if (NotificationManagerCompat.from(ctx).areNotificationsEnabled()) return
         warned = true
-        Ops.messages.tryEmit("通知がオフになっています。ダウンロードの進み具合と完了が通知に出ません。端末の設定で、ファイラーの通知をオンにしてください")
+        Ops.messages.tryEmit(Txt(R.string.bg_tasks_003))
     }
 }
 
@@ -169,8 +169,8 @@ fun taskNotice(title: String, done: Long, total: Long, elapsedMs: Long): NoticeC
     val pct = if (total > 0) (done.toDouble() / total * 100).toInt().coerceIn(0, 100) else null
     val speed = if (elapsedMs >= 1000 && done > 0) done * 1000 / elapsedMs else 0L
     val size = if (total > 0) "${FileOps.formatSize(done)} / ${FileOps.formatSize(total)}" else FileOps.formatSize(done)
-    val text = size + if (speed > 0) "・${FileOps.formatSize(speed)}/s" else ""
-    return NoticeContent(title + (pct?.let { " $it%" } ?: ""), text, pct, text + "\n経過 ${formatElapsed(elapsedMs)}")
+    val text = size + if (speed > 0) Txt(R.string.bg_tasks_004, FileOps.formatSize(speed)) else ""
+    return NoticeContent(title + (pct?.let { " $it%" } ?: ""), text, pct, text + Txt(R.string.bg_tasks_005, formatElapsed(elapsedMs)))
 }
 
 /** 画面が閉じられたら中断する BgTask(プレビューの取り込み用)。 */

@@ -194,7 +194,7 @@ private fun PlayerBody(vm: FmViewModel, req: FmViewModel.ViewerRequest, subs: Li
             }
 
             override fun onPlayerError(e: PlaybackException) {
-                error = "再生できません(${e.errorCodeName})"
+                error = Txt(R.string.player_001, e.errorCodeName)
             }
 
             override fun onCues(cueGroup: CueGroup) {
@@ -324,15 +324,15 @@ private fun PlayerBody(vm: FmViewModel, req: FmViewModel.ViewerRequest, subs: Li
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(note, color = Color(0xFFFFE082), fontSize = 13.sp, textAlign = TextAlign.Center)
-                Text("音声だけ再生しています", color = Color(0xFFCCCCCC), fontSize = 12.sp, textAlign = TextAlign.Center)
-                TextButton(onClick = { vm.openItem(current, req.fs) }) { Text("他のアプリで開く") }
+                Text(Txt(R.string.player_002), color = Color(0xFFCCCCCC), fontSize = 12.sp, textAlign = TextAlign.Center)
+                TextButton(onClick = { vm.openItem(current, req.fs) }) { Text(Txt(R.string.player_003)) }
             }
         }
         error?.let { msg ->
             Column(Modifier.align(Alignment.Center).padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(msg, color = Color.White, textAlign = TextAlign.Center)
-                Text("この端末で再生できない形式かもしれません", color = Color(0xFFCCCCCC), fontSize = 12.sp, textAlign = TextAlign.Center)
-                TextButton(onClick = { vm.openItem(current, req.fs) }) { Text("他のアプリで開く") }
+                Text(Txt(R.string.player_004), color = Color(0xFFCCCCCC), fontSize = 12.sp, textAlign = TextAlign.Center)
+                TextButton(onClick = { vm.openItem(current, req.fs) }) { Text(Txt(R.string.player_005)) }
             }
         }
 
@@ -343,14 +343,14 @@ private fun PlayerBody(vm: FmViewModel, req: FmViewModel.ViewerRequest, subs: Li
                     // プレビューの右上メニュー(ViewerMenu)と同じ見た目。並びも同じで、開く・共有 → 再生 → 表示 → ファイル
                     val playItems = ArrayList<VMenuItem>()
                     playItems.add(
-                        VMenuItem.Segment("再生速度(倍)", PLAY_SPEEDS.map { "%.2g".format(it) }, PLAY_SPEEDS.indexOf(speed)) { i ->
+                        VMenuItem.Segment(Txt(R.string.player_006), PLAY_SPEEDS.map { "%.2g".format(it) }, PLAY_SPEEDS.indexOf(speed)) { i ->
                             speed = PLAY_SPEEDS[i]
                             player.setPlaybackSpeed(speed)
                         },
                     )
                     if (audioOptions.size > 1) {
                         playItems.add(
-                            VMenuItem.Choice(Icons.Default.Audiotrack, "音声の切り替え", audioOptions.map { it.label }, audioOptions.indexOfFirst { it.selected }) { i ->
+                            VMenuItem.Choice(Icons.Default.Audiotrack, Txt(R.string.player_007), audioOptions.map { it.label }, audioOptions.indexOfFirst { it.selected }) { i ->
                                 pickTrack(audioOptions[i])
                             },
                         )
@@ -358,7 +358,7 @@ private fun PlayerBody(vm: FmViewModel, req: FmViewModel.ViewerRequest, subs: Li
                     if (textOptions.isNotEmpty()) {
                         playItems.add(
                             VMenuItem.Choice(
-                                Icons.Default.Subtitles, "字幕の切り替え", listOf("字幕なし") + textOptions.map { it.label },
+                                Icons.Default.Subtitles, Txt(R.string.player_008), listOf(Txt(R.string.player_009)) + textOptions.map { it.label },
                                 if (!subsOn) 0 else textOptions.indexOfFirst { it.selected } + 1,
                             ) { i ->
                                 if (i == 0) {
@@ -374,7 +374,7 @@ private fun PlayerBody(vm: FmViewModel, req: FmViewModel.ViewerRequest, subs: Li
                     val viewItems = ArrayList<VMenuItem>()
                     if (!isAudio) {
                         viewItems.add(
-                            VMenuItem.Toggle(Icons.Default.ScreenRotation, "横向きで表示", landscape) {
+                            VMenuItem.Toggle(Icons.Default.ScreenRotation, Txt(R.string.player_010), landscape) {
                                 landscape = it
                                 activity?.requestedOrientation =
                                     if (it) ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE else ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
@@ -382,12 +382,12 @@ private fun PlayerBody(vm: FmViewModel, req: FmViewModel.ViewerRequest, subs: Li
                         )
                     }
                     val fileItems = ArrayList<VMenuItem>()
-                    if (isAudio) fileItems.add(VMenuItem.Action(Icons.Default.Info, "曲の情報") { songInfo = true })
+                    if (isAudio) fileItems.add(VMenuItem.Action(Icons.Default.Info, Txt(R.string.player_011)) { songInfo = true })
                     ViewerMenu(
                         expanded = menu, dark = true, onDismiss = { menu = false },
                         onOpenExternal = { vm.openItem(current, req.fs) },
                         onShare = { vm.shareItems(listOf(current), req.fs) },
-                        sections = listOf(VMenuSection("再生", playItems), VMenuSection("表示", viewItems), VMenuSection("ファイル", fileItems)),
+                        sections = listOf(VMenuSection(Txt(R.string.player_012), playItems), VMenuSection(Txt(R.string.player_013), viewItems), VMenuSection(Txt(R.string.player_014), fileItems)),
                     )
                 }
             }

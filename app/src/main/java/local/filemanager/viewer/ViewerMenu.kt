@@ -135,8 +135,8 @@ internal fun ViewerMenu(
                 Column(Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 14.dp, vertical = 12.dp)) {
                     // いちばん上: どのファイルでも同じ場所
                     if (tiles) Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        QuickTile(Icons.Default.OpenInNew, "他のアプリで開く", c, Modifier.weight(1f)) { onDismiss(); onOpenExternal() }
-                        QuickTile(Icons.Default.Share, "共有", c, Modifier.weight(1f)) { onDismiss(); onShare() }
+                        QuickTile(Icons.Default.OpenInNew, Txt(R.string.viewer_menu_001), c, Modifier.weight(1f)) { onDismiss(); onOpenExternal() }
+                        QuickTile(Icons.Default.Share, Txt(R.string.viewer_menu_002), c, Modifier.weight(1f)) { onDismiss(); onShare() }
                     }
                     var first = !tiles
                     for (s in sections) {
@@ -288,10 +288,10 @@ private fun TextSizeRow(t: VMenuItem.TextSize, c: MenuColors) {
     Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 2.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
         IconTile(Icons.Default.TextFields, c)
         Spacer(Modifier.width(12.dp))
-        Text("文字の大きさ", color = c.text, fontSize = 16.sp, modifier = Modifier.weight(1f), maxLines = 1)
-        StepButton(Icons.Default.Remove, "小さく", t.sp > t.min, c) { t.onChange((t.sp - 2).coerceAtLeast(t.min)) }
+        Text(Txt(R.string.viewer_menu_003), color = c.text, fontSize = 16.sp, modifier = Modifier.weight(1f), maxLines = 1)
+        StepButton(Icons.Default.Remove, Txt(R.string.viewer_menu_004), t.sp > t.min, c) { t.onChange((t.sp - 2).coerceAtLeast(t.min)) }
         Text("${t.sp}", color = c.text, fontSize = 16.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center, modifier = Modifier.width(34.dp))
-        StepButton(Icons.Default.Add, "大きく", t.sp < t.max, c) { t.onChange((t.sp + 2).coerceAtMost(t.max)) }
+        StepButton(Icons.Default.Add, Txt(R.string.viewer_menu_005), t.sp < t.max, c) { t.onChange((t.sp + 2).coerceAtMost(t.max)) }
     }
 }
 

@@ -100,11 +100,11 @@ private fun stampOf(fs: Fs, path: String): Pair<Long, Long>? = runCatching { fs.
 internal fun loadForEdit(fs: Fs, item: FileItem): EditLoad = try {
     val stamp = stampOf(fs, item.path)
     val (bytes, truncated) = fs.open(item.path).use { TextDecode.readUpTo(it, TextFile.MAX_BYTES) }
-    if (truncated) throw OpException("大きすぎて編集できません(${TextFile.MAX_BYTES / 1024 / 1024} MB まで)")
-    if (Plist.isBinary(bytes)) throw OpException("文字のファイルではないので編集できません")
+    if (truncated) throw OpException(Txt(R.string.editor_ui_001, TextFile.MAX_BYTES / 1024 / 1024))
+    if (Plist.isBinary(bytes)) throw OpException(Txt(R.string.editor_ui_002))
     EditLoad.Ok(TextFile.parse(bytes), stamp)
 } catch (e: Exception) {
-    EditLoad.Fail(e.message ?: "読み込めません")
+    EditLoad.Fail(e.message ?: Txt(R.string.editor_ui_003))
 }
 
 /** 端末内は、別の名前で書いてから置き換える(途中で失敗しても元のファイルを壊さない)。NAS はそのまま上書きする。 */
@@ -140,7 +140,7 @@ internal fun TextEditorScreen(fs: Fs, item: FileItem, fontSp: Int, onFontSp: (In
             EditLoad.Busy -> CircularProgressIndicator(Modifier.align(Alignment.Center), color = Pv.text)
             is EditLoad.Fail -> Column(Modifier.align(Alignment.Center).padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(l.message, color = Pv.text)
-                TextButton(onClick = onClose) { Text("戻る") }
+                TextButton(onClick = onClose) { Text(Txt(R.string.editor_ui_004)) }
             }
             is EditLoad.Ok -> EditorBody(fs, item, l.doc, l.stamp, fontSp, onFontSp, onSaved, onClose)
         }
@@ -212,7 +212,7 @@ private fun EditorBody(
 
     fun select(i: Int) {
         if (i < 0) {
-            findNote = "見つかりません"
+            findNote = Txt(R.string.editor_ui_005)
             matchRange = null
             return
         }
@@ -244,7 +244,7 @@ private fun EditorBody(
                     }
                     SaveResult.Changed -> overwriteClose = thenClose
                 }
-            }.onFailure { message = "保存できなかった\n" + (it.message ?: it.javaClass.simpleName) }
+            }.onFailure { message = Txt(R.string.editor_ui_006) + (it.message ?: it.javaClass.simpleName) }
         }
     }
 
@@ -276,36 +276,36 @@ private fun EditorBody(
     Column(Modifier.fillMaxSize().then(kb.container).statusBarsPadding().padding(bottom = kb.bottom)) {
         // 上のバー
         Row(Modifier.fillMaxWidth().background(Pv.bar).height(56.dp), verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = { requestClose() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "戻る", tint = Pv.barText) }
+            IconButton(onClick = { requestClose() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, Txt(R.string.editor_ui_007), tint = Pv.barText) }
             Column(Modifier.weight(1f)) {
                 Text(item.name, color = Pv.barText, fontSize = 16.sp, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
-                Text(if (modified) "未保存の変更あり" else "編集中", color = if (modified) Pv.warn else Pv.barSub, fontSize = 12.sp)
+                Text(if (modified) Txt(R.string.editor_ui_008) else Txt(R.string.editor_ui_009), color = if (modified) Pv.warn else Pv.barSub, fontSize = 12.sp)
             }
             val canUndo = rev >= 0 && history.canUndo
             val canRedo = rev >= 0 && history.canRedo
             IconButton(onClick = { history.undo(snap(tf))?.let { restore(it) } }, enabled = canUndo) {
-                Icon(Icons.AutoMirrored.Filled.Undo, "元に戻す", tint = if (canUndo) Pv.barText else Pv.barSub.copy(alpha = 0.4f))
+                Icon(Icons.AutoMirrored.Filled.Undo, Txt(R.string.editor_ui_010), tint = if (canUndo) Pv.barText else Pv.barSub.copy(alpha = 0.4f))
             }
             IconButton(onClick = { history.redo(snap(tf))?.let { restore(it) } }, enabled = canRedo) {
-                Icon(Icons.AutoMirrored.Filled.Redo, "やり直す", tint = if (canRedo) Pv.barText else Pv.barSub.copy(alpha = 0.4f))
+                Icon(Icons.AutoMirrored.Filled.Redo, Txt(R.string.editor_ui_011), tint = if (canRedo) Pv.barText else Pv.barSub.copy(alpha = 0.4f))
             }
             IconButton(onClick = { save(false) }, enabled = modified && !saving) {
-                Icon(Icons.Default.Save, "保存", tint = if (modified && !saving) Pv.accent else Pv.barSub.copy(alpha = 0.4f))
+                Icon(Icons.Default.Save, Txt(R.string.editor_ui_012), tint = if (modified && !saving) Pv.accent else Pv.barSub.copy(alpha = 0.4f))
             }
             Box {
-                IconButton(onClick = { menu = true }) { Icon(Icons.Default.MoreVert, "メニュー", tint = Pv.barText) }
+                IconButton(onClick = { menu = true }) { Icon(Icons.Default.MoreVert, Txt(R.string.editor_ui_013), tint = Pv.barText) }
                 ViewerMenu(
                     expanded = menu, dark = Pv.dark, onDismiss = { menu = false }, onOpenExternal = {}, onShare = {}, tiles = false,
                     sections = listOf(
                         VMenuSection(
-                            "編集",
+                            Txt(R.string.editor_ui_014),
                             listOf(
-                                VMenuItem.Action(Icons.Default.Search, "検索・置換") { finding = true },
-                                VMenuItem.Action(Icons.Default.Translate, "文字コード: ${enc.label}") { encDialog = true },
-                                VMenuItem.Segment("改行コード", Eol.entries.map { it.name }, eol.ordinal) { eol = Eol.entries[it] },
+                                VMenuItem.Action(Icons.Default.Search, Txt(R.string.editor_ui_015)) { finding = true },
+                                VMenuItem.Action(Icons.Default.Translate, Txt(R.string.editor_ui_016, enc.label)) { encDialog = true },
+                                VMenuItem.Segment(Txt(R.string.editor_ui_017), Eol.entries.map { it.name }, eol.ordinal) { eol = Eol.entries[it] },
                             ),
                         ),
-                        VMenuSection("表示", listOf(VMenuItem.TextSize(fontSp, VIEWER_FONT_MIN, VIEWER_FONT_MAX, onFontSp))),
+                        VMenuSection(Txt(R.string.editor_ui_018), listOf(VMenuItem.TextSize(fontSp, VIEWER_FONT_MIN, VIEWER_FONT_MAX, onFontSp))),
                     ),
                 )
             }
@@ -342,19 +342,19 @@ private fun EditorBody(
             Column(Modifier.fillMaxWidth().background(Pv.searchBg).padding(horizontal = 8.dp, vertical = 6.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     FindField(
-                        findText, "検索する言葉", { findText = it; findNote = ""; matchRange = null },
+                        findText, Txt(R.string.editor_ui_019), { findText = it; findNote = ""; matchRange = null },
                         Modifier.weight(1f).focusRequester(focus), ImeAction.Search,
                     ) { select(TextFind.next(tf.text, findText, tf.selection.max)) }
                     Text(
-                        if (findText.isEmpty()) "" else findNote.ifEmpty { "${total}件" },
+                        if (findText.isEmpty()) "" else findNote.ifEmpty { Txt.n(R.plurals.detail_count, total) },
                         color = Pv.barText, fontSize = 13.sp, modifier = Modifier.padding(horizontal = 8.dp),
                     )
-                    IconButton(onClick = { select(TextFind.prev(tf.text, findText, tf.selection.min)) }) { Icon(Icons.Default.KeyboardArrowUp, "前へ", tint = Pv.barText) }
-                    IconButton(onClick = { select(TextFind.next(tf.text, findText, tf.selection.max)) }) { Icon(Icons.Default.KeyboardArrowDown, "次へ", tint = Pv.barText) }
-                    IconButton(onClick = { finding = false; matchRange = null }) { Icon(Icons.Default.Close, "閉じる", tint = Pv.barText) }
+                    IconButton(onClick = { select(TextFind.prev(tf.text, findText, tf.selection.min)) }) { Icon(Icons.Default.KeyboardArrowUp, Txt(R.string.editor_ui_020), tint = Pv.barText) }
+                    IconButton(onClick = { select(TextFind.next(tf.text, findText, tf.selection.max)) }) { Icon(Icons.Default.KeyboardArrowDown, Txt(R.string.editor_ui_021), tint = Pv.barText) }
+                    IconButton(onClick = { finding = false; matchRange = null }) { Icon(Icons.Default.Close, Txt(R.string.editor_ui_022), tint = Pv.barText) }
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    FindField(replText, "置き換える言葉", { replText = it }, Modifier.weight(1f), ImeAction.Done) {}
+                    FindField(replText, Txt(R.string.editor_ui_023), { replText = it }, Modifier.weight(1f), ImeAction.Done) {}
                     TextButton(
                         enabled = findText.isNotEmpty(),
                         onClick = {
@@ -368,19 +368,19 @@ private fun EditorBody(
                                 select(TextFind.next(tf.text, findText, tf.selection.min))
                             }
                         },
-                    ) { Text("置換", color = Pv.barText) }
+                    ) { Text(Txt(R.string.editor_ui_024), color = Pv.barText) }
                     TextButton(
                         enabled = findText.isNotEmpty(),
                         onClick = {
                             val (nt, n) = TextFind.replaceAll(tf.text, findText, replText)
                             if (n == 0) {
-                                findNote = "見つかりません"
+                                findNote = Txt(R.string.editor_ui_025)
                             } else {
                                 replaceWhole(nt, tf.selection.start)
-                                findNote = "${n}件置換しました"
+                                findNote = Txt.n(R.plurals.editor_replaced, n)
                             }
                         },
-                    ) { Text("すべて", color = Pv.barText) }
+                    ) { Text(Txt(R.string.editor_ui_026), color = Pv.barText) }
                 }
             }
         }
@@ -391,9 +391,9 @@ private fun EditorBody(
         var lineNo = 1
         for (i in 0 until pos) if (text[i] == '\n') lineNo++
         val col = pos - (text.lastIndexOf('\n', pos - 1) + 1) + 1
-        val tail = if (doc.mixedEol && eol == baseEol) "・改行がまざっていました(そろえて保存します)" else ""
+        val tail = if (doc.mixedEol && eol == baseEol) Txt(R.string.editor_ui_027) else ""
         Text(
-            "行 $lineNo / $totalLines・桁 $col・${enc.label}・${eol.name}$tail",
+            Txt(R.string.editor_ui_028, lineNo, totalLines, col, enc.label, eol.name, tail),
             color = Pv.barSub, fontSize = 12.sp, maxLines = 1,
             modifier = Modifier.fillMaxWidth().background(Pv.bar).padding(horizontal = 12.dp, vertical = 4.dp),
         )
@@ -402,12 +402,12 @@ private fun EditorBody(
     if (askExit) {
         AlertDialog(
             onDismissRequest = { askExit = false },
-            title = { Text("保存していない変更があります") },
-            confirmButton = { TextButton(onClick = { askExit = false; save(true) }) { Text("保存して閉じる") } },
+            title = { Text(Txt(R.string.editor_ui_029)) },
+            confirmButton = { TextButton(onClick = { askExit = false; save(true) }) { Text(Txt(R.string.editor_ui_030)) } },
             dismissButton = {
                 Row {
-                    TextButton(onClick = { askExit = false; onClose() }) { Text("保存しません") }
-                    TextButton(onClick = { askExit = false }) { Text("続ける") }
+                    TextButton(onClick = { askExit = false; onClose() }) { Text(Txt(R.string.editor_ui_031)) }
+                    TextButton(onClick = { askExit = false }) { Text(Txt(R.string.editor_ui_032)) }
                 }
             },
         )
@@ -415,8 +415,8 @@ private fun EditorBody(
     if (encDialog) {
         AlertDialog(
             onDismissRequest = { encDialog = false },
-            title = { Text("保存するときの文字コード") },
-            confirmButton = { TextButton(onClick = { encDialog = false }) { Text("閉じる") } },
+            title = { Text(Txt(R.string.editor_ui_033)) },
+            confirmButton = { TextButton(onClick = { encDialog = false }) { Text(Txt(R.string.editor_ui_034)) } },
             text = {
                 Column {
                     for (e in TextEnc.entries) {
@@ -426,7 +426,7 @@ private fun EditorBody(
                             Text(e.label)
                         }
                     }
-                    Text("読み込んだときは ${baseEnc.label}。変えて保存すると、そのコードでファイルが書き換わります", fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp))
+                    Text(Txt(R.string.editor_ui_035, baseEnc.label), fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp))
                 }
             },
         )
@@ -434,17 +434,17 @@ private fun EditorBody(
     overwriteClose?.let { thenClose ->
         AlertDialog(
             onDismissRequest = { overwriteClose = null },
-            title = { Text("ファイルが変わっています") },
-            text = { Text("読み込んだあとに、ほかでこのファイルが書き換えられました。上書きすると、その変更は消えます") },
-            confirmButton = { TextButton(onClick = { overwriteClose = null; save(thenClose, force = true) }) { Text("上書きする") } },
-            dismissButton = { TextButton(onClick = { overwriteClose = null }) { Text("やめる") } },
+            title = { Text(Txt(R.string.editor_ui_036)) },
+            text = { Text(Txt(R.string.editor_ui_037)) },
+            confirmButton = { TextButton(onClick = { overwriteClose = null; save(thenClose, force = true) }) { Text(Txt(R.string.editor_ui_038)) } },
+            dismissButton = { TextButton(onClick = { overwriteClose = null }) { Text(Txt(R.string.editor_ui_039)) } },
         )
     }
     message?.let { m ->
         AlertDialog(
             onDismissRequest = { message = null },
             text = { Text(m) },
-            confirmButton = { TextButton(onClick = { message = null }) { Text("閉じる") } },
+            confirmButton = { TextButton(onClick = { message = null }) { Text(Txt(R.string.editor_ui_040)) } },
         )
     }
 }

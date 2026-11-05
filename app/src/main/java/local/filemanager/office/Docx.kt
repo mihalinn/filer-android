@@ -457,7 +457,7 @@ class DocNumbering private constructor(
 
 object Docx {
     fun parse(read: (String) -> ByteArray?): DocxDoc {
-        val bytes = read("word/document.xml") ?: throw OpException("Wordのファイルとして読めません")
+        val bytes = read("word/document.xml") ?: throw OpException(Txt(R.string.docx_001))
         val styles = DocStyles.parse(read("word/styles.xml"))
         val numbering = DocNumbering.parse(read("word/numbering.xml"))
         val rels = OfficeXml.relationships(read("word/_rels/document.xml.rels"), "word")

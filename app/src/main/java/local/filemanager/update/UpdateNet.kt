@@ -27,10 +27,10 @@ object UpdateNet {
             val code = try {
                 c.responseCode
             } catch (e: IOException) {
-                throw IOException("GitHub に接続できませんでした。通信の状態を確認してください")
+                throw IOException(Txt(R.string.update_net_001))
             }
             if (code == 404) return null
-            if (code != 200) throw IOException("GitHub が応答しませんでした($code)。しばらくしてから、もう一度試してください")
+            if (code != 200) throw IOException(Txt(R.string.update_net_002, code))
             val text = c.inputStream.use { it.readBytes().toString(Charsets.UTF_8) }
             return UpdateLogic.parseLatest(text, repoUrl)
         } finally {
@@ -62,23 +62,23 @@ object UpdateNet {
                 } catch (e: Fatal) {
                     throw e
                 } catch (e: IOException) {
-                    if (isCancelled()) throw Fatal("中止しました")
+                    if (isCancelled()) throw Fatal(Txt(R.string.update_net_003))
                     // 少しでも進んだなら、続きを取り直す回数は数え直す
                     if (part.length() > before) failures = 0
                     if (++failures >= maxAttempts) throw e
                     var waited = 0L
                     while (waited < retryDelayMs) {
-                        if (isCancelled()) throw Fatal("中止しました")
+                        if (isCancelled()) throw Fatal(Txt(R.string.update_net_004))
                         Thread.sleep(minOf(250L, retryDelayMs - waited))
                         waited += 250L
                     }
                 }
             }
-            if (info.apkSize > 0 && part.length() != info.apkSize) throw IOException("ダウンロードが途中で止まりました。もう一度試してください")
+            if (info.apkSize > 0 && part.length() != info.apkSize) throw IOException(Txt(R.string.update_net_005))
             val sha = sha256Of(part)
-            if (info.sha256 != null && !info.sha256.equals(sha, ignoreCase = true)) throw Fatal("ダウンロードしたファイルが、公開されている SHA-256 と違います。インストールを中止しました")
+            if (info.sha256 != null && !info.sha256.equals(sha, ignoreCase = true)) throw Fatal(Txt(R.string.update_net_006))
             dest.delete()
-            if (!part.renameTo(dest)) throw IOException("ダウンロードしたファイルを保存できませんでした")
+            if (!part.renameTo(dest)) throw IOException(Txt(R.string.update_net_007))
         } catch (e: Exception) {
             part.delete()
             throw e
@@ -94,15 +94,15 @@ object UpdateNet {
             val code = try {
                 c.responseCode
             } catch (e: IOException) {
-                throw IOException("ダウンロードできませんでした。通信の状態を確認してください")
+                throw IOException(Txt(R.string.update_net_008))
             }
             if (code == 416) {
                 // 続きの位置が合わない。最初から取り直す
                 part.delete()
-                throw IOException("ダウンロードを取り直します")
+                throw IOException(Txt(R.string.update_net_009))
             }
             if (code != 200 && code != 206) {
-                val msg = "ダウンロードできませんでした($code)"
+                val msg = Txt(R.string.update_net_010, code)
                 throw if (code in 400..499) Fatal(msg) else IOException(msg)
             }
             val append = code == 206 && have > 0
@@ -113,7 +113,7 @@ object UpdateNet {
                 java.io.FileOutputStream(part, append).use { out ->
                     val buf = ByteArray(64 * 1024)
                     while (true) {
-                        if (isCancelled()) throw Fatal("中止しました")
+                        if (isCancelled()) throw Fatal(Txt(R.string.update_net_011))
                         val n = input.read(buf)
                         if (n < 0) break
                         out.write(buf, 0, n)
@@ -122,7 +122,7 @@ object UpdateNet {
                     }
                 }
             }
-            if (total > 0 && done < total) throw IOException("ダウンロードが途中で止まりました")
+            if (total > 0 && done < total) throw IOException(Txt(R.string.update_net_012))
         } finally {
             c.disconnect()
         }

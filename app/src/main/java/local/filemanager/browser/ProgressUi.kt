@@ -26,10 +26,6 @@ import java.util.Locale
 
 private fun percent(f: Float) = String.format(Locale.US, "%.2f%%", f * 100)
 
-private fun fromLabel(verb: String) = if (verb == "コピー" || verb == "移動") "${verb}元" else "元"
-
-private fun toLabel(verb: String) = if (verb == "コピー" || verb == "移動") "${verb}先" else "先"
-
 /** コピー・移動・ダウンロードなどの進捗。割合、元と先、転送した量と速度、経過時間を出す。 */
 @Composable
 internal fun ProgressDialog(p: ProgressView, onHide: () -> Unit, onCancel: () -> Unit) {
@@ -38,16 +34,16 @@ internal fun ProgressDialog(p: ProgressView, onHide: () -> Unit, onCancel: () ->
         Surface(shape = RoundedCornerShape(12.dp), color = pal.surface, tonalElevation = 6.dp) {
             Column(Modifier.padding(horizontal = 24.dp, vertical = 22.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("${p.verb}しています", fontSize = 22.sp, color = pal.text, modifier = Modifier.weight(1f))
+                    Text(Txt(p.kind.title), fontSize = 22.sp, color = pal.text, modifier = Modifier.weight(1f))
                     p.fraction?.let { Text(percent(it), fontSize = 18.sp, color = pal.text) }
                 }
                 Spacer(Modifier.height(14.dp))
                 if (p.from.isNotEmpty()) {
-                    Text("${fromLabel(p.verb)}:${p.from}", fontSize = 13.sp, color = pal.subText, maxLines = 3, overflow = TextOverflow.Ellipsis)
+                    Text(Txt(R.string.progress_label_value, Txt(p.kind.fromLabel), p.from), fontSize = 13.sp, color = pal.subText, maxLines = 3, overflow = TextOverflow.Ellipsis)
                     Spacer(Modifier.height(6.dp))
                 }
                 if (p.to.isNotEmpty()) {
-                    Text("${toLabel(p.verb)}:${p.to}", fontSize = 13.sp, color = pal.subText, maxLines = 3, overflow = TextOverflow.Ellipsis)
+                    Text(Txt(R.string.progress_label_value, Txt(p.kind.toLabel), p.to), fontSize = 13.sp, color = pal.subText, maxLines = 3, overflow = TextOverflow.Ellipsis)
                 }
                 Spacer(Modifier.height(10.dp))
                 Row {
@@ -64,13 +60,13 @@ internal fun ProgressDialog(p: ProgressView, onHide: () -> Unit, onCancel: () ->
                 }
                 Spacer(Modifier.height(12.dp))
                 Row {
-                    Text("項目 ${p.itemsDone} / ${p.itemsTotal}", fontSize = 14.sp, color = pal.subText, modifier = Modifier.weight(1f))
+                    Text(Txt(R.string.progress_items, p.itemsDone, p.itemsTotal), fontSize = 14.sp, color = pal.subText, modifier = Modifier.weight(1f))
                     Text(formatElapsed(p.elapsedMs), fontSize = 14.sp, color = pal.subText)
                 }
                 Spacer(Modifier.height(10.dp))
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    TextButton(onClick = onHide) { Text("非表示にする") }
-                    TextButton(onClick = onCancel) { Text("キャンセル") }
+                    TextButton(onClick = onHide) { Text(Txt(R.string.progress_ui_001)) }
+                    TextButton(onClick = onCancel) { Text(Txt(R.string.progress_ui_002)) }
                 }
             }
         }
@@ -89,14 +85,14 @@ internal fun HiddenProgressBar(p: ProgressView, onShow: () -> Unit) {
     ) {
         Column(Modifier.padding(horizontal = 16.dp, vertical = 10.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("${p.verb}中", color = pal.onBar, fontSize = 14.sp)
+                Text(Txt(p.kind.short), color = pal.onBar, fontSize = 14.sp)
                 Spacer(Modifier.width(12.dp))
                 Text(
                     p.fraction?.let { percent(it) } ?: FileOps.formatSize(p.doneBytes),
                     color = pal.onBar, fontSize = 14.sp,
                 )
                 Spacer(Modifier.width(12.dp))
-                Text("タップで表示", color = pal.onBar.copy(alpha = 0.7f), fontSize = 12.sp)
+                Text(Txt(R.string.progress_ui_003), color = pal.onBar.copy(alpha = 0.7f), fontSize = 12.sp)
             }
             Spacer(Modifier.height(6.dp))
             val f = p.fraction

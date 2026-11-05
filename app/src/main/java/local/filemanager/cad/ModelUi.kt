@@ -47,11 +47,11 @@ private sealed interface StlLoad {
 private fun loadStl(fs: Fs, item: FileItem): StlLoad = try {
     StlLoad.Ok(fs.open(item.path).use { MeshFormats.parse(FileOps.extensionOf(item.name), it, item.size) })
 } catch (e: OpException) {
-    StlLoad.Fail(e.message ?: "読み込めません")
+    StlLoad.Fail(e.message ?: Txt(R.string.model_ui_001))
 } catch (e: Exception) {
-    StlLoad.Fail(e.message ?: "読み込めません")
+    StlLoad.Fail(e.message ?: Txt(R.string.model_ui_002))
 } catch (e: OutOfMemoryError) {
-    StlLoad.Fail("大きすぎて読み込めません")
+    StlLoad.Fail(Txt(R.string.model_ui_003))
 }
 
 /** 3D モデル(STL・OBJ・PLY・OFF・3MF)の表示。1 本指のドラッグで回す、ピンチで拡大・縮小、2 本指で移動、ダブルタップで元の向きに戻す。 */
@@ -117,8 +117,8 @@ private fun StlView(mesh: Mesh, bars: Boolean, onTap: () -> Unit) {
         if (bars) {
             fun mm(v: Float) = if (v >= 100f) "%.0f".format(v) else "%.1f".format(v)
             Text(
-                (if (mesh.points) "点 ${mesh.vertexCount} 個" else "三角形 ${mesh.triangles} 枚") +
-                    "・幅 ${mm(mesh.sizeX)} × 奥行 ${mm(mesh.sizeY)} × 高さ ${mm(mesh.sizeZ)}",
+                (if (mesh.points) Txt.n(R.plurals.model_points, mesh.vertexCount) else Txt.n(R.plurals.model_triangles, mesh.triangles)) +
+                    Txt(R.string.model_ui_004, mm(mesh.sizeX), mm(mesh.sizeY), mm(mesh.sizeZ)),
                 color = Color(0xFFCCCCCC), fontSize = 12.sp,
                 modifier = Modifier.align(Alignment.BottomEnd).navigationBarsPadding().background(Color(0x99000000)).padding(horizontal = 8.dp, vertical = 2.dp),
             )

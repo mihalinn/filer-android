@@ -44,17 +44,17 @@ private sealed interface MhtLoad {
 }
 
 private fun loadMht(fs: Fs, item: FileItem, web: Boolean): MhtLoad {
-    if (item.size > MHT_LIMIT) return MhtLoad.Fail("大きすぎて開けません(${MHT_LIMIT / 1024 / 1024} MB まで)。メニューで「ソース」に切り替えてください")
+    if (item.size > MHT_LIMIT) return MhtLoad.Fail(Txt(R.string.mhtml_ui_001, MHT_LIMIT / 1024 / 1024))
     return try {
         val bytes = fs.open(item.path).use { it.readBytes() }
-        val doc = (if (web) Plist.webArchive(bytes) else Mhtml.parse(bytes)) ?: return MhtLoad.Fail(if (web) "ウェブアーカイブ(Safari の保存形式)として読めません" else "MHTML(ウェブページの保存形式)として読めません")
-        val main = doc.main ?: return MhtLoad.Fail("本文の HTML が見つかりません。メニューで「ソース」に切り替えると中身を見られます")
+        val doc = (if (web) Plist.webArchive(bytes) else Mhtml.parse(bytes)) ?: return MhtLoad.Fail(if (web) Txt(R.string.mhtml_ui_002) else Txt(R.string.mhtml_ui_003))
+        val main = doc.main ?: return MhtLoad.Fail(Txt(R.string.mhtml_ui_004))
         val html = Mhtml.rewriteCid(main.text(), "https://$HOST$CID_PATH")
         MhtLoad.Ok(doc, html, main.location ?: doc.pageUrl ?: "https://$HOST/mht/index.html")
     } catch (e: Exception) {
-        MhtLoad.Fail(e.message ?: "読み込めません")
+        MhtLoad.Fail(e.message ?: Txt(R.string.mhtml_ui_005))
     } catch (e: OutOfMemoryError) {
-        MhtLoad.Fail("大きすぎて読み込めません")
+        MhtLoad.Fail(Txt(R.string.mhtml_ui_006))
     }
 }
 
@@ -168,10 +168,10 @@ private fun MhtWeb(load: MhtLoad.Ok, js: Boolean, wide: Boolean, dark: Boolean) 
     pending?.let { url ->
         AlertDialog(
             onDismissRequest = { pending = null },
-            title = { Text("リンクを開く?") },
+            title = { Text(Txt(R.string.mhtml_ui_007)) },
             text = { Text(url, fontSize = 13.sp) },
-            confirmButton = { TextButton(onClick = { runCatching { uri.openUri(url) }; pending = null }) { Text("開く") } },
-            dismissButton = { TextButton(onClick = { pending = null }) { Text("キャンセル") } },
+            confirmButton = { TextButton(onClick = { runCatching { uri.openUri(url) }; pending = null }) { Text(Txt(R.string.mhtml_ui_008)) } },
+            dismissButton = { TextButton(onClick = { pending = null }) { Text(Txt(R.string.mhtml_ui_009)) } },
         )
     }
 }

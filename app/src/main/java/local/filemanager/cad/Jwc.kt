@@ -27,7 +27,7 @@ object Jwc {
     )
 
     private fun csv(d: ByteArray, start: Int): List<String> {
-        if (start + 199 > d.size) throw OpException("JW_CAD(旧形式)のヘッダーが短すぎます")
+        if (start + 199 > d.size) throw OpException(Txt(R.string.jwc_001))
         var end = start
         while (end < start + 199 && d[end] != 0.toByte()) end++
         return String(d, start, end - start, Charsets.ISO_8859_1).split(',').map { it.trim() }
@@ -42,10 +42,10 @@ object Jwc {
     }
 
     fun parse(d: ByteArray): CadDrawing {
-        if (!isJwc(d)) throw OpException("JW_CAD(旧形式 .jwc)として読めません")
+        if (!isJwc(d)) throw OpException(Txt(R.string.jwc_002))
         val u16Scales = d[22] == '.'.code.toByte()
         val header = if (u16Scales) 2389 else 2421
-        if (d.size < header) throw OpException("JW_CAD(旧形式)のヘッダーが短すぎます")
+        if (d.size < header) throw OpException(Txt(R.string.jwc_003))
         val bb = ByteBuffer.wrap(d).order(ByteOrder.LITTLE_ENDIAN)
         fun u16(o: Int) = bb.getShort(o).toInt() and 0xFFFF
         fun u32(o: Int) = bb.getInt(o).toLong() and 0xFFFFFFFFL
@@ -53,14 +53,14 @@ object Jwc {
 
         val f = csv(d, 200)
         val st = csv(d, 600)
-        if (f.size < 12 || st.size < 2) throw OpException("JW_CAD(旧形式)のヘッダーが読めません")
-        val counts = IntArray(5) { f[it].toIntOrNull() ?: throw OpException("JW_CAD(旧形式)の図形の数が読めません") }
-        if (counts.any { it < 0 } || counts.sum() > MAX_ENTITIES) throw OpException("JW_CAD(旧形式)の図形が多すぎます")
+        if (f.size < 12 || st.size < 2) throw OpException(Txt(R.string.jwc_004))
+        val counts = IntArray(5) { f[it].toIntOrNull() ?: throw OpException(Txt(R.string.jwc_005)) }
+        if (counts.any { it < 0 } || counts.sum() > MAX_ENTITIES) throw OpException(Txt(R.string.jwc_006))
         val (pw, ph) = paper.getOrNull(f[11].toIntOrNull() ?: 3) ?: paper[3]
         val extent = f.getOrNull(30)?.toDoubleOrNull()?.takeIf { it > 0 } ?: 518.0
-        val poolStart = far(st[0]) ?: throw OpException("JW_CAD(旧形式)の文字の領域が読めません")
-        val poolLen = ((far(st[1]) ?: throw OpException("JW_CAD(旧形式)の文字の領域が読めません")) - poolStart).toInt()
-        if (poolLen < 0 || poolLen > 0xFFFF) throw OpException("JW_CAD(旧形式)の文字の領域が読めません")
+        val poolStart = far(st[0]) ?: throw OpException(Txt(R.string.jwc_007))
+        val poolLen = ((far(st[1]) ?: throw OpException(Txt(R.string.jwc_008))) - poolStart).toInt()
+        if (poolLen < 0 || poolLen > 0xFFFF) throw OpException(Txt(R.string.jwc_009))
 
         val lines = header
         val arcs = lines + counts[0] * 22
@@ -68,7 +68,7 @@ object Jwc {
         val pool = texts + counts[2] * 24
         val points = pool + poolLen
         val names = points + counts[3] * 12
-        if (d.size < names) throw OpException("JW_CAD(旧形式)のデータが途中で終わっています")
+        if (d.size < names) throw OpException(Txt(R.string.jwc_010))
 
         val editOff = SCALES + if (u16Scales) 32 else 64
         val visOff = editOff + 272

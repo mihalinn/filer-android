@@ -13,8 +13,10 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 import java.util.zip.ZipOutputStream
 
-enum class SortKey(val label: String) {
-    NAME("名前"), DATE("更新日時"), SIZE("サイズ"), TYPE("種類")
+enum class SortKey(@androidx.annotation.StringRes val labelRes: Int) {
+    NAME(R.string.sort_name), DATE(R.string.sort_date), SIZE(R.string.sort_size), TYPE(R.string.sort_type);
+
+    val label: String get() = Txt(labelRes)
 }
 
 enum class FileKind { FOLDER, IMAGE, VIDEO, AUDIO, DOCUMENT, ARCHIVE, APK, OTHER }
@@ -165,9 +167,9 @@ object FileOps {
      * overwrite=true: 同名のファイルは置き換え、同名のフォルダは中身をまとめる(マージ)。失敗しても元からあったものは消さない。
      */
     fun copy(src: File, destDir: File, check: () -> Unit = {}, progress: Progress? = null, overwrite: Boolean = false): File {
-        if (src.isDirectory && isInside(src, destDir)) throw OpException("フォルダを自分自身の中にはコピーできません: ${src.name}")
+        if (src.isDirectory && isInside(src, destDir)) throw OpException(Txt(R.string.file_ops_001, src.name))
         val target = if (overwrite) File(destDir, src.name) else uniqueFile(destDir, src.name, src.isDirectory)
-        if (overwrite && src.canonicalFile == target.canonicalFile) throw OpException("同じ場所には上書きできません: ${src.name}")
+        if (overwrite && src.canonicalFile == target.canonicalFile) throw OpException(Txt(R.string.file_ops_002, src.name))
         val existed = target.exists()
         try {
             copyRecursive(src, target, check, progress)
@@ -182,11 +184,11 @@ object FileOps {
         check()
         if (isLink(src)) return
         if (src.isDirectory) {
-            if (dst.exists() && !dst.isDirectory) throw OpException("同じ名前のファイルがあります: ${dst.name}")
-            if (!dst.mkdirs() && !dst.isDirectory) throw OpException("フォルダを作成できません: ${dst.name}")
+            if (dst.exists() && !dst.isDirectory) throw OpException(Txt(R.string.file_ops_003, dst.name))
+            if (!dst.mkdirs() && !dst.isDirectory) throw OpException(Txt(R.string.file_ops_004, dst.name))
             src.listFiles()?.forEach { copyRecursive(it, File(dst, it.name), check, progress) }
         } else {
-            if (dst.isDirectory) throw OpException("同じ名前のフォルダがあります: ${dst.name}")
+            if (dst.isDirectory) throw OpException(Txt(R.string.file_ops_005, dst.name))
             progress?.begin(src.path, dst.path)
             writeAtomically(dst) { w -> src.inputStream().use { i -> w.outputStream().use { o -> pump(i, o, check, progress) } } }
             dst.setLastModified(src.lastModified())
@@ -213,8 +215,8 @@ object FileOps {
         try {
             write(part)
             // 上書きのときは、最後まで書けてから古い方を消す(途中で失敗しても古い方が残る)
-            if (dst.exists() && !dst.delete()) throw OpException("上書きできません: ${dst.name}")
-            if (!part.renameTo(dst)) throw OpException("書き込みを完了できませんでした: ${dst.name}")
+            if (dst.exists() && !dst.delete()) throw OpException(Txt(R.string.file_ops_006, dst.name))
+            if (!part.renameTo(dst)) throw OpException(Txt(R.string.file_ops_007, dst.name))
         } catch (e: Exception) {
             part.delete()
             throw e
@@ -233,12 +235,12 @@ object FileOps {
     }
 
     fun move(src: File, destDir: File, check: () -> Unit = {}, progress: Progress? = null, overwrite: Boolean = false): File {
-        if (src.parentFile?.canonicalFile == destDir.canonicalFile) throw OpException("同じフォルダには移動できません: ${src.name}")
-        if (src.isDirectory && isInside(src, destDir)) throw OpException("フォルダを自分自身の中には移動できません: ${src.name}")
+        if (src.parentFile?.canonicalFile == destDir.canonicalFile) throw OpException(Txt(R.string.file_ops_008, src.name))
+        if (src.isDirectory && isInside(src, destDir)) throw OpException(Txt(R.string.file_ops_009, src.name))
         val target = if (overwrite) File(destDir, src.name) else uniqueFile(destDir, src.name, src.isDirectory)
         val existed = target.exists()
         if (overwrite && existed && src.isDirectory != target.isDirectory) {
-            throw OpException("同じ名前で種類の違うものがあります: ${src.name}")
+            throw OpException(Txt(R.string.file_ops_010, src.name))
         }
         // フォルダ同士の上書きは中身をまとめるので、名前の付け替えではなくコピーで行う
         if (!(overwrite && existed && src.isDirectory) && src.renameTo(target)) return target
@@ -255,11 +257,11 @@ object FileOps {
 
     fun delete(f: File) {
         if (f.isDirectory && !isLink(f)) f.listFiles()?.forEach { delete(it) }
-        if (!f.delete() && f.exists()) throw OpException("削除できません: ${f.name}")
+        if (!f.delete() && f.exists()) throw OpException(Txt(R.string.file_ops_011, f.name))
     }
 
     /** 他のアプリから受け取った名前を、保存できる名前にする(NAS で使えない文字は「_」に)。空なら fallback。 */
-    fun safeFileName(raw: String?, fallback: String = "共有ファイル"): String {
+    fun safeFileName(raw: String?, fallback: String = Txt(R.string.file_ops_012)): String {
         val cleaned = (raw ?: "").replace(Regex("[\\\\/:*?\"<>|\\u0000-\\u001F]"), "_").trim()
         val name = if (cleaned.isBlank()) fallback else cleaned
         if (name.toByteArray().size <= 255) return name
@@ -268,31 +270,31 @@ object FileOps {
     }
 
     fun validateName(name: String): String? = when {
-        name.isBlank() -> "名前を入力してください"
-        name == "." || name == ".." -> "この名前は使えません"
-        name.contains('/') || name.contains('\u0000') -> "「/」は名前に使えません"
-        name.toByteArray().size > 255 -> "名前が長すぎます"
+        name.isBlank() -> Txt(R.string.file_ops_013)
+        name == "." || name == ".." -> Txt(R.string.file_ops_014)
+        name.contains('/') || name.contains('\u0000') -> Txt(R.string.file_ops_015)
+        name.toByteArray().size > 255 -> Txt(R.string.file_ops_016)
         else -> null
     }
 
     fun rename(f: File, newName: String): File {
         validateName(newName)?.let { throw OpException(it) }
         val target = File(f.parentFile, newName)
-        if (target.exists()) throw OpException("同じ名前のファイルがすでにあります")
-        if (!f.renameTo(target)) throw OpException("名前を変更できません")
+        if (target.exists()) throw OpException(Txt(R.string.file_ops_017))
+        if (!f.renameTo(target)) throw OpException(Txt(R.string.file_ops_018))
         return target
     }
 
     fun createFolder(parent: File, name: String): File {
         validateName(name)?.let { throw OpException(it) }
         val target = File(parent, name)
-        if (target.exists()) throw OpException("同じ名前のファイルがすでにあります")
-        if (!target.mkdir()) throw OpException("フォルダを作成できません")
+        if (target.exists()) throw OpException(Txt(R.string.file_ops_019))
+        if (!target.mkdir()) throw OpException(Txt(R.string.file_ops_020))
         return target
     }
 
     fun zip(sources: List<File>, out: File, check: () -> Unit = {}, progress: Progress? = null) {
-        if (out.exists()) throw OpException("同じ名前のファイルがすでにあります")
+        if (out.exists()) throw OpException(Txt(R.string.file_ops_021))
         try {
             writeAtomically(out) { w ->
                 ZipOutputStream(w.outputStream().buffered()).use { z ->
@@ -339,10 +341,10 @@ object FileOps {
 
     /** zip と同じ場所に、拡張子を除いた名前のフォルダを作って展開する。 */
     fun unzip(zip: File, check: () -> Unit = {}, progress: Progress? = null): File {
-        val parent = zip.parentFile ?: throw OpException("展開先が見つかりません")
+        val parent = zip.parentFile ?: throw OpException(Txt(R.string.file_ops_022))
         val base = zip.name.let { if (it.endsWith(".zip", ignoreCase = true) && it.length > 4) it.dropLast(4) else it }
         val root = uniqueFile(parent, base, true)
-        if (!root.mkdirs()) throw OpException("フォルダを作成できません")
+        if (!root.mkdirs()) throw OpException(Txt(R.string.file_ops_023))
         val rootCanon = root.canonicalFile
         try {
             ZipFile(zip, pickZipCharset(zip)).use { zf ->
@@ -354,7 +356,7 @@ object FileOps {
                     val out = File(root, e.name.replace('\\', '/'))
                     val canon = out.canonicalFile
                     if (canon != rootCanon && !canon.path.startsWith(rootCanon.path + File.separator)) {
-                        throw OpException("不正なパスを含む ZIP です: ${e.name}")
+                        throw OpException(Txt(R.string.file_ops_024, e.name))
                     }
                     if (e.isDirectory) {
                         out.mkdirs()

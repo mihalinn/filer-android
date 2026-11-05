@@ -65,7 +65,7 @@ private sealed interface SqlData {
 
 /** 端末の一時領域へコピーして開く(元のファイルに、ジャーナルなどを作らないため)。WAL 方式のものは、-wal も一緒にコピーする。 */
 private fun copyForDb(ctx: Context, fs: Fs, item: FileItem, task: BgTask): File {
-    if (item.size > DB_COPY_LIMIT) throw OpException("大きすぎて開けません(${DB_COPY_LIMIT / 1024 / 1024} MB まで)")
+    if (item.size > DB_COPY_LIMIT) throw OpException(Txt(R.string.sqlite_ui_001, DB_COPY_LIMIT / 1024 / 1024))
     val dir = File(ctx.cacheDir, "sqliteview").also { it.mkdirs() }
     val base = cacheKey(fs.id, item.path, item.size, item.modified)
     val out = File(dir, "$base.db")
@@ -75,7 +75,7 @@ private fun copyForDb(ctx: Context, fs: Fs, item: FileItem, task: BgTask): File 
         // -wal(大きさ不明)は小さいので、通知は出さない(size = 1)
         BgTasks.run(task, expect ?: 1L) { task.download(fs, from, part) }
         to.delete()
-        if (!part.renameTo(to)) throw IOException("一時ファイルを作れません")
+        if (!part.renameTo(to)) throw IOException(Txt(R.string.sqlite_ui_002))
     }
     copy(item.path, out, item.size)
     val wal = item.path + "-wal"
@@ -91,7 +91,7 @@ private fun openDb(ctx: Context, fs: Fs, item: FileItem, task: BgTask): SqlLoad 
     val f = copyForDb(ctx, fs, item, task)
     val head = f.inputStream().use { s -> ByteArray(16).also { s.read(it) } }
     if (String(head, Charsets.ISO_8859_1) != "SQLite format 3\u0000") {
-        SqlLoad.Fail("SQLiteのデータベースではありません(別の形式か、暗号化されているかもしれません)")
+        SqlLoad.Fail(Txt(R.string.sqlite_ui_003))
     } else {
         val db = SQLiteDatabase.openDatabase(f.path, null, SQLiteDatabase.OPEN_READONLY)
         val objs = ArrayList<DbObject>()
@@ -101,11 +101,11 @@ private fun openDb(ctx: Context, fs: Fs, item: FileItem, task: BgTask): SqlLoad 
         SqlLoad.Ok(SqlDb(db, objs))
     }
 } catch (e: OpException) {
-    SqlLoad.Fail(e.message ?: "開けません")
+    SqlLoad.Fail(e.message ?: Txt(R.string.sqlite_ui_004))
 } catch (e: Exception) {
-    SqlLoad.Fail("開けません(${e.message ?: e.javaClass.simpleName})")
+    SqlLoad.Fail(Txt(R.string.sqlite_ui_005, e.message ?: e.javaClass.simpleName))
 } catch (e: OutOfMemoryError) {
-    SqlLoad.Fail("大きすぎて読み込めません")
+    SqlLoad.Fail(Txt(R.string.sqlite_ui_006))
 }
 
 private fun cellOf(c: Cursor, i: Int): SqlCellV = when (c.getType(i)) {
@@ -179,7 +179,7 @@ private const val TAB_QUERY = "\u0001query"
 @Composable
 internal fun SqlitePane(fs: Fs, item: FileItem, fontSp: Int) {
     val ctx = LocalContext.current
-    val task = rememberBgTask(item.path, "「${item.name}」を取り込んでいます", "「${item.name}」の取り込みが終わりました", "「${item.name}」を取り込めませんでした")
+    val task = rememberBgTask(item.path, Txt(R.string.sqlite_ui_007, item.name), Txt(R.string.sqlite_ui_008, item.name), Txt(R.string.sqlite_ui_009, item.name))
     val load = produceState<SqlLoad>(SqlLoad.Busy, item.path) {
         value = withContext(Dispatchers.IO) { openDb(ctx, fs, item, task) }
     }.value
@@ -219,12 +219,12 @@ private fun SqliteView(sdb: SqlDb, item: FileItem, fontSp: Int) {
     Column(Modifier.fillMaxSize().belowBars()) {
         // 上: いま見ているものの説明
         val info = when {
-            tab == TAB_SCHEMA -> "スキーマ(作り方)・${sdb.objects.size} 個"
-            tab == TAB_QUERY -> "検索の結果" + ((data as? SqlData.Rows)?.let { "・${it.rows.size} 行" + if (it.rows.size >= PAGE_ROWS) "(先頭の ${PAGE_ROWS} 行まで)" else "" } ?: "")
+            tab == TAB_SCHEMA -> Txt.n(R.plurals.sqlite_schema_title, sdb.objects.size)
+            tab == TAB_QUERY -> Txt(R.string.sqlite_ui_010) + ((data as? SqlData.Rows)?.let { if (it.rows.size >= PAGE_ROWS) Txt.n(R.plurals.sqlite_rows_limited, it.rows.size, PAGE_ROWS) else Txt.n(R.plurals.sqlite_rows_plain, it.rows.size) } ?: "")
             else -> {
                 val r = data as? SqlData.Rows
                 val t = tables.firstOrNull { it.name == tab }
-                (if (t?.type == "view") "ビュー " else "表 ") + tab + (r?.total?.let { "・${"%,d".format(it)} 行" } ?: "") + (r?.header?.size?.let { "・$it 列" } ?: "")
+                Txt(if (t?.type == "view") R.string.sqlite_view_title else R.string.sqlite_table_title, tab) + (r?.total?.let { Txt.n(R.plurals.sqlite_rows_suffix, it) } ?: "") + (r?.header?.size?.let { Txt.n(R.plurals.sqlite_cols_suffix, it) } ?: "")
             }
         }
         Text(info, color = Pv.dim, fontSize = 12.sp, maxLines = 1, modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp))
@@ -236,7 +236,7 @@ private fun SqliteView(sdb: SqlDb, item: FileItem, fontSp: Int) {
                 data is SqlData.Error -> Text(data.message, color = Pv.bad, modifier = Modifier.padding(16.dp))
                 data is SqlData.Rows -> {
                     if (data.rows.isEmpty()) {
-                        Text(if (data.header.isEmpty()) "結果がありません" else "行がありません(列: ${data.header.joinToString("、")})", color = Pv.dim, modifier = Modifier.align(Alignment.Center).padding(24.dp))
+                        Text(if (data.header.isEmpty()) Txt(R.string.sqlite_ui_011) else Txt(R.string.sqlite_ui_012, data.header.joinToString(Txt(R.string.sep_comma))), color = Pv.dim, modifier = Modifier.align(Alignment.Center).padding(24.dp))
                     } else {
                         val model = remember(data) { SqlGridModel(data.header, data.rows) }
                         SheetGrid(model, fontSp, Modifier.fillMaxSize(), Pv.dark)
@@ -250,27 +250,27 @@ private fun SqliteView(sdb: SqlDb, item: FileItem, fontSp: Int) {
         if (tab != TAB_SCHEMA && tab != TAB_QUERY && rows != null && ((rows.total ?: 0) > PAGE_ROWS || offset > 0)) {
             val total = rows.total ?: 0L
             Row(Modifier.fillMaxWidth().background(Pv.panel), verticalAlignment = Alignment.CenterVertically) {
-                TextButton(onClick = { offset = SqlFormat.pageStart(offset, PAGE_ROWS, total, false) }, enabled = offset > 0) { Text("前の ${PAGE_ROWS} 行") }
+                TextButton(onClick = { offset = SqlFormat.pageStart(offset, PAGE_ROWS, total, false) }, enabled = offset > 0) { Text(Txt.n(R.plurals.sqlite_prev_rows, PAGE_ROWS)) }
                 Text(
-                    "${offset + 1}〜${minOf(total, (offset + PAGE_ROWS).toLong())} / ${"%,d".format(total)} 行", color = Pv.text, fontSize = 12.sp,
+                    Txt.n(R.plurals.sqlite_page_range, total, offset + 1, minOf(total, (offset + PAGE_ROWS).toLong())), color = Pv.text, fontSize = 12.sp,
                     modifier = Modifier.weight(1f), textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                 )
-                TextButton(onClick = { offset = SqlFormat.pageStart(offset, PAGE_ROWS, total, true) }, enabled = offset + PAGE_ROWS < total) { Text("次の ${PAGE_ROWS} 行") }
+                TextButton(onClick = { offset = SqlFormat.pageStart(offset, PAGE_ROWS, total, true) }, enabled = offset + PAGE_ROWS < total) { Text(Txt.n(R.plurals.sqlite_next_rows, PAGE_ROWS)) }
             }
         }
 
         // 下: 表・ビューのタブ、スキーマ、検索
         Row(Modifier.fillMaxWidth().background(Pv.panel).horizontalScroll(rememberScrollState())) {
             for (t in tables) Tab(t.name, tab == t.name) { tab = t.name; offset = 0 }
-            Tab("スキーマ", tab == TAB_SCHEMA) { tab = TAB_SCHEMA }
-            Tab("SQL検索…", tab == TAB_QUERY) { queryDialog = true }
+            Tab(Txt(R.string.sqlite_ui_013), tab == TAB_SCHEMA) { tab = TAB_SCHEMA }
+            Tab(Txt(R.string.sqlite_ui_014), tab == TAB_QUERY) { queryDialog = true }
         }
     }
 
     if (queryDialog) {
         AlertDialog(
             onDismissRequest = { queryDialog = false },
-            title = { Text("SQLで検索") },
+            title = { Text(Txt(R.string.sqlite_ui_015)) },
             text = {
                 Column {
                     OutlinedTextField(
@@ -278,22 +278,22 @@ private fun SqliteView(sdb: SqlDb, item: FileItem, fontSp: Int) {
                         modifier = Modifier.fillMaxWidth().heightIn(min = 120.dp, max = 260.dp),
                         textStyle = androidx.compose.ui.text.TextStyle(fontFamily = FontFamily.Monospace, fontSize = 14.sp),
                     )
-                    Text("読み取りだけの検索(SELECT など)を 1 つ実行できます。データは変わりません。", fontSize = 12.sp, modifier = Modifier.padding(top = 6.dp))
+                    Text(Txt(R.string.sqlite_ui_016), fontSize = 12.sp, modifier = Modifier.padding(top = 6.dp))
                     queryError?.let { Text(it, color = androidx.compose.material3.MaterialTheme.colorScheme.error, fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp)) }
                 }
             },
             confirmButton = {
                 TextButton(onClick = {
                     if (!SqlFormat.isReadOnlyQuery(queryText)) {
-                        queryError = "読み取りだけの検索(SELECT など)を 1 つ書いて"
+                        queryError = Txt(R.string.sqlite_ui_017)
                     } else {
                         queryRun = queryText
                         tab = TAB_QUERY
                         queryDialog = false
                     }
-                }) { Text("実行") }
+                }) { Text(Txt(R.string.sqlite_ui_018)) }
             },
-            dismissButton = { TextButton(onClick = { queryDialog = false }) { Text("閉じる") } },
+            dismissButton = { TextButton(onClick = { queryDialog = false }) { Text(Txt(R.string.sqlite_ui_019)) } },
         )
     }
 }
@@ -313,7 +313,7 @@ private fun SchemaText(sdb: SqlDb, fontSp: Int) {
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(12.dp)) {
             for (o in sdb.objects) {
                 Text("-- ${o.type}: ${o.name}", color = Pv.comment, fontFamily = FontFamily.Monospace, fontSize = (fontSp - 1).sp)
-                Text((o.sql ?: "(自動で作られたもの)") + ";", color = Pv.text, fontFamily = FontFamily.Monospace, fontSize = fontSp.sp, modifier = Modifier.padding(bottom = 14.dp))
+                Text((o.sql ?: Txt(R.string.sqlite_ui_020)) + ";", color = Pv.text, fontFamily = FontFamily.Monospace, fontSize = fontSp.sp, modifier = Modifier.padding(bottom = 14.dp))
             }
         }
     }

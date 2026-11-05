@@ -49,7 +49,7 @@ internal fun PlayerTopBar(title: String, counter: String?, onClose: () -> Unit, 
         modifier.fillMaxWidth().background(Color(0x99000000)).statusBarsPadding().height(56.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        IconButton(onClick = onClose) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "閉じる", tint = Color.White) }
+        IconButton(onClick = onClose) { Icon(Icons.AutoMirrored.Filled.ArrowBack, Txt(R.string.player_chrome_001), tint = Color.White) }
         Column(Modifier.weight(1f)) {
             Text(title, color = Color.White, fontSize = 16.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
             if (counter != null) Text(counter, color = Color(0xFFCCCCCC), fontSize = 12.sp)
@@ -61,7 +61,7 @@ internal fun PlayerTopBar(title: String, counter: String?, onClose: () -> Unit, 
 /** 右上の「︙」ボタン。メニュー本体(ViewerMenu。プレビューと同じ見た目)は呼ぶ側が Box で隣に置く。 */
 @Composable
 internal fun PlayerMenuButton(onOpen: () -> Unit) {
-    IconButton(onClick = onOpen) { Icon(Icons.Default.MoreVert, "メニュー", tint = Color.White) }
+    IconButton(onClick = onOpen) { Icon(Icons.Default.MoreVert, Txt(R.string.player_chrome_002), tint = Color.White) }
 }
 
 /** 前へ・10秒戻し・再生/一時停止・10秒送り・次へ。multi が false のとき、前へ・次へは押せない。 */
@@ -72,22 +72,22 @@ internal fun PlayerTransport(
 ) {
     Row(modifier, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         IconButton(onClick = onPrev, enabled = multi) {
-            Icon(Icons.Default.SkipPrevious, "前へ", tint = Color.White.copy(alpha = if (multi) 1f else 0.3f), modifier = Modifier.size(32.dp))
+            Icon(Icons.Default.SkipPrevious, Txt(R.string.player_chrome_003), tint = Color.White.copy(alpha = if (multi) 1f else 0.3f), modifier = Modifier.size(32.dp))
         }
         IconButton(onClick = onBack10) {
-            Icon(Icons.Default.Replay10, "10秒戻す", tint = Color.White, modifier = Modifier.size(34.dp))
+            Icon(Icons.Default.Replay10, Txt(R.string.player_chrome_004), tint = Color.White, modifier = Modifier.size(34.dp))
         }
         IconButton(onClick = onToggle, modifier = Modifier.size(64.dp).clip(CircleShape).background(Color(0x66000000))) {
             Icon(
                 if (playing) Icons.Default.Pause else Icons.Default.PlayArrow,
-                if (playing) "一時停止" else "再生", tint = Color.White, modifier = Modifier.size(40.dp),
+                if (playing) Txt(R.string.player_chrome_005) else Txt(R.string.player_chrome_006), tint = Color.White, modifier = Modifier.size(40.dp),
             )
         }
         IconButton(onClick = onFwd10) {
-            Icon(Icons.Default.Forward10, "10秒送る", tint = Color.White, modifier = Modifier.size(34.dp))
+            Icon(Icons.Default.Forward10, Txt(R.string.player_chrome_007), tint = Color.White, modifier = Modifier.size(34.dp))
         }
         IconButton(onClick = onNext, enabled = multi) {
-            Icon(Icons.Default.SkipNext, "次へ", tint = Color.White.copy(alpha = if (multi) 1f else 0.3f), modifier = Modifier.size(32.dp))
+            Icon(Icons.Default.SkipNext, Txt(R.string.player_chrome_008), tint = Color.White.copy(alpha = if (multi) 1f else 0.3f), modifier = Modifier.size(32.dp))
         }
     }
 }

@@ -78,7 +78,7 @@ private fun openEpub(ctx: android.content.Context, fs: Fs, item: FileItem): Epub
     val handle = try {
         ArchiveOpener.open(fs, item, ctx.cacheDir)
     } catch (e: Exception) {
-        return EpubLoad.Fail(e.message ?: "読み込めません")
+        return EpubLoad.Fail(e.message ?: Txt(R.string.epub_ui_001))
     }
     return try {
         val byName = handle.source.entries.associateBy { ZipTree.clean(it.name) }
@@ -88,19 +88,19 @@ private fun openEpub(ctx: android.content.Context, fs: Fs, item: FileItem): Epub
         }
         if (book.spine.isEmpty()) {
             handle.close()
-            EpubLoad.Fail("本文が見つかりません。メニューで「ファイル一覧」に切り替えると中身を見られます")
+            EpubLoad.Fail(Txt(R.string.epub_ui_002))
         } else {
             EpubLoad.Ok(EpubSource(handle, book))
         }
     } catch (e: OpException) {
         handle.close()
-        EpubLoad.Fail(e.message ?: "EPUBとして読めません")
+        EpubLoad.Fail(e.message ?: Txt(R.string.epub_ui_003))
     } catch (e: Exception) {
         handle.close()
-        EpubLoad.Fail("EPUBとして読めません(${e.message ?: e.javaClass.simpleName})")
+        EpubLoad.Fail(Txt(R.string.epub_ui_004, e.message ?: e.javaClass.simpleName))
     } catch (e: OutOfMemoryError) {
         handle.close()
-        EpubLoad.Fail("大きすぎて読み込めません")
+        EpubLoad.Fail(Txt(R.string.epub_ui_005))
     }
 }
 
@@ -235,10 +235,10 @@ private fun EpubReader(src: EpubSource, item: FileItem, bars: Boolean, fontSp: I
                     color = Pv.barSub, fontSize = 12.sp, maxLines = 1, modifier = Modifier.align(Alignment.CenterHorizontally),
                 )
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceEvenly) {
-                    TextButton(onClick = { go(index - 1) }, enabled = index > 0) { Text("前の章") }
-                    TextButton(onClick = { tocOpen = true }, enabled = book.toc.isNotEmpty()) { Text("目次") }
-                    TextButton(onClick = { infoOpen = true }) { Text("本の情報") }
-                    TextButton(onClick = { go(index + 1) }, enabled = index < book.spine.lastIndex) { Text("次の章") }
+                    TextButton(onClick = { go(index - 1) }, enabled = index > 0) { Text(Txt(R.string.epub_ui_006)) }
+                    TextButton(onClick = { tocOpen = true }, enabled = book.toc.isNotEmpty()) { Text(Txt(R.string.epub_ui_007)) }
+                    TextButton(onClick = { infoOpen = true }) { Text(Txt(R.string.epub_ui_008)) }
+                    TextButton(onClick = { go(index + 1) }, enabled = index < book.spine.lastIndex) { Text(Txt(R.string.epub_ui_009)) }
                 }
             }
     }
@@ -247,7 +247,7 @@ private fun EpubReader(src: EpubSource, item: FileItem, bars: Boolean, fontSp: I
     if (tocOpen) {
         AlertDialog(
             onDismissRequest = { tocOpen = false },
-            title = { Text("目次") },
+            title = { Text(Txt(R.string.epub_ui_010)) },
             text = {
                 LazyColumn(Modifier.heightIn(max = 440.dp)) {
                     items(book.toc.size) { i ->
@@ -261,25 +261,25 @@ private fun EpubReader(src: EpubSource, item: FileItem, bars: Boolean, fontSp: I
                     }
                 }
             },
-            confirmButton = { TextButton(onClick = { tocOpen = false }) { Text("閉じる") } },
+            confirmButton = { TextButton(onClick = { tocOpen = false }) { Text(Txt(R.string.epub_ui_011)) } },
         )
     }
     if (infoOpen) {
         val rows = listOfNotNull(
-            book.title?.let { "題名" to it },
-            book.creators.takeIf { it.isNotEmpty() }?.let { "著者" to it.joinToString("、") },
-            book.publisher?.let { "出版社" to it },
-            book.language?.let { "言語" to it },
-            book.date?.let { "日付" to it },
-            book.identifier?.let { "識別子" to it },
-            "章の数" to "${book.spine.size}",
-            "読む向き" to if (book.rtl) "右から左(縦書きの本など)" else "左から右",
-            "ファイル" to item.name,
-            "ファイルの大きさ" to FileOps.formatSize(item.size),
+            book.title?.let { Txt(R.string.epub_ui_012) to it },
+            book.creators.takeIf { it.isNotEmpty() }?.let { Txt(R.string.epub_ui_013) to it.joinToString(Txt(R.string.epub_ui_014)) },
+            book.publisher?.let { Txt(R.string.epub_ui_015) to it },
+            book.language?.let { Txt(R.string.epub_ui_016) to it },
+            book.date?.let { Txt(R.string.epub_ui_017) to it },
+            book.identifier?.let { Txt(R.string.epub_ui_018) to it },
+            Txt(R.string.epub_ui_019) to "${book.spine.size}",
+            Txt(R.string.epub_ui_020) to if (book.rtl) Txt(R.string.epub_ui_021) else Txt(R.string.epub_ui_022),
+            Txt(R.string.epub_ui_023) to item.name,
+            Txt(R.string.epub_ui_024) to FileOps.formatSize(item.size),
         )
         AlertDialog(
             onDismissRequest = { infoOpen = false },
-            title = { Text("本の情報") },
+            title = { Text(Txt(R.string.epub_ui_025)) },
             text = {
                 SelectionContainer {
                     Column(Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState())) {
@@ -292,16 +292,16 @@ private fun EpubReader(src: EpubSource, item: FileItem, bars: Boolean, fontSp: I
                     }
                 }
             },
-            confirmButton = { TextButton(onClick = { infoOpen = false }) { Text("閉じる") } },
+            confirmButton = { TextButton(onClick = { infoOpen = false }) { Text(Txt(R.string.epub_ui_026)) } },
         )
     }
     pending?.let { url ->
         AlertDialog(
             onDismissRequest = { pending = null },
-            title = { Text("リンクを開く?") },
+            title = { Text(Txt(R.string.epub_ui_027)) },
             text = { Text(url, fontSize = 13.sp) },
-            confirmButton = { TextButton(onClick = { runCatching { uri.openUri(url) }; pending = null }) { Text("開く") } },
-            dismissButton = { TextButton(onClick = { pending = null }) { Text("キャンセル") } },
+            confirmButton = { TextButton(onClick = { runCatching { uri.openUri(url) }; pending = null }) { Text(Txt(R.string.epub_ui_028)) } },
+            dismissButton = { TextButton(onClick = { pending = null }) { Text(Txt(R.string.epub_ui_029)) } },
         )
     }
 }

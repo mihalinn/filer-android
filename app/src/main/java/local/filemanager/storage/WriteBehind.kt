@@ -59,8 +59,8 @@ internal class WriteBehind(
     }
 
     override fun write(b: ByteArray, off: Int, len: Int) {
-        if (closed) throw IOException("閉じています")
-        if (failed) throw IOException("書き込みに失敗しています")
+        if (closed) throw IOException(Txt(R.string.write_behind_001))
+        if (failed) throw IOException(Txt(R.string.write_behind_002))
         var done = 0
         while (done < len) {
             val n = minOf(chunk - staged, len - done)
@@ -128,7 +128,7 @@ internal class WriteBehind(
                 recover((e.cause as? Exception) ?: e)
             } catch (e: InterruptedException) {
                 Thread.currentThread().interrupt()
-                throw InterruptedIOException("中断されました")
+                throw InterruptedIOException(Txt(R.string.write_behind_003))
             }
         }
     }

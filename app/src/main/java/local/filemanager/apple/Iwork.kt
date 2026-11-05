@@ -13,13 +13,13 @@ object Snappy {
         var size = 0L
         var shift = 0
         while (true) {
-            if (p >= end || shift > 35) throw OpException("Snappyの先頭が読めません")
+            if (p >= end || shift > 35) throw OpException(Txt(R.string.iwork_001))
             val b = src[p++].toInt() and 0xFF
             size = size or ((b and 0x7F).toLong() shl shift)
             if (b < 0x80) break
             shift += 7
         }
-        if (size > 512L * 1024 * 1024) throw OpException("展開後が大きすぎます")
+        if (size > 512L * 1024 * 1024) throw OpException(Txt(R.string.iwork_002))
         val out = ByteArray(size.toInt())
         var o = 0
         while (p < end && o < out.size) {
@@ -29,13 +29,13 @@ object Snappy {
                     var n = (tag shr 2) + 1
                     if (n > 60) {
                         val extra = n - 60
-                        if (p + extra > end) throw OpException("Snappyの長さが足りません")
+                        if (p + extra > end) throw OpException(Txt(R.string.iwork_003))
                         n = 0
                         for (i in 0 until extra) n = n or ((src[p + i].toInt() and 0xFF) shl (8 * i))
                         n += 1
                         p += extra
                     }
-                    if (p + n > end || o + n > out.size) throw OpException("Snappyの文字が足りません")
+                    if (p + n > end || o + n > out.size) throw OpException(Txt(R.string.iwork_004))
                     System.arraycopy(src, p, out, o, n)
                     p += n
                     o += n
@@ -45,29 +45,29 @@ object Snappy {
                     val off: Int
                     when (tag and 3) {
                         1 -> {
-                            if (p >= end) throw OpException("Snappyが途中で切れています")
+                            if (p >= end) throw OpException(Txt(R.string.iwork_005))
                             n = 4 + ((tag shr 2) and 7)
                             off = ((tag shr 5) shl 8) or (src[p++].toInt() and 0xFF)
                         }
                         2 -> {
-                            if (p + 2 > end) throw OpException("Snappyが途中で切れています")
+                            if (p + 2 > end) throw OpException(Txt(R.string.iwork_006))
                             n = 1 + (tag shr 2)
                             off = (src[p].toInt() and 0xFF) or ((src[p + 1].toInt() and 0xFF) shl 8)
                             p += 2
                         }
                         else -> {
-                            if (p + 4 > end) throw OpException("Snappyが途中で切れています")
+                            if (p + 4 > end) throw OpException(Txt(R.string.iwork_007))
                             n = 1 + (tag shr 2)
                             off = Ole2.le32(src, p)
                             p += 4
                         }
                     }
-                    if (off <= 0 || off > o || o + n > out.size) throw OpException("Snappyの参照が壊れています")
+                    if (off <= 0 || off > o || o + n > out.size) throw OpException(Txt(R.string.iwork_008))
                     for (i in 0 until n) { out[o] = out[o - off]; o++ } // 重なる参照があるので 1 バイトずつ
                 }
             }
         }
-        if (o != out.size) throw OpException("Snappyの展開後の大きさが合いません")
+        if (o != out.size) throw OpException(Txt(R.string.iwork_009))
         return out
     }
 }
@@ -103,7 +103,7 @@ object Iwork {
         val lower = names.associateBy { it.lowercase() }
         val iwa = names.filter { it.lowercase().startsWith("index/") && it.lowercase().endsWith(".iwa") }
         val legacy = iwa.isEmpty() && lower.keys.any { it == "index.xml" || it == "index.apxl" }
-        if (iwa.isEmpty() && !legacy && PREVIEWS.none { lower.containsKey(it.lowercase()) }) throw OpException("iWorkの書類として読めません(Index/*.iwa も index.xml もプレビューもありません)")
+        if (iwa.isEmpty() && !legacy && PREVIEWS.none { lower.containsKey(it.lowercase()) }) throw OpException(Txt(R.string.iwork_010))
         val preview = PREVIEWS.firstNotNullOfOrNull { lower[it.lowercase()] }
         val pdf = lower["quicklook/preview.pdf"]
         val versions = ArrayList<String>()
@@ -115,7 +115,7 @@ object Iwork {
         lower["metadata/properties.plist"]?.let { n ->
             read(n)?.let { b ->
                 runCatching { Plist.parse(b) }.getOrNull()?.let { p ->
-                    p.str("fileFormatVersion")?.let { versions.add("ファイル形式のバージョン: $it") }
+                    p.str("fileFormatVersion")?.let { versions.add(Txt(R.string.iwork_011, it)) }
                 }
             }
         }
@@ -126,14 +126,14 @@ object Iwork {
             if (legacy) {
                 val xml = read(lower["index.xml"] ?: lower["index.apxl"]!!)
                 if (xml != null && xml.size <= 24 * 1024 * 1024) texts.addAll(legacyTexts(xml))
-                else note = "本文のXMLが大きすぎて、文字は取り出していません"
+                else note = Txt(R.string.iwork_012)
             } else if (iwa.isNotEmpty()) {
                 texts.addAll(Iwa.texts(iwa.sorted().mapNotNull { n -> read(n)?.let { n to it } }))
             }
         } catch (e: Exception) {
-            note = "文字を取り出せなかった(${e.message ?: e.javaClass.simpleName})"
+            note = Txt(R.string.iwork_013, e.message ?: e.javaClass.simpleName)
         }
-        if (texts.isEmpty() && note == null) note = "文字は見つかりませんでした"
+        if (texts.isEmpty() && note == null) note = Txt(R.string.iwork_014)
         return IworkInfo(appOf(fileName), legacy, preview, pdf, versions, media, texts, note)
     }
 
@@ -316,33 +316,33 @@ class IpaInfo(
 )
 
 object Ipa {
-    private val PERMISSION_NAMES = mapOf(
-        "NSCameraUsageDescription" to "カメラ", "NSMicrophoneUsageDescription" to "マイク", "NSPhotoLibraryUsageDescription" to "写真",
-        "NSPhotoLibraryAddUsageDescription" to "写真の追加", "NSLocationWhenInUseUsageDescription" to "位置情報(使用中)",
-        "NSLocationAlwaysUsageDescription" to "位置情報(常に)", "NSLocationAlwaysAndWhenInUseUsageDescription" to "位置情報(常に・使用中)",
-        "NSContactsUsageDescription" to "連絡先", "NSCalendarsUsageDescription" to "カレンダー", "NSRemindersUsageDescription" to "リマインダー",
-        "NSBluetoothAlwaysUsageDescription" to "Bluetooth", "NSBluetoothPeripheralUsageDescription" to "Bluetooth(周辺機器)",
-        "NSFaceIDUsageDescription" to "Face ID", "NSMotionUsageDescription" to "モーション", "NSHealthShareUsageDescription" to "ヘルスケア(読み取り)",
-        "NSHealthUpdateUsageDescription" to "ヘルスケア(書き込み)", "NSSpeechRecognitionUsageDescription" to "音声認識",
-        "NSLocalNetworkUsageDescription" to "ローカルネットワーク", "NSUserTrackingUsageDescription" to "トラッキング",
-        "NSAppleMusicUsageDescription" to "ミュージック", "NSSiriUsageDescription" to "Siri", "NSHomeKitUsageDescription" to "HomeKit",
+    private fun permissionNames() = mapOf(
+        "NSCameraUsageDescription" to Txt(R.string.iwork_015), "NSMicrophoneUsageDescription" to Txt(R.string.iwork_016), "NSPhotoLibraryUsageDescription" to Txt(R.string.iwork_017),
+        "NSPhotoLibraryAddUsageDescription" to Txt(R.string.iwork_018), "NSLocationWhenInUseUsageDescription" to Txt(R.string.iwork_019),
+        "NSLocationAlwaysUsageDescription" to Txt(R.string.iwork_020), "NSLocationAlwaysAndWhenInUseUsageDescription" to Txt(R.string.iwork_021),
+        "NSContactsUsageDescription" to Txt(R.string.iwork_022), "NSCalendarsUsageDescription" to Txt(R.string.iwork_023), "NSRemindersUsageDescription" to Txt(R.string.iwork_024),
+        "NSBluetoothAlwaysUsageDescription" to "Bluetooth", "NSBluetoothPeripheralUsageDescription" to Txt(R.string.iwork_025),
+        "NSFaceIDUsageDescription" to "Face ID", "NSMotionUsageDescription" to Txt(R.string.iwork_026), "NSHealthShareUsageDescription" to Txt(R.string.iwork_027),
+        "NSHealthUpdateUsageDescription" to Txt(R.string.iwork_028), "NSSpeechRecognitionUsageDescription" to Txt(R.string.iwork_029),
+        "NSLocalNetworkUsageDescription" to Txt(R.string.iwork_030), "NSUserTrackingUsageDescription" to Txt(R.string.iwork_031),
+        "NSAppleMusicUsageDescription" to Txt(R.string.iwork_032), "NSSiriUsageDescription" to "Siri", "NSHomeKitUsageDescription" to "HomeKit",
     )
 
     fun parse(names: Collection<String>, read: (String) -> ByteArray?): IpaInfo {
         val plistName = names.filter { Regex("^Payload/[^/]+\\.app/Info\\.plist$").matches(it) }.minOrNull()
-            ?: throw OpException("iPhoneアプリ(Payload/〜.app/Info.plist)が見つかりません")
+            ?: throw OpException(Txt(R.string.iwork_033))
         val appDir = plistName.removeSuffix("/Info.plist")
-        val p = Plist.parse(read(plistName) ?: throw OpException("Info.plist を読めません"))
+        val p = Plist.parse(read(plistName) ?: throw OpException(Txt(R.string.iwork_034)))
         fun s(k: String) = p.str(k)
-        val devices = p.items("UIDeviceFamily").mapNotNull { (it as? PValue.Int)?.value }.map { when (it) { 1L -> "iPhone"; 2L -> "iPad"; 3L -> "Apple TV"; 4L -> "Apple Watch"; else -> "種類$it" } }
+        val devices = p.items("UIDeviceFamily").mapNotNull { (it as? PValue.Int)?.value }.map { when (it) { 1L -> "iPhone"; 2L -> "iPad"; 3L -> "Apple TV"; 4L -> "Apple Watch"; else -> Txt(R.string.iwork_035, it) } }
         val perms = (p as? PValue.Dict)?.map?.entries?.filter { it.key.startsWith("NS") && it.key.endsWith("UsageDescription") }
-            ?.map { (PERMISSION_NAMES[it.key] ?: it.key.removePrefix("NS").removeSuffix("UsageDescription")) to ((it.value as? PValue.Str)?.value ?: "") } ?: emptyList()
+            ?.map { (permissionNames()[it.key] ?: it.key.removePrefix("NS").removeSuffix("UsageDescription")) to ((it.value as? PValue.Str)?.value ?: "") } ?: emptyList()
         val schemes = p.items("CFBundleURLTypes").flatMap { t -> t.items("CFBundleURLSchemes").mapNotNull { (it as? PValue.Str)?.value } }
         val modes = p.items("UIBackgroundModes").mapNotNull { (it as? PValue.Str)?.value }
         val provision = names.firstOrNull { it == "$appDir/embedded.mobileprovision" }?.let { n ->
             read(n)?.let { b -> Plist.embeddedXml(b)?.let { x -> runCatching { Plist.parse(x.toByteArray()) }.getOrNull() } }
         }?.let { pr ->
-            listOfNotNull(pr.str("Name"), pr.str("TeamName")?.let { "チーム: $it" }, (pr.dict("ExpirationDate") as? PValue.Date)?.let { "期限: ${it.iso.substringBefore('T')}" }).joinToString(" / ")
+            listOfNotNull(pr.str("Name"), pr.str("TeamName")?.let { Txt(R.string.iwork_036, it) }, (pr.dict("ExpirationDate") as? PValue.Date)?.let { Txt(R.string.iwork_037, it.iso.substringBefore('T')) }).joinToString(" / ")
         }
         return IpaInfo(
             s("CFBundleDisplayName") ?: s("CFBundleName"), s("CFBundleIdentifier"), s("CFBundleShortVersionString"), s("CFBundleVersion"),
