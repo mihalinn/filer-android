@@ -24,6 +24,7 @@ An ad-free file manager for Android. It handles files on your device and on a NA
   - iPhone formats (plist, pkpass, iWork, ipa), SQLite, fonts and contacts (vCard)
 - **Editing**: edit text files (find and replace, choice of text encoding and line endings). CSV and TSV can be edited like a spreadsheet by selecting cells
 - **Appearance**: reorderable Home screen, light and dark colors, theme colors (indigo, teal, wine red)
+- **Settings backup**: export your settings, bookmarks and NAS connections to a file in a custom format (.filerbak) and restore them later. If you set a password the file is strongly encrypted (scrypt + AES-256-GCM); without one it still gets simple encryption only. You can save it anywhere: device, NAS or cloud
 - **Languages**: English and Japanese. By default the app follows the device language, and you can choose the language inside the app under Settings → Display → Language. Other languages are welcome (see “Adding a translation” below)
 
 ## Build

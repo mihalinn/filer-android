@@ -104,6 +104,7 @@ object RemoteStore {
                     .put("pw", Secrets.encrypt(r.password)).put("domain", r.domain),
             )
         }
-        ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString(KEY, arr.toString()).apply()
+        // commit: バックアップの読み込みの直後にアプリを再起動するので、書き込みを待つ
+        ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString(KEY, arr.toString()).commit()
     }
 }

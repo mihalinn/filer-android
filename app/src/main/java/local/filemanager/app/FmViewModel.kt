@@ -1025,6 +1025,70 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
 
     fun cancelIncoming() {
         incoming = null
+        BackupManager.clearTemp(getApplication()) // 書き出したバックアップの一時ファイルが残らないように
+    }
+
+    // ---- 設定のバックアップ ----
+
+    // ---- 初回設定画面(はじめの案内) ----
+
+    /** 案内を出している間 true。初めて使うときだけ出す(すでに使っている人には出さず、見たことにする)。 */
+    var onboarding by mutableStateOf(initOnboarding())
+        private set
+
+    /** いま何番目の段階か(言語を切り替えると画面が作り直されるので、ここに持つ)。 */
+    var onboardingStep by mutableStateOf(0)
+        private set
+
+    private fun initOnboarding(): Boolean {
+        val done = prefs.getBoolean("onboarded", false)
+        val hasAccess = Environment.isExternalStorageManager()
+        val fresh = try {
+            val pi = getApplication<Application>().let { it.packageManager.getPackageInfo(it.packageName, 0) }
+            Onboarding.isFreshInstall(pi.firstInstallTime, pi.lastUpdateTime)
+        } catch (_: Exception) { false }
+        val show = Onboarding.shouldShow(done, hasAccess, fresh)
+        if (!done && !show) prefs.edit().putBoolean("onboarded", true).apply() // すでに使っている人は、見たことにする
+        return show
+    }
+
+    fun onboardingNext() { onboardingStep = Onboarding.clamp(onboardingStep + 1) }
+
+    fun onboardingBack() { onboardingStep = Onboarding.clamp(onboardingStep - 1) }
+
+    fun finishOnboarding() {
+        onboarding = false
+        onboardingStep = 0
+        prefs.edit().putBoolean("onboarded", true).apply()
+    }
+
+    /** 設定から、案内をもう一度見る。 */
+    fun restartOnboarding() {
+        onboardingStep = 0
+        onboarding = true
+    }
+
+    /** 読み込むバックアップのファイルを、ファイル画面で選んでもらっている間 true。 */
+    var pickBackup by mutableStateOf(false)
+        private set
+
+    /** 書き出す・読み込む操作と窓(保存先と読み込むファイルは、このアプリのファイル画面で選ぶ)。 */
+    internal val backup = BackupUi(
+        app,
+        viewModelScope,
+        say = { messages.tryEmit(it) },
+        offerSave = { f -> receiveShared(listOf(f)); goHome() },
+        pickFile = { pickBackup = it },
+    )
+
+    /** 設定の「設定を読み込む」。ファイル画面へ移って、.filerbak を押してもらう。 */
+    fun startBackupImport() {
+        pickBackup = true
+        goHome()
+    }
+
+    fun cancelPickBackup() {
+        pickBackup = false
     }
 
     /** いま開いているフォルダに、受け取ったものを保存する。 */
@@ -1072,6 +1136,7 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
                 if (failed == 0) Txt.n(R.plurals.op_saved, files.size) else Txt.n(R.plurals.op_failed_first, failed, first)
             } finally {
                 opened.forEach { runCatching { it.second?.close() } }
+                BackupManager.clearTemp(getApplication())
             }
         }
     }
@@ -1095,6 +1160,8 @@ class FmViewModel(app: Application) : AndroidViewModel(app) {
     fun openOrView(item: FileItem) {
         val fs = itemFs
         when {
+            // バックアップのファイルは、読み込みを始める(パスワードが要るかは、中身を見て決める)
+            !item.isDir && item.name.endsWith(".filerbak", ignoreCase = true) -> backup.importFrom(fs, item)
             item.kind == FileKind.IMAGE -> {
                 // いま一覧に出ている画像を、並び順のまま左右にめくれるようにする
                 val images = visible.filter { !it.isDir && it.kind == FileKind.IMAGE }

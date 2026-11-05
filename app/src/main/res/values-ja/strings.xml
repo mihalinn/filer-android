@@ -1865,4 +1865,75 @@
     <string name="sqlite_ui_018">実行</string>
     <string name="sqlite_ui_019">閉じる</string>
     <string name="sqlite_ui_020">(自動で作られたもの)</string>
+
+    <!-- 設定のバックアップ -->
+    <string name="settings_backup_group">バックアップ</string>
+    <string name="settings_backup_export">設定を書き出す</string>
+    <string name="settings_backup_export_sub">ファイルに保存します。パスワードで暗号化もできます</string>
+    <string name="settings_backup_import">設定を読み込む</string>
+    <string name="settings_backup_import_sub">ファイル画面で、書き出したファイル(.filerbak)を押して戻します</string>
+    <string name="backup_export_title">設定を書き出す</string>
+    <string name="backup_export_help">パスワードを決めると、そのパスワードで強く暗号化して保存します。パスワードを忘れると、誰にも開けません。\nパスワードを決めない場合は、簡易的な暗号化だけで保存します(パスワードなしで開けます)。</string>
+    <string name="backup_password">パスワード(決める場合は8文字以上)</string>
+    <string name="backup_password_repeat">もう一度入力</string>
+    <string name="backup_password_mismatch">パスワードが一致しません</string>
+    <string name="backup_no_password_note">パスワードなしで保存します。簡易的な暗号化だけなので、このアプリの仕組みを知っている人なら、中身を読めます</string>
+    <string name="backup_include_history">履歴と最近開いた場所も入れる</string>
+    <string name="backup_include_nas_passwords">NAS のパスワードも入れる</string>
+    <string name="backup_nas_plain_warning">簡易的な暗号化だけなので、ファイルを手に入れた人に、NAS のパスワードが分かるおそれがあります</string>
+    <string name="backup_choose_place">保存先を選ぶ</string>
+    <string name="backup_cancel">キャンセル</string>
+    <string name="backup_working">処理しています…</string>
+    <string name="backup_export_failed">書き出せませんでした</string>
+    <string name="backup_import_title">設定を読み込む</string>
+    <string name="backup_import_help">書き出したときのパスワードを入力してください</string>
+    <string name="backup_password_plain">パスワード</string>
+    <string name="backup_import_go">開く</string>
+    <string name="backup_pick_hint">バックアップのファイル(.filerbak)を探して、押してください</string>
+    <string name="backup_err_password">パスワードが違うか、ファイルが壊れています</string>
+    <string name="backup_err_not_backup">このアプリのバックアップファイルではありません</string>
+    <string name="backup_err_too_new">新しいバージョンのアプリで書き出されたファイルです。アプリを更新してください</string>
+    <string name="backup_err_too_big">ファイルが大きすぎます</string>
+    <string name="backup_err_bad">バックアップの中身が正しくありません</string>
+    <string name="backup_err_read">ファイルを読めませんでした</string>
+    <string name="backup_preview_title">読み込む内容</string>
+    <plurals name="backup_sum_settings"><item quantity="other">設定 %1$d 項目</item></plurals>
+    <plurals name="backup_sum_bookmarks"><item quantity="other">ブックマーク %1$d 件</item></plurals>
+    <plurals name="backup_sum_pinned"><item quantity="other">固定した場所 %1$d 件</item></plurals>
+    <plurals name="backup_sum_history"><item quantity="other">履歴など %1$d 件</item></plurals>
+    <plurals name="backup_sum_remotes"><item quantity="other">NAS の接続先 %1$d 件</item></plurals>
+    <string name="backup_sum_none">読み込める内容がありません</string>
+    <string name="backup_nas_no_password">このバックアップには、NAS のパスワードが入っていません(すでにある同じ接続先は、いまのパスワードを残します)</string>
+    <string name="backup_mode_merge">いまのものに追加する</string>
+    <string name="backup_mode_merge_help">ブックマーク・固定した場所・NAS の接続先は、いまのものを残して足します</string>
+    <string name="backup_mode_replace">いまのものと置き換える</string>
+    <string name="backup_mode_replace_help">ブックマーク・固定した場所・NAS の接続先は、バックアップのものだけになります</string>
+    <string name="backup_restart_note">読み込んだあと、アプリを再起動します</string>
+    <string name="backup_import_do">読み込む</string>
+    <string name="backup_imported">読み込みました。アプリを再起動します</string>
+
+    <!-- 初回設定画面 -->
+    <string name="onboarding_skip">飛ばす</string>
+    <string name="onboarding_back">戻る</string>
+    <string name="onboarding_next">次へ</string>
+    <string name="onboarding_done">完了</string>
+    <string name="onboarding_welcome_title">ファイラーへようこそ</string>
+    <string name="onboarding_welcome_text">広告のない、端末と NAS を同じように扱えるファイルマネージャーです。はじめに、いくつか設定します。あとから、設定でいつでも変えられます</string>
+    <string name="onboarding_look_title">見た目を選びます</string>
+    <string name="onboarding_look_text">選ぶと、すぐ反映されます</string>
+    <string name="onboarding_access_title">ファイルへのアクセス</string>
+    <string name="onboarding_access_text">ファイルを一覧・コピー・移動・削除するために、「すべてのファイルの管理」の許可が必要です。許可の画面で、このアプリをオンにしてください</string>
+    <string name="onboarding_access_open">許可の画面を開く</string>
+    <string name="onboarding_access_granted">許可されています</string>
+    <string name="onboarding_access_needed">許可すると、次へ進めます</string>
+    <string name="onboarding_notify_title">通知(なくても使えます)</string>
+    <string name="onboarding_notify_text">コピー・移動の進み具合と、動画・音声の再生中の操作を、通知に出します</string>
+    <string name="onboarding_notify_allow">通知を許可する</string>
+    <string name="onboarding_notify_granted">通知は許可されています</string>
+    <string name="onboarding_nas_title">NAS と、バックアップからの復元</string>
+    <string name="onboarding_nas_text">どちらも、あとから設定でできます。いまやらない場合は、「完了」を押してください</string>
+    <string name="onboarding_nas_add">NAS を追加する</string>
+    <string name="onboarding_nas_restore">バックアップから戻す</string>
+    <string name="settings_onboarding_again">初期設定をやり直す</string>
+    <string name="settings_onboarding_again_sub">言語・見た目・許可の案内を、もう一度見ます</string>
 </resources>

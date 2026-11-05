@@ -41,7 +41,7 @@ class MainActivity : ComponentActivity() {
         BgTasks.attach(this)
         // 上部バーは常に濃い色なので、ステータスバーの文字は常に白にする
         enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT))
-        val actions = Actions(openFile = ::openFile, share = ::share, openUrl = ::openUrl)
+        val actions = Actions(openFile = ::openFile, share = ::share, openUrl = ::openUrl, requestNotifications = ::requestNotificationsNow)
         // 画面の回転などで作り直されたときは、同じ共有を二重に受け取らない
         if (savedInstanceState == null) {
             handleSharedIntent(intent)
@@ -178,8 +178,17 @@ class MainActivity : ComponentActivity() {
     }
 
     /** コピー・移動の進み具合を通知に出すための許可(Android 13 以降)を、最初に1回だけ頼む。 */
+    /** 初回設定画面から。許可がまだなら頼む(頼んだことは覚えて、あとで重ねて頼まない)。 */
+    private fun requestNotificationsNow() {
+        if (Build.VERSION.SDK_INT < 33) return
+        getSharedPreferences("fm", MODE_PRIVATE).edit().putBoolean("askedNotification", true).apply()
+        if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) return
+        notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+    }
+
     private fun askNotificationPermissionOnce() {
         if (Build.VERSION.SDK_INT < 33) return
+        if (vm.onboarding) return // 案内の中で頼むので、ここでは頼まない
         if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) return
         val prefs = getSharedPreferences("fm", MODE_PRIVATE)
         if (prefs.getBoolean("askedNotification", false)) return

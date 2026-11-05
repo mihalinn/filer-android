@@ -167,6 +167,10 @@ private fun SettingsMain(vm: FmViewModel) {
             LinkRow(Txt(R.string.settings_ui_035), if (vm.remotes.isEmpty()) Txt(R.string.settings_ui_036) else Txt.n(R.plurals.settings_remotes_count, vm.remotes.size)) { vm.openNetwork() }
             LinkRow(Txt(R.string.settings_ui_037), FileOps.formatSize(vm.trashSize)) { vm.openTrash() }
         }
+        Group(Txt(R.string.settings_backup_group)) {
+            LinkRow(Txt(R.string.settings_backup_export), Txt(R.string.settings_backup_export_sub)) { vm.backup.startExport() }
+            LinkRow(Txt(R.string.settings_backup_import), Txt(R.string.settings_backup_import_sub)) { vm.startBackupImport() }
+        }
         Group(Txt(R.string.settings_ui_038)) { UpdateSettings(vm.updater) }
         Group(Txt(R.string.settings_ui_039)) {
             LinkRow(Txt(R.string.settings_ui_040), Txt(R.string.settings_ui_041)) { report = true }
@@ -208,6 +212,7 @@ private fun SettingsMain(vm: FmViewModel) {
             HorizontalDivider(color = pal.divider)
             LinkRow(Txt(R.string.settings_ui_052), Txt(R.string.settings_ui_053)) { vm.openSettings(SettingsPage.FORMATS) }
             LinkRow(Txt(R.string.settings_ui_054), Txt.n(R.plurals.settings_licenses_count, Credits.list.size)) { vm.openSettings(SettingsPage.LICENSES) }
+            LinkRow(Txt(R.string.settings_onboarding_again), Txt(R.string.settings_onboarding_again_sub)) { vm.restartOnboarding() }
             if (vm.devMode) LinkRow(Txt(R.string.settings_ui_055), Txt(R.string.settings_ui_056)) { vm.openSettings(SettingsPage.DEVELOPER) }
         }
         Spacer(Modifier.height(24.dp))
@@ -264,7 +269,7 @@ private fun Group(title: String, content: @Composable () -> Unit) {
 
 /** 横に並んだ選択肢から 1 つ選ぶ行(ホームの「1行に並べる数」やドロワーの切り替えと同じ見た目)。 */
 @Composable
-private fun SegmentRow(title: String, options: List<String>, selected: Int, onSelect: (Int) -> Unit) {
+internal fun SegmentRow(title: String, options: List<String>, selected: Int, onSelect: (Int) -> Unit) {
     val pal = LocalPal.current
     Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp)) {
         Text(title, Modifier.padding(start = 4.dp, bottom = 4.dp), fontSize = 13.sp, color = pal.subText)
@@ -290,14 +295,9 @@ private fun SegmentRow(title: String, options: List<String>, selected: Int, onSe
     }
 }
 /** テーマカラーを選ぶ行。丸い見本(バーの色と差し色)を並べ、選んでいるものに枠を付ける。 */
-private tailrec fun android.content.Context.findActivity(): android.app.Activity? = when (this) {
-    is android.app.Activity -> this
-    is android.content.ContextWrapper -> baseContext.findActivity()
-    else -> null
-}
 
 @Composable
-private fun ThemeColorRow(selected: String, onSelect: (String) -> Unit) {
+internal fun ThemeColorRow(selected: String, onSelect: (String) -> Unit) {
     val pal = LocalPal.current
     Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp)) {
         Text(Txt(R.string.settings_ui_058), Modifier.padding(start = 4.dp, bottom = 6.dp), fontSize = 13.sp, color = pal.subText)

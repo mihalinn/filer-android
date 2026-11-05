@@ -91,11 +91,15 @@ class Actions(
     val openFile: (File) -> Unit,
     val share: (List<File>) -> Unit,
     val openUrl: (String) -> Unit,
+    /** 通知の許可を頼む(Android 13 以上)。初回設定画面から使う。 */
+    val requestNotifications: () -> Unit = {},
 )
 
 @Composable
 fun AppRoot(vm: FmViewModel, hasAccess: Boolean, onRequestAccess: () -> Unit, actions: Actions) {
-    if (hasAccess) MainScreen(vm, actions) else PermissionScreen(onRequestAccess)
+    if (vm.onboarding) OnboardingScreen(vm, hasAccess, onRequestAccess, actions)
+    else if (hasAccess) MainScreen(vm, actions)
+    else PermissionScreen(onRequestAccess)
 }
 
 @Composable
@@ -131,6 +135,7 @@ private fun MainScreen(vm: FmViewModel, actions: Actions) {
     var pending by remember { mutableStateOf<Pending?>(null) }
 
     LaunchedEffect(Unit) { vm.messages.collect { snackbar.showSnackbar(it) } }
+    vm.backup.Dialogs()
     val appCtx = androidx.compose.ui.platform.LocalContext.current
     LaunchedEffect(Unit) {
         // 同じ記録のお知らせは 1 度だけ(出したら「見た」ことにする)。記録は「設定」の「異常終了の記録」で見られる
@@ -318,8 +323,10 @@ private fun BottomBar(vm: FmViewModel, actions: Actions, onPending: (Pending) ->
     val clip = vm.clip
     val incoming = vm.incoming
     val showIncoming = count == 0 && incoming != null
-    if (!showIncoming && count == 0 && (clip == null || vm.screen !is Screen.Dir || vm.searchQuery != null)) return
+    val pickBackup = count == 0 && !showIncoming && vm.pickBackup
+    if (!showIncoming && !pickBackup && count == 0 && (clip == null || vm.screen !is Screen.Dir || vm.searchQuery != null)) return
     val message = when {
+        pickBackup -> Txt(R.string.backup_pick_hint)
         showIncoming && incoming != null ->
             if (incoming.size > 1) Txt.n(R.plurals.hint_save_more, incoming.size - 1, incoming.first().name)
             else Txt(R.string.hint_save_one, incoming.first().name)
@@ -354,6 +361,8 @@ private fun BottomBar(vm: FmViewModel, actions: Actions, onPending: (Pending) ->
                     ActionButton(Icons.Default.MoreVert, Txt(R.string.screens_028), Modifier.fillMaxWidth()) { more = true }
                     MoreMenu(vm, more, { more = false }, actions, onPending)
                 }
+            } else if (pickBackup) {
+                ActionButton(Icons.Default.Close, Txt(R.string.screens_029), Modifier.weight(1f)) { vm.cancelPickBackup() }
             } else if (showIncoming) {
                 ActionButton(Icons.Default.Close, Txt(R.string.screens_029), Modifier.weight(1f)) { vm.cancelIncoming() }
                 ActionButton(Icons.Default.Save, Txt(R.string.screens_030), Modifier.weight(1f), enabled = vm.screen is Screen.Dir) { vm.saveIncoming() }

@@ -2047,4 +2047,90 @@
     <string name="sqlite_ui_018">Run</string>
     <string name="sqlite_ui_019">Close</string>
     <string name="sqlite_ui_020">(created automatically)</string>
+
+    <!-- Settings backup -->
+    <string name="settings_backup_group">Backup</string>
+    <string name="settings_backup_export">Export settings</string>
+    <string name="settings_backup_export_sub">Saves to a file. You can also encrypt it with a password</string>
+    <string name="settings_backup_import">Import settings</string>
+    <string name="settings_backup_import_sub">Tap an exported file (.filerbak) in the file screen to restore</string>
+    <string name="backup_export_title">Export settings</string>
+    <string name="backup_export_help">If you set a password, the file is strongly encrypted with it. If you forget the password, nobody can open the file.\nIf you do not set a password, the file is saved with simple encryption only (it opens without a password).</string>
+    <string name="backup_password">Password (optional; 8 characters or more)</string>
+    <string name="backup_password_repeat">Repeat the password</string>
+    <string name="backup_password_mismatch">The passwords do not match</string>
+    <string name="backup_no_password_note">Saved without a password. It has simple encryption only, so anyone who knows how this app works can read it</string>
+    <string name="backup_include_history">Include history and recent places</string>
+    <string name="backup_include_nas_passwords">Include NAS passwords</string>
+    <string name="backup_nas_plain_warning">Because this is simple encryption only, anyone who gets the file may be able to learn your NAS passwords</string>
+    <string name="backup_choose_place">Choose where to save</string>
+    <string name="backup_cancel">Cancel</string>
+    <string name="backup_working">Working…</string>
+    <string name="backup_export_failed">Could not export</string>
+    <string name="backup_import_title">Import settings</string>
+    <string name="backup_import_help">Enter the password you set when exporting</string>
+    <string name="backup_password_plain">Password</string>
+    <string name="backup_import_go">Open</string>
+    <string name="backup_pick_hint">Find the backup file (.filerbak) and tap it</string>
+    <string name="backup_err_password">The password is wrong or the file is damaged</string>
+    <string name="backup_err_not_backup">This is not a backup file of this app</string>
+    <string name="backup_err_too_new">This file was exported by a newer version of the app. Please update the app</string>
+    <string name="backup_err_too_big">The file is too large</string>
+    <string name="backup_err_bad">The contents of the backup are not valid</string>
+    <string name="backup_err_read">Could not read the file</string>
+    <string name="backup_preview_title">Contents to import</string>
+    <plurals name="backup_sum_settings">
+        <item quantity="one">%1$d setting</item>
+        <item quantity="other">%1$d settings</item>
+    </plurals>
+    <plurals name="backup_sum_bookmarks">
+        <item quantity="one">%1$d bookmark</item>
+        <item quantity="other">%1$d bookmarks</item>
+    </plurals>
+    <plurals name="backup_sum_pinned">
+        <item quantity="one">%1$d pinned place</item>
+        <item quantity="other">%1$d pinned places</item>
+    </plurals>
+    <plurals name="backup_sum_history">
+        <item quantity="one">%1$d history or recent place</item>
+        <item quantity="other">%1$d history and recent places</item>
+    </plurals>
+    <plurals name="backup_sum_remotes">
+        <item quantity="one">%1$d NAS connection</item>
+        <item quantity="other">%1$d NAS connections</item>
+    </plurals>
+    <string name="backup_sum_none">There is nothing to import</string>
+    <string name="backup_nas_no_password">This backup does not contain NAS passwords (for a connection that already exists, the current password is kept)</string>
+    <string name="backup_mode_merge">Add to what you have now</string>
+    <string name="backup_mode_merge_help">Bookmarks, pinned places and NAS connections are added to the current ones</string>
+    <string name="backup_mode_replace">Replace what you have now</string>
+    <string name="backup_mode_replace_help">Bookmarks, pinned places and NAS connections become only those in the backup</string>
+    <string name="backup_restart_note">The app restarts after importing</string>
+    <string name="backup_import_do">Import</string>
+    <string name="backup_imported">Imported. The app will restart</string>
+
+    <!-- First-run guide -->
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_back">Back</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_done">Done</string>
+    <string name="onboarding_welcome_title">Welcome to Filer</string>
+    <string name="onboarding_welcome_text">An ad-free file manager that handles your device and your NAS the same way. Let\'s set up a few things first. You can change them later in Settings</string>
+    <string name="onboarding_look_title">Choose how it looks</string>
+    <string name="onboarding_look_text">Your choice applies right away</string>
+    <string name="onboarding_access_title">Access to your files</string>
+    <string name="onboarding_access_text">To list, copy, move and delete files, the app needs the “Manage all files” permission. Turn it on for this app on the screen that opens</string>
+    <string name="onboarding_access_open">Open the permission screen</string>
+    <string name="onboarding_access_granted">Permission granted</string>
+    <string name="onboarding_access_needed">You can continue once it is allowed</string>
+    <string name="onboarding_notify_title">Notifications (optional)</string>
+    <string name="onboarding_notify_text">Shows the progress of copy and move, and playback controls for video and audio</string>
+    <string name="onboarding_notify_allow">Allow notifications</string>
+    <string name="onboarding_notify_granted">Notifications are allowed</string>
+    <string name="onboarding_nas_title">NAS and restoring a backup</string>
+    <string name="onboarding_nas_text">You can do both later in Settings. If you don\'t want to now, tap Done</string>
+    <string name="onboarding_nas_add">Add a NAS</string>
+    <string name="onboarding_nas_restore">Restore from a backup</string>
+    <string name="settings_onboarding_again">Run the first-time setup again</string>
+    <string name="settings_onboarding_again_sub">Shows the language, appearance and permission guide again</string>
 </resources>
