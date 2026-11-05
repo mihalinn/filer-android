@@ -1,5 +1,7 @@
 # ファイラー(Filer)
 
+**日本語** | [English](README.en.md)
+
 広告のない、Android 用のファイルマネージャーです。端末のファイルと NAS(SMB 共有)を、同じ操作で扱えます。
 
 - 動作環境: Android 11 以上(minSdk 30)、arm64 の端末
@@ -22,7 +24,7 @@
   - iPhone 系(plist・pkpass・iWork・ipa)・SQLite・フォント・連絡先(vCard)
 - **編集**: 文字のファイルの編集(検索・置換、文字コード・改行の指定)。CSV・TSV は、Excel のような表でセルを選んで編集できます
 - **見た目**: ホーム画面の並べ替え、ライト/ダーク配色、テーマカラー(藍・ティール・ワイン赤)
-- **言語**: 日本語と英語(初期は端末の言語に合わせます。設定の「言語」で、アプリの中から選べます)。ほかの言語の追加は、翻訳のファイル(`app/src/main/res/values-xx/strings.xml`)を足すだけでできます。詳しくは [CODEMAP.md](CODEMAP.md) の「画面に出す文字」を見てください
+- **言語**: 日本語と英語(初期は端末の言語に合わせます。設定の「言語」で、アプリの中から選べます)。ほかの言語は、下の「翻訳を足すには」のとおり、翻訳のファイルを足すだけで加えられます
 
 ## ビルド
 
@@ -37,8 +39,17 @@ echo "sdk.dir=/path/to/Android/sdk" > local.properties
 - 署名は debug 鍵です(自分で使うための設定です。配るときは自分の鍵に変えてください)
 - 単体テストは `./gradlew testDebugUnitTest` で実行します。実際の NAS を使う 2 本は、環境変数 `FILER_SMB_HOST` `FILER_SMB_SHARE` `FILER_SMB_USER` `FILER_SMB_PASS` が無いと飛ばします
 - 試験に使う見本ファイル(`app/src/test/resources`)は、出どころを確認できないため公開していません。これを使う試験は、手元に同じ形式のファイルを置かないと失敗します
-- コードの地図は [CODEMAP.md](CODEMAP.md) にあります
 
+## 翻訳を足すには
+
+画面に出す文字は、`app/src/main/res/values*/strings.xml` にあります。`values/` が英語(翻訳のない言語でも使います)、`values-ja/` が日本語です。
+
+1. `app/src/main/res/values/strings.xml` を `app/src/main/res/values-xx/strings.xml` にコピーして訳します(`xx` は言語の記号。例: `fr`・`ko`)。`%1$s` などの記号と、`\n`・`\'` の書き方は、そのままにします。件数で言い方が変わる文(`plurals`)は、その言語に必要な区分(one・few・many など)を書きます
+2. `app/src/main/res/xml/locales_config.xml` に `<locale android:name="xx" />` を足します
+3. `app/src/main/java/local/filemanager/app/Languages.kt` の `supported` に、その言語自身の書き方の名前を足します(例: `Lang("fr", "Français")`)
+4. `./gradlew testDebugUnitTest` を実行します。`StringsParityTest` が、足りない訳や記号の食い違いを見つけます
+
+訳のプルリクエストを歓迎します。
 ## 不具合・要望
 
 [Issues](https://github.com/mihalinn/filer-android/issues) で受け付けています。アプリの「設定」→「不具合・要望・記録」からも、バージョンや端末の情報を入れた状態で、報告のページを開けます。
@@ -46,6 +57,7 @@ echo "sdk.dir=/path/to/Android/sdk" > local.properties
 - 不具合: [報告する](https://github.com/mihalinn/filer-android/issues/new?template=bug_report.yml)
 - 要望: [送る](https://github.com/mihalinn/filer-android/issues/new?template=feature_request.yml)
 - 内容は誰でも読めます。パスワード、NAS の名前や IP アドレス、個人のファイル名は書かないでください
+
 ## ライセンス
 
 このアプリは **GNU GPL v3** で公開しています([LICENSE](LICENSE))。動画・音声の拡張に使っている [NextLib](https://github.com/anilbeesetti/nextlib)(GPL-3.0)に合わせたものです。
@@ -58,10 +70,4 @@ Copyright (C) 2026 mihalin
 
 ---
 
-## English (summary)
-
-**Filer** is an ad-free file manager for Android (arm64, Android 11+). It treats local storage and SMB shares (NAS) the same way, and previews many formats in-app (text, images, PDF, audio/video, Office, CAD/3D, archives, Apple formats, SQLite, fonts…).
-
-**Languages:** English and Japanese. The app follows the device language by default, and you can choose the language in the app under Settings → Language. Translations live in `app/src/main/res/values*/strings.xml`; to add a language, copy `values/strings.xml` to `values-xx/strings.xml`, translate it, and add the locale to `app/src/main/res/xml/locales_config.xml` and to `Languages.supported` in `app/Languages.kt` (see CODEMAP.md, in Japanese). Pull requests with translations are welcome.
-
-Build: JDK 17 and the Android SDK, then `./gradlew assembleRelease`. Licensed under GPL-3.0 (see `LICENSE` and `THIRD_PARTY.md`). No warranty.
+English: [README.en.md](README.en.md)

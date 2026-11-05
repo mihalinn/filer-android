@@ -18,3 +18,6 @@ Thumbs.db
 
 # 試験用の見本ファイルは公開しない(出どころを確認できないため)
 app/src/test/resources/
+
+# 作業用のコードの地図(公開しない)
+CODEMAP.md
